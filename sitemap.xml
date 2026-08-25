@@ -151,6 +151,17 @@
   <url><loc>https://nodoubters.com/days/2026-08-23/</loc><lastmod>2026-08-23</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://nodoubters.com/days/2026-08-24/</loc><lastmod>2026-08-24</lastmod><changefreq>hourly</changefreq><priority>0.9</priority></url>
   <url><loc>https://nodoubters.com/season/</loc><lastmod>2026-08-24</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nodoubters.com/season/2025/</loc><lastmod>2025-11-01</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/season/2024/</loc><lastmod>2024-10-30</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/season/2023/</loc><lastmod>2023-11-01</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/season/2022/</loc><lastmod>2022-11-05</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/season/2021/</loc><lastmod>2021-11-02</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/season/2020/</loc><lastmod>2020-10-27</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/season/2019/</loc><lastmod>2019-10-30</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/season/2018/</loc><lastmod>2018-10-28</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/season/2017/</loc><lastmod>2017-11-01</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/season/2016/</loc><lastmod>2016-11-02</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/season/2015/</loc><lastmod>2015-11-01</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/a-j-ewing-805999/</loc><lastmod>2026-07-08</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/aaron-judge-592450/</loc><lastmod>2026-05-24</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/abimelec-ortiz-694673/</loc><lastmod>2026-08-16</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
