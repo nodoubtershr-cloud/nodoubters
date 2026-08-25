@@ -26,6 +26,14 @@ from the MLB API (defaults to the last 3 days; pass two dates for a range). A Gi
 `season/` — plus `sitemap.xml`, and refreshes the text block on the homepage between the
 `prerender` markers. It runs in the daily Action after the data update. Don't hand-edit those folders.
 
+## Park data, victims, share pages, embed
+
+- `scripts/fill-parks.mjs <year>` joins Baseball Savant's per-homer park counts (`parks`, 0–30; `cat`) and
+  pitcher IDs into a season file. The daily Action runs it for recent homers; the backfill Action runs it per season.
+- The Victims tab is the same data shown by pitcher. `build-all.mjs` writes `data/all/pitchers/`.
+- `build-pages.mjs` writes `hr/<playId>/` share pages with preview tags for the current season and all-time lists.
+- `embed/` is the embeddable widget; `embed/get.html` explains it.
+
 ## Tweets
 
 `scripts/tweet-leader.mjs` posts to @nodoubters: the day's longest-HR leader once 5 homers are in,

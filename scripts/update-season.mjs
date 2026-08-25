@@ -68,9 +68,9 @@ async function gameHomeRuns(game, teams) {
     out.push({
       id: bip?.playId ?? `${pk}-${p.about.atBatIndex}`,
       date: game.officialDate ?? game.gameDate.slice(0, 10),
-      gamePk: pk, gt: game.gameType,
+      gamePk: pk, gt: game.gameType, venue: game.venue?.name ?? null, venueId: game.venue?.id ?? null,
       batter: p.matchup.batter.fullName, batterId: p.matchup.batter.id,
-      pitcher: p.matchup.pitcher.fullName,
+      pitcher: p.matchup.pitcher.fullName, pitcherId: p.matchup.pitcher.id,
       team: bat.name, teamAbbr: bat.abbr, against: pit.abbr,
       inning: p.about.inning, half: p.about.halfInning, rbi: p.result.rbi,
       gs: p.result.rbi === 4,
@@ -192,6 +192,7 @@ async function main() {
   for (const h of fresh) {
     const old = prior.get(h.id);
     if (old?.mp4 && !h.mp4) { h.mp4 = old.mp4; h.poster = old.poster; h.title = old.title; }
+    if (old?.parks != null && h.parks == null) { h.parks = old.parks; h.cat = old.cat; }
   }
   const byId = new Map([...kept, ...fresh].map(h => [h.id, h]));
   await fillMissingClips([...byId.values()]);

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>No Doubters — longest home runs today (embed)</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --night:#0f1b2b; --chalk:#f2efe6; --dim:#b9b6ad; --amber:#f5b342; --grass:#3c8a4a; --line:rgba(242,239,230,.12); }
+  html[data-theme="light"] { --night:#f7f5ef; --chalk:#0f1b2b; --dim:#5b6b7f; --line:rgba(15,27,43,.12); }
+  * { box-sizing: border-box; } html, body { margin: 0; }
+  body { background: var(--night); color: var(--chalk); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; padding: 12px 14px; }
+  a { color: inherit; text-decoration: none; }
+  .head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .brand { font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: 18px; letter-spacing: .03em; text-transform: uppercase; }
+  .brand span { color: var(--amber); }
+  .sub { margin-left: auto; color: var(--dim); font-size: 11px; }
+  .row { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; padding: 6px 0; border-top: 1px solid var(--line); }
+  .n { color: var(--dim); font-size: 11px; } .who { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .who small { font-family: "IBM Plex Mono", monospace; font-weight: 400; font-size: 11px; color: var(--dim); margin-left: 6px; }
+  .ft { font-weight: 500; white-space: nowrap; } .ft::before { content: ""; display: inline-block; height: 6px; width: var(--w); background: var(--grass); border-radius: 2px; margin-right: 8px; vertical-align: middle; }
+  .foot { margin-top: 8px; font-size: 11px; color: var(--dim); display: flex; justify-content: space-between; }
+  .foot a { color: var(--amber); }
+  .state { color: var(--dim); padding: 12px 0; }
+</style>
+</head>
+<body>
+<div class="head"><a class="brand" href="https://nodoubters.com/" target="_top">No <span>Doubters</span></a><span class="sub" id="sub"></span></div>
+<div id="list"><div class="state">Loading…</div></div>
+<div class="foot"><span id="count"></span><a href="https://nodoubters.com/" target="_top" id="more">Every homer, with the clip →</a></div>
+<script>
+// Embeddable widget: the longest home runs of the day, live from MLB. Options via the URL:
+//   ?n=5            how many rows (1–10)
+//   ?theme=light    light background
+//   ?team=LAD       only one team's homers
+//   ?date=2026-08-23  a specific day (default: today, falling back to yesterday before the first homer)
+const q = new URLSearchParams(location.search);
+const N = Math.min(10, Math.max(1, Number(q.get("n") || 5)));
+if (q.get("theme") === "light") document.documentElement.dataset.theme = "light";
+const TEAM = (q.get("team") || "").toUpperCase();
+const API = "https://statsapi.mlb.com/api";
+const pacific = d => d.toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" });
+const fmtDate = d => new Date(d + "T12:00:00").toLocaleDateString([], { month: "short", day: "numeric" });
+async function getJSON(u) { const r = await fetch(u); if (!r.ok) throw new Error(r.status); return r.json(); }
+async function homers(date) {
+  const s = await getJSON(`${API}/v1/schedule?sportId=1&date=${date}`);
+  const games = (s.dates?.[0]?.games ?? []).filter(g => g.status.abstractGameState !== "Preview");
+  const out = [];
+  await Promise.all(games.map(async g => {
+    const f = await getJSON(`${API}/v1.1/game/${g.gamePk}/feed/live`).catch(() => null); if (!f) return;
+    const t = f.gameData.teams;
+    for (const p of f.liveData.plays.allPlays) {
+      if (p.result?.eventType !== "home_run") continue;
+      const bip = [...p.playEvents].reverse().find(e => e.hitData); const top = p.about.halfInning === "top";
+      out.push({ id: bip?.playId, batter: p.matchup.batter.fullName, team: (top ? t.away : t.home).abbreviation, ft: bip?.hitData?.totalDistance ?? null, ev: bip?.hitData?.launchSpeed ?? null, date });
+    }
+  }));
+  return out;
+}
+(async () => {
+  try {
+    let date = q.get("date") || pacific(new Date()); let list = await homers(date);
+    if (!q.get("date") && !list.length) { const y = new Date(); y.setDate(y.getDate() - 1); date = pacific(y); list = await homers(date); }
+    if (TEAM) list = list.filter(h => h.team === TEAM);
+    list = list.filter(h => h.ft != null).sort((a, b) => b.ft - a.ft);
+    document.querySelector("#sub").textContent = `Longest HR · ${fmtDate(date)}`;
+    document.querySelector("#count").textContent = list.length ? `${list.length} HR${TEAM ? ` by ${TEAM}` : ""} on the day` : "";
+    document.querySelector("#more").href = `https://nodoubters.com/#d=${date}`;
+    document.querySelector("#list").innerHTML = list.length
+      ? list.slice(0, N).map((h, i) => `<a class="row" href="https://nodoubters.com/#d=${h.date}&hr=${h.id}" target="_top"><span class="n">${i + 1}</span><span class="who">${h.batter}<small>${h.team}</small></span><span class="ft" style="--w:${Math.max(6, (h.ft - 300) / 2)}px">${h.ft} ft</span></a>`).join("")
+      : `<div class="state">No home runs${TEAM ? ` by ${TEAM}` : ""} yet today.</div>`;
+  } catch (e) { document.querySelector("#list").innerHTML = `<div class="state">Couldn't reach MLB right now.</div>`; }
+})();
+</script>
+</body>
+</html>

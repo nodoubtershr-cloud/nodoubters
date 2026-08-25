@@ -41,5 +41,18 @@ for (const [id, list] of Object.entries(players)) {
   await writeFile(`data/all/players/${id}.json`, JSON.stringify({ id: Number(id), name, homeRuns: list }));
 }
 index.sort((a, b) => b.n - a.n);
-await writeFile("data/all/players.json", JSON.stringify({ from: years[0], to: years.at(-1), players: index }));
-console.log(`all-seasons: ${all.length} HR across ${years[0]}–${years.at(-1)}, ${index.length} players, top ${Math.min(500, ranked.length)} written`);
+
+// pitchers ("victims" view) — only homers that carry a pitcher ID
+const pitchers = {};
+for (const h of all) if (h.pitcherId) (pitchers[h.pitcherId] ||= []).push(h);
+const pindex = [];
+await mkdir("data/all/pitchers", { recursive: true });
+for (const [id, list] of Object.entries(pitchers)) {
+  list.sort((a, b) => (b.time ?? b.date).localeCompare(a.time ?? a.date));
+  const longest = [...list].sort(byDist)[0];
+  pindex.push({ id: Number(id), name: list[0].pitcher, n: list.length, longest: longest?.distance ?? null, seasons: [...new Set(list.map(h => h.season))].sort(), team: list[0].against });
+  await writeFile(`data/all/pitchers/${id}.json`, JSON.stringify({ id: Number(id), name: list[0].pitcher, homeRuns: list }));
+}
+pindex.sort((a, b) => b.n - a.n);
+await writeFile("data/all/players.json", JSON.stringify({ from: years[0], to: years.at(-1), players: index, pitchers: pindex }));
+console.log(`all-seasons: ${all.length} HR across ${years[0]}–${years.at(-1)}, ${index.length} players, ${pindex.length} pitchers, top ${Math.min(500, ranked.length)} written`);

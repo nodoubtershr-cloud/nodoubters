@@ -186,6 +186,31 @@ await write("teams/index.html", layout({
   body: `<table><thead><tr><th></th><th>Team</th><th>HR</th><th>Longest</th></tr></thead><tbody>${teamList.map((t, i) => `<tr><td class="n">${i + 1}</td><td><a href="/teams/${t.abbr.toLowerCase()}/">${esc(t.name)}</a></td><td class="d">${t.n}</td><td class="d">${ft(t.longest)} <span class="meta">${esc(t.longest.batter)}</span></td></tr>`).join("")}</tbody></table>` }));
 urls.push({ loc: "/teams/", lastmod: dates.at(-1), changefreq: "daily", priority: "0.5" });
 
+// ---------- share pages: one tiny page per homer with preview tags, then a redirect to the board ----------
+// Current season plus the all-time lists. Crawlers (iMessage, X, Slack) read the tags; people get redirected.
+{
+  let allTop = { homeRuns: [], postseason: [] };
+  try { allTop = JSON.parse(await readFile("data/all/top.json", "utf8")); } catch {}
+  const set = new Map(); for (const h of [...HR, ...allTop.homeRuns, ...(allTop.postseason ?? [])]) if (h.id) set.set(h.id, h);
+  let n = 0;
+  for (const h of set.values()) {
+    const bits = [ft(h), h.ev ? `${h.ev} mph` : null, h.wo && h.gs ? "walk-off grand slam" : h.wo ? "walk-off" : h.gs ? "grand slam" : null, h.parks === 30 ? "no doubter (30/30 parks)" : null].filter(Boolean).join(" · ");
+    const title = `${h.batter} — ${ft(h)} home run${h.wo ? " walk-off" : ""}`;
+    const desc = `${bits} off ${esc(h.pitcher)}, ${longDate(h.date)}${h.venue ? ` at ${esc(h.venue)}` : ""}. Watch the highlight on No Doubters.`;
+    const target = `/#d=${h.date}&hr=${h.id}`;
+    await write(`hr/${h.id}/index.html`, `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(title)} | No Doubters</title>
+<meta name="description" content="${esc(desc)}"><link rel="canonical" href="${SITE}${target}"><meta name="robots" content="noindex">
+<meta property="og:type" content="video.other"><meta property="og:site_name" content="No Doubters"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">
+<meta property="og:url" content="${SITE}/hr/${h.id}/"><meta property="og:image" content="${h.poster ?? SITE + "/og-image.png"}">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@nodoubters">
+<meta http-equiv="refresh" content="0;url=${target}"><script>location.replace(${JSON.stringify(target)})</script>
+<style>body{background:#0f1b2b;color:#f2efe6;font-family:system-ui;padding:40px}a{color:#f5b342}</style></head>
+<body><p>${esc(title)}. <a href="${target}">Watch on No Doubters →</a></p></body></html>`);
+    n++;
+  }
+  console.log(`share pages: ${n}`);
+}
+
 // ---------- sitemap ----------
 urls.unshift({ loc: "/", lastmod: dates.at(-1), changefreq: "hourly", priority: "1.0" });
 await writeFile("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>${SITE}${u.loc}</loc><lastmod>${u.lastmod}</lastmod><changefreq>${u.changefreq}</changefreq><priority>${u.priority}</priority></url>`).join("\n")}\n</urlset>\n`);
