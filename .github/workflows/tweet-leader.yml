@@ -1,0 +1,49 @@
+name: Tweet longest HR of the day
+
+on:
+  schedule:
+    - cron: "*/15 20-23,0-9 * * *"   # every 15 min from 1pm to 2:45am Pacific (games in progress)
+    - cron: "30 15 * * *"            # 8:30am Pacific: yesterday's recap
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "live, recap, or dry (prints instead of posting)"
+        default: dry
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tweets
+  cancel-in-progress: false
+
+jobs:
+  tweet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Decide what to run
+        id: pick
+        run: |
+          MODE="${{ github.event.inputs.mode }}"
+          if [ -z "$MODE" ]; then
+            if [ "${{ github.event.schedule }}" = "30 15 * * *" ]; then MODE=recap; else MODE=live; fi
+          fi
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+      - name: Run
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          DRY_RUN: ${{ steps.pick.outputs.mode == 'dry' && '1' || '' }}
+        run: node scripts/tweet-leader.mjs ${{ steps.pick.outputs.mode == 'dry' && 'live' || steps.pick.outputs.mode }}
+      - name: Save state
+        run: |
+          git config user.name "nodoubters-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/tweet-state.json
+          git diff --cached --quiet || (git commit -m "Tweet state" && git pull --rebase && git push)
