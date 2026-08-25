@@ -84,6 +84,7 @@
 
   .controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
   .controls .label { font-family: var(--display); text-transform: uppercase; letter-spacing: .12em; font-size: 13px; color: var(--chalk-dim); margin-right: 4px; }
+  .sorts { display: contents; }
   .sort {
     background: transparent; color: var(--chalk-dim); border: 1px solid var(--line); border-radius: 999px;
     height: 32px; padding: 0 14px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
@@ -201,6 +202,12 @@
 
   @media (max-width: 720px) {
     header { position: static; }
+    .controls .label { display: none; }
+    .sorts { display: flex; flex-wrap: nowrap; gap: 6px; width: 100%; }
+    .sort { flex: 1 1 0; justify-content: center; padding: 0 6px; font-size: 12.5px; height: 30px; gap: 4px; white-space: nowrap; min-width: 0; }
+    .sort .dir { font-size: 10px; }
+    .sort[data-key="time"] .lbl.short { font-size: 0; }
+    .sort[data-key="time"] .lbl.short::before { content: "Time"; font-size: 12.5px; }
     .scale { display: none; }
     .hr { grid-template-columns: 1fr; gap: 6px; }
     .track { height: 36px; }
@@ -238,11 +245,13 @@
   </div>
   <div class="controls">
     <span class="label">Sort</span>
-    <button class="sort" data-key="distance">Distance <span class="dir"></span></button>
-    <button class="sort" data-key="time"><span class="lbl">Time hit</span> <span class="dir"></span></button>
-    <button class="sort" data-key="team">Team <span class="dir"></span></button>
-    <button class="sort" data-key="player">Player <span class="dir"></span></button>
-    <input class="filter" id="filter" type="search" placeholder="Filter by player or team…">
+    <div class="sorts">
+      <button class="sort" data-key="distance">Distance <span class="dir"></span></button>
+      <button class="sort" data-key="time"><span class="lbl">Time hit</span> <span class="dir"></span></button>
+      <button class="sort" data-key="team">Team <span class="dir"></span></button>
+      <button class="sort" data-key="player">Player <span class="dir"></span></button>
+    </div>
+    <input class="filter" id="filter" type="search" placeholder="Player, team, or both — e.g. kemp dodgers">
     <button class="mine" id="mine" aria-pressed="false" title="Only players you've starred">★ Mine</button>
     <button class="share" id="share" title="Copy a link that carries your starred players">Share list</button>
     <a class="support" href="https://buymeacoffee.com/nodoubters" target="_blank" rel="noopener" title="Support No Doubters">☕ <span>Support</span></a>
@@ -370,12 +379,28 @@ function distBadge(ft) {
 function countBadge(nth) { return nth >= 2 ? COUNT_BADGES[Math.min(nth, 5)] : ""; }
 // Number each batter's homers within a game-day, in the order they were hit.
 function tagNth(list) {
+  learnTeams(list);
   for (const h of list) if (favs.has(String(h.batterId)) && favs.get(String(h.batterId)).startsWith("Player ")) { favs.set(String(h.batterId), h.batter); saveFavs(); }
   const groups = {};
   for (const h of list) (groups[`${h.date ?? ""}|${h.batterId}`] ||= []).push(h);
   for (const g of Object.values(groups)) g.sort((a, b) => (a.time ?? "").localeCompare(b.time ?? "")).forEach((h, i) => h.nth = i + 1);
   return list;
 }
+
+// ============================================================
+// Search: every word must match the batter, his team, or the opponent.
+// "matt kemp dodgers" = Kemp homers for or against the Dodgers; "kemp padres" narrows to those years.
+// ============================================================
+const TEAM_NAMES = {};                                   // abbr -> full name, learned from the data
+function learnTeams(list) { for (const h of list) if (h.teamAbbr && h.team) TEAM_NAMES[h.teamAbbr] = h.team; }
+const norm = s => (s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const words = q => norm(q).split(/\s+/).filter(Boolean);
+function rowMatches(h, toks) {
+  if (!toks.length) return true;
+  const hay = [h.batter, h.team, h.teamAbbr, h.against, TEAM_NAMES[h.against]].map(norm);
+  return toks.every(t => hay.some(f => f.includes(t)));
+}
+function isTeamWord(t) { return Object.entries(TEAM_NAMES).some(([abbr, name]) => norm(abbr).includes(t) || norm(name).includes(t)); }
 
 // ============================================================
 // Favorites (stored in this browser; shareable via #mine=)
@@ -452,9 +477,10 @@ function render() {
   const q = filterEl.value.trim().toLowerCase();
   const isSeason = mode === "season";
   const source = isSeason ? (season?.homeRuns ?? []) : data.homeRuns;
-  document.querySelector('.sort[data-key="time"] .lbl').textContent = isSeason ? "Date" : "Time hit";
-  let rows = (isSeason && season?.all && season.players) ? [...source]
-    : source.filter(h => !q || h.batter.toLowerCase().includes(q) || h.team.toLowerCase().includes(q) || h.teamAbbr.toLowerCase().includes(q));
+  const tl = document.querySelector('.sort[data-key="time"] .lbl'); tl.textContent = isSeason ? "Date" : "Time hit"; tl.classList.toggle("short", !isSeason);
+  const toks = words(q);
+  let rows = (isSeason && season?.all && season.players) ? source.filter(h => rowMatches(h, toks))
+    : source.filter(h => rowMatches(h, toks));
   if (mineOnly) rows = rows.filter(h => favs.has(String(h.batterId)));
   document.querySelector("#mine").setAttribute("aria-pressed", mineOnly);
   document.querySelector("#share").style.display = favs.size ? "inline-block" : "none";
@@ -641,6 +667,7 @@ async function loadAll() {
       const [t, i] = await Promise.all([fetch("data/all/top.json", { cache: "no-cache" }), fetch("data/all/players.json", { cache: "no-cache" })]);
       if (!t.ok || !i.ok) throw new Error(`${t.status}/${i.status}`);
       allTop = await t.json(); allIndex = await i.json();
+      learnTeams(allTop.homeRuns);
       for (const h of allTop.homeRuns) h.nth = 1;
     }
     await applyAllFilter();
@@ -649,8 +676,10 @@ async function loadAll() {
   }
 }
 async function applyAllFilter() {
-  const q = filterEl.value.trim().toLowerCase();
-  const matches = q.length >= 2 ? allIndex.players.filter(p => p.name.toLowerCase().includes(q)).slice(0, 5) : [];
+  const toks = words(filterEl.value);
+  const nameToks = toks.filter(t => !isTeamWord(t) || allIndex.players.some(p => norm(p.name).includes(t)));
+  const matches = nameToks.length && nameToks.join("").length >= 2
+    ? allIndex.players.filter(p => nameToks.every(t => norm(p.name).includes(t))).slice(0, 5) : [];
   if (matches.length) {
     await Promise.all(matches.map(async p => { if (!playerCache[p.id]) { const r = await fetch(`data/all/players/${p.id}.json`); if (r.ok) { const d = await r.json(); tagNth(d.homeRuns); playerCache[p.id] = d.homeRuns; } } }));
     season = { season: `${allTop.from}–${allTop.to}`, all: true, players: matches, homeRuns: matches.flatMap(p => playerCache[p.id] ?? []) };
@@ -758,7 +787,7 @@ listEl.addEventListener("click", e => {
 listEl.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.classList.contains("hr")) e.target.click();
 });
-document.querySelector("#year").addEventListener("change", e => { seasonYear = e.target.value === "all" ? "all" : Number(e.target.value); openId = null; shown = PAGE; history.replaceState(null, "", `#season=${seasonYear}`); filterEl.placeholder = seasonYear === "all" ? "Type a player's name…" : "Filter by player or team…"; loadSeason(); });
+document.querySelector("#year").addEventListener("change", e => { seasonYear = e.target.value === "all" ? "all" : Number(e.target.value); openId = null; shown = PAGE; history.replaceState(null, "", `#season=${seasonYear}`); filterEl.placeholder = seasonYear === "all" ? "Player name, optionally a team — e.g. kemp dodgers" : "Player, team, or both — e.g. kemp dodgers"; loadSeason(); });
 document.querySelector("#mine").addEventListener("click", () => { mineOnly = !mineOnly; shown = PAGE; render(); });
 document.querySelector("#share").addEventListener("click", async () => {
   const url = `${location.origin}${location.pathname}#mine=${[...favs.keys()].join(",")}`;
