@@ -55,6 +55,13 @@
   }
   .date-nav input { color-scheme: dark; cursor: text; }
   .date-nav button:hover { border-color: var(--amber); }
+  .mode { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .mode button { background: transparent; color: var(--chalk-dim); border: 0; height: 34px; padding: 0 14px; font-family: var(--display); font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; cursor: pointer; }
+  .mode button[aria-pressed="true"] { background: var(--chalk); color: var(--night); }
+  .rank { font-family: var(--mono); font-size: 13px; color: var(--chalk-dim); width: 34px; flex: none; text-align: right; }
+  .rank.top { color: var(--amber); font-weight: 500; }
+  .more { display: block; margin: 20px auto 0; background: transparent; color: var(--chalk); border: 1px solid var(--line); border-radius: 999px; height: 40px; padding: 0 22px; font-size: 14px; cursor: pointer; }
+  .more:hover { border-color: var(--amber); }
   .summary { margin-left: auto; font-family: var(--mono); font-size: 13px; color: var(--chalk-dim); }
   .summary b { color: var(--chalk); font-weight: 500; }
 
@@ -76,7 +83,7 @@
 
   /* ---------- the distance scale (signature) ---------- */
   .scale {
-    display: grid; grid-template-columns: 300px 1fr; gap: 16px; padding: 4px 24px 6px;
+    display: grid; grid-template-columns: 380px 1fr; gap: 16px; padding: 4px 24px 6px;
     font-family: var(--mono); font-size: 11px; color: var(--chalk-dim);
   }
   .scale .ticks { position: relative; height: 18px; margin-right: 96px; }
@@ -86,7 +93,7 @@
   /* ---------- list ---------- */
   main { padding: 0 24px 80px; }
   .hr {
-    display: grid; grid-template-columns: 300px 1fr; gap: 16px; align-items: center;
+    display: grid; grid-template-columns: 380px 1fr; gap: 16px; align-items: center;
     padding: 12px 0; border-top: 1px solid var(--line); cursor: pointer;
   }
   .hr:hover .who { color: var(--amber); }
@@ -124,12 +131,43 @@
   .player .caption a { color: var(--chalk-dim); }
   .player .caption a:hover { color: var(--amber); }
 
+  /* ---------- badges ---------- */
+  .who-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+  .badge { flex: none; display: block; overflow: visible; }
+  .badge .bt { font-family: var(--mono); font-size: 11px; font-weight: 500; text-anchor: middle; dominant-baseline: central; }
+  .badge .bc { font-family: var(--display); font-size: 12.5px; font-weight: 800; letter-spacing: .8px; dominant-baseline: central; }
+  .badge.count { animation: pulse 2.6s ease-in-out infinite; transform-origin: center; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.045); } }
+  @media (prefers-reduced-motion: reduce) { .badge.count { animation: none; } }
+
+  /* ---------- favorites ---------- */
+  .fav { background: none; border: 0; color: var(--chalk-dim); font-size: 20px; line-height: 1; cursor: pointer; padding: 6px; margin: -6px 0 -6px -6px; flex: none; opacity: .55; }
+  .fav:hover { opacity: 1; }
+  .fav.on { color: var(--amber); opacity: 1; }
+  .mine { background: transparent; color: var(--chalk-dim); border: 1px solid var(--line); border-radius: 999px; height: 32px; padding: 0 14px; font-size: 13px; cursor: pointer; }
+  .mine[aria-pressed="true"] { background: var(--amber); color: var(--night); border-color: var(--amber); font-weight: 600; }
+  .share { background: transparent; color: var(--chalk-dim); border: 1px solid var(--line); border-radius: 999px; height: 32px; padding: 0 14px; font-size: 13px; cursor: pointer; display: none; }
+  .share:hover { color: var(--chalk); }
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: var(--chalk); color: var(--night); padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 20; }
+  .toast.show { opacity: 1; }
+
+  /* ---------- notice, support, footer ---------- */
+  .notice { margin: 10px 24px 0; padding: 8px 12px; border: 1px solid var(--line); border-left: 3px solid var(--amber); border-radius: 6px; font-family: var(--mono); font-size: 12px; color: var(--chalk-dim); display: none; }
+  .notice.show { display: block; }
+  .notice b { color: var(--chalk); font-weight: 500; }
+  .support { font-family: var(--mono); font-size: 13px; color: var(--chalk-dim); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .support:hover { color: var(--amber); border-color: var(--amber); }
+  footer { padding: 28px 24px 40px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12px; color: var(--chalk-dim); line-height: 1.7; }
+  footer a { color: var(--chalk-dim); }
+  footer a:hover { color: var(--amber); }
+
   /* ---------- states ---------- */
   .state { padding: 60px 0; text-align: center; font-family: var(--display); font-size: 28px; color: var(--chalk-dim); }
   .state small { display: block; font-family: var(--body); font-size: 14px; margin-top: 8px; }
   .state.error { color: var(--dirt); }
 
   @media (max-width: 720px) {
+    header { position: static; }
     .scale { display: none; }
     .hr { grid-template-columns: 1fr; gap: 6px; }
     .track { height: 36px; }
@@ -139,6 +177,8 @@
     .lane { right: 0; }
     .masthead h1 { font-size: 36px; }
     .filter { margin-left: 0; width: 100%; }
+    .support span { display: none; }
+    .rank { width: 24px; }
   }
   @media (prefers-reduced-motion: reduce) { .bar, .ft { transition: none; } }
 </style>
@@ -148,6 +188,10 @@
 <header>
   <div class="masthead">
     <a class="brand" href="./" aria-label="No Doubters home"><img class="mark" src="logo-mark.svg" alt="" width="44" height="46"><h1>No <span>Doubters</span></h1></a>
+    <div class="mode" role="group" aria-label="View">
+      <button id="mode-today" aria-pressed="true">Today</button>
+      <button id="mode-season" aria-pressed="false">Season</button>
+    </div>
     <div class="date-nav">
       <button id="prev" aria-label="Previous day">‹</button>
       <input type="date" id="date">
@@ -159,15 +203,24 @@
   <div class="controls">
     <span class="label">Sort</span>
     <button class="sort" data-key="distance">Distance <span class="dir"></span></button>
-    <button class="sort" data-key="time">Time hit <span class="dir"></span></button>
+    <button class="sort" data-key="time"><span class="lbl">Time hit</span> <span class="dir"></span></button>
     <button class="sort" data-key="team">Team <span class="dir"></span></button>
     <button class="sort" data-key="player">Player <span class="dir"></span></button>
     <input class="filter" id="filter" type="search" placeholder="Filter by player or team…">
+    <button class="mine" id="mine" aria-pressed="false" title="Only players you've starred">★ Mine</button>
+    <button class="share" id="share" title="Copy a link that carries your starred players">Share list</button>
+    <a class="support" href="https://buymeacoffee.com/nodoubters" target="_blank" rel="noopener" title="Support No Doubters">☕ <span>Support</span></a>
   </div>
+  <div class="notice" id="notice"></div>
 </header>
 
 <div class="scale" id="scale"><div></div><div class="ticks" id="ticks"></div></div>
 <main id="list"></main>
+<footer>
+  Independent fan project, not affiliated with Major League Baseball. Video, data, and player images are MLB property.<br>
+  If this is useful to you, <a href="https://buymeacoffee.com/nodoubters" target="_blank" rel="noopener">buy me a coffee ☕</a>
+</footer>
+<div class="toast" id="toast"></div>
 
 <script>
 // ============================================================
@@ -242,6 +295,8 @@ async function fetchGameHomeRuns(game) {
       title: clip?.title ?? null,
       mp4, poster,
       savant: bip?.playId ? `https://baseballsavant.mlb.com/sporty-videos?playId=${bip.playId}` : null,
+      id: bip?.playId ?? null,
+      date: game.officialDate ?? game.gameDate?.slice(0, 10) ?? null,
       live: state === "Live",
     });
   }
@@ -249,14 +304,53 @@ async function fetchGameHomeRuns(game) {
 }
 
 // ============================================================
+// Badges (generated SVG)
+// ============================================================
+const DIST_BADGES = {"400": "<svg class=\"badge dist\" viewBox=\"0 0 36 20\" width=\"36\" height=\"20\" role=\"img\" aria-label=\"400-plus foot home run\"><title>400+ ft</title><rect x=\".75\" y=\".75\" width=\"34.5\" height=\"18.5\" rx=\"4\" fill=\"none\" stroke=\"#5b6b7f\" stroke-width=\"1.5\"/><text x=\"18.0\" y=\"10.5\" class=\"bt\" fill=\"#8fa0b5\">400</text></svg>", "425": "<svg class=\"badge dist\" viewBox=\"0 0 50 20\" width=\"50\" height=\"20\" role=\"img\" aria-label=\"425-plus foot home run\"><title>425+ ft</title><rect width=\"50\" height=\"20\" rx=\"4\" fill=\"#3b82c4\"/><g transform=\"translate(11,10.0)\"><path d=\"M0,-6.5 C3.2,-3.2 5.4,0 4.4,3.2 C3.4,6.4 -3.4,6.4 -4.4,3.2 C-5.4,0 -2.2,-1.2 -1.2,-3.4 C-1.2,-1.2 1,0 1,-1.2 C2.2,-3.4 1.2,-5.4 0,-6.5 Z\" fill=\"#0f1b2b\"/></g><text x=\"32\" y=\"10.5\" class=\"bt\" fill=\"#0f1b2b\" font-weight=\"600\">425</text></svg>", "450": "<svg class=\"badge dist\" viewBox=\"0 0 50 20\" width=\"50\" height=\"20\" role=\"img\" aria-label=\"450-plus foot home run\"><title>450+ ft</title><rect width=\"50\" height=\"20\" rx=\"4\" fill=\"#22b8cf\"/><g transform=\"translate(11,10.0)\"><circle r=\"6.5\" fill=\"#0f1b2b\"/><circle cx=\"-2.2\" cy=\"-1.8\" r=\"1.7\" fill=\"#22b8cf\" opacity=\".85\"/><circle cx=\"2.4\" cy=\"1.2\" r=\"1.3\" fill=\"#22b8cf\" opacity=\".85\"/><circle cx=\"-0.6\" cy=\"3.0\" r=\"0.9\" fill=\"#22b8cf\" opacity=\".85\"/><circle cx=\"2.6\" cy=\"-3.0\" r=\"0.8\" fill=\"#22b8cf\" opacity=\".85\"/></g><text x=\"32\" y=\"10.5\" class=\"bt\" fill=\"#0f1b2b\" font-weight=\"600\">450</text></svg>", "475": "<svg class=\"badge dist\" viewBox=\"0 0 50 20\" width=\"50\" height=\"20\" role=\"img\" aria-label=\"475-plus foot home run\"><title>475+ ft</title><rect x=\"-2\" y=\"-2\" width=\"54\" height=\"24\" rx=\"6\" fill=\"#ffffff\" opacity=\".25\"/><rect width=\"50\" height=\"20\" rx=\"4\" fill=\"#dfe9f3\"/><g transform=\"translate(11,10.0)\"><circle r=\"4.2\" fill=\"#0f1b2b\"/><ellipse rx=\"8.4\" ry=\"2.6\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.5\" transform=\"rotate(-22)\"/></g><text x=\"32\" y=\"10.5\" class=\"bt\" fill=\"#0f1b2b\" font-weight=\"600\">475</text></svg>", "500": "<svg class=\"badge dist\" viewBox=\"0 0 50 20\" width=\"50\" height=\"20\" role=\"img\" aria-label=\"500-plus foot home run\"><title>500+ ft</title><rect x=\"-2\" y=\"-2\" width=\"54\" height=\"24\" rx=\"6\" fill=\"#ffe9b0\" opacity=\".25\"/><line x1=\"25.0\" y1=\"-3.0\" x2=\"25.0\" y2=\"-7.0\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"30.6\" y1=\"-1.7\" x2=\"32.4\" y2=\"-5.3\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"35.2\" y1=\"1.9\" x2=\"38.3\" y2=\"-0.6\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"37.7\" y1=\"7.1\" x2=\"41.6\" y2=\"6.2\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"37.7\" y1=\"12.9\" x2=\"41.6\" y2=\"13.8\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"35.2\" y1=\"18.1\" x2=\"38.3\" y2=\"20.6\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"30.6\" y1=\"21.7\" x2=\"32.4\" y2=\"25.3\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"25.0\" y1=\"23.0\" x2=\"25.0\" y2=\"27.0\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"19.4\" y1=\"21.7\" x2=\"17.6\" y2=\"25.3\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"14.8\" y1=\"18.1\" x2=\"11.7\" y2=\"20.6\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"12.3\" y1=\"12.9\" x2=\"8.4\" y2=\"13.8\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"12.3\" y1=\"7.1\" x2=\"8.4\" y2=\"6.2\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"14.8\" y1=\"1.9\" x2=\"11.7\" y2=\"-0.6\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"19.4\" y1=\"-1.7\" x2=\"17.6\" y2=\"-5.3\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><rect width=\"50\" height=\"20\" rx=\"4\" fill=\"#f5b342\"/><g transform=\"translate(11,10.0)\"><polygon points=\"0.0,-7.0 1.8,-2.4 6.7,-2.2 2.9,0.9 4.1,5.7 0.0,3.0 -4.1,5.7 -2.9,0.9 -6.7,-2.2 -1.8,-2.4\" fill=\"#0f1b2b\"/></g><text x=\"32\" y=\"10.5\" class=\"bt\" fill=\"#0f1b2b\" font-weight=\"600\">500</text></svg>"};
+const COUNT_BADGES = {"2": "<svg class=\"badge count c2\" viewBox=\"0 0 108 26\" width=\"108\" height=\"26\" role=\"img\" aria-label=\"2ND home run today\"><title>2ND home run today</title><defs><filter id=\"cg2\" x=\"-40%\" y=\"-80%\" width=\"180%\" height=\"260%\"><feGaussianBlur stdDeviation=\"2.6\"/></filter><linearGradient id=\"cf2\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffe08a\"/><stop offset=\".45\" stop-color=\"#f5b342\"/><stop offset=\"1\" stop-color=\"#c98a1a\"/></linearGradient></defs><rect x=\"-4\" y=\"-4\" width=\"116\" height=\"34\" rx=\"16\" fill=\"#ffe08a\" opacity=\".5\" filter=\"url(#cg2)\"/><rect x=\"-2\" y=\"-2\" width=\"112\" height=\"30\" rx=\"15\" fill=\"none\" stroke=\"#ffe08a\" stroke-width=\"1.2\" opacity=\".95\"/><rect width=\"108\" height=\"26\" rx=\"13\" fill=\"url(#cf2)\"/><rect x=\"2\" y=\"1.5\" width=\"104\" height=\"11.0\" rx=\"11\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"13\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M10.14,9.1 Q13,13.0 10.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M15.86,9.1 Q13,13.0 15.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><polygon points=\"28.00,6.80 29.64,10.74 33.90,11.08 30.65,13.86 31.64,18.02 28.00,15.79 24.36,18.02 25.35,13.86 22.10,11.08 26.36,10.74\" fill=\"#f2efe6\"/><line x1=\"40\" y1=\"6\" x2=\"40\" y2=\"20\" stroke=\"#0f1b2b\" stroke-width=\"1\" opacity=\".35\"/><text x=\"46\" y=\"13.5\" class=\"bc\" fill=\"#0f1b2b\">2ND TODAY</text></svg>", "3": "<svg class=\"badge count c3\" viewBox=\"0 0 123 26\" width=\"123\" height=\"26\" role=\"img\" aria-label=\"3RD home run today\"><title>3RD home run today</title><defs><filter id=\"cg3\" x=\"-40%\" y=\"-80%\" width=\"180%\" height=\"260%\"><feGaussianBlur stdDeviation=\"2.6\"/></filter><linearGradient id=\"cf3\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffb090\"/><stop offset=\".45\" stop-color=\"#ff6b35\"/><stop offset=\"1\" stop-color=\"#d24a18\"/></linearGradient></defs><rect x=\"-4\" y=\"-4\" width=\"131\" height=\"34\" rx=\"16\" fill=\"#ffb090\" opacity=\".5\" filter=\"url(#cg3)\"/><rect x=\"-2\" y=\"-2\" width=\"127\" height=\"30\" rx=\"15\" fill=\"none\" stroke=\"#ffb090\" stroke-width=\"1.2\" opacity=\".95\"/><line x1=\"-4\" y1=\"-2\" x2=\"-8\" y2=\"-7\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-4\" y1=\"28\" x2=\"-8\" y2=\"33\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"127\" y1=\"-2\" x2=\"131\" y2=\"-7\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"127\" y1=\"28\" x2=\"131\" y2=\"33\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"45.5\" y1=\"-4\" x2=\"43.5\" y2=\"-9\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"77.5\" y1=\"-4\" x2=\"79.5\" y2=\"-9\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><rect width=\"123\" height=\"26\" rx=\"13\" fill=\"url(#cf3)\"/><rect x=\"2\" y=\"1.5\" width=\"119\" height=\"11.0\" rx=\"11\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"13\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M10.14,9.1 Q13,13.0 10.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M15.86,9.1 Q13,13.0 15.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"28\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M25.14,9.1 Q28,13.0 25.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M30.86,9.1 Q28,13.0 30.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><g transform=\"translate(43,13.0) scale(0.95) rotate(45)\"><path d=\"M0,-7 C3,-4 3,2 2,4 L-2,4 C-3,2 -3,-4 0,-7 Z\" fill=\"#f2efe6\"/><path d=\"M-2,2 L-4.5,5 L-2,4.5 Z M2,2 L4.5,5 L2,4.5 Z\" fill=\"#f2efe6\"/><circle cx=\"0\" cy=\"-2\" r=\"1.3\" fill=\"#0f1b2b\"/><path d=\"M-1,5 L0,8 L1,5 Z\" fill=\"#0f1b2b\" opacity=\".7\"/></g><line x1=\"55\" y1=\"6\" x2=\"55\" y2=\"20\" stroke=\"#0f1b2b\" stroke-width=\"1\" opacity=\".35\"/><text x=\"61\" y=\"13.5\" class=\"bc\" fill=\"#0f1b2b\">3RD TODAY</text></svg>", "4": "<svg class=\"badge count c4\" viewBox=\"0 0 138 26\" width=\"138\" height=\"26\" role=\"img\" aria-label=\"4TH home run today\"><title>4TH home run today</title><defs><filter id=\"cg4\" x=\"-40%\" y=\"-80%\" width=\"180%\" height=\"260%\"><feGaussianBlur stdDeviation=\"2.6\"/></filter><linearGradient id=\"cf4\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffa0c8\"/><stop offset=\".45\" stop-color=\"#ff3d8e\"/><stop offset=\"1\" stop-color=\"#c81f66\"/></linearGradient></defs><rect x=\"-4\" y=\"-4\" width=\"146\" height=\"34\" rx=\"16\" fill=\"#ffa0c8\" opacity=\".5\" filter=\"url(#cg4)\"/><rect x=\"-2\" y=\"-2\" width=\"142\" height=\"30\" rx=\"15\" fill=\"none\" stroke=\"#ffa0c8\" stroke-width=\"1.2\" opacity=\".95\"/><line x1=\"-4\" y1=\"-2\" x2=\"-8\" y2=\"-7\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-4\" y1=\"28\" x2=\"-8\" y2=\"33\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"142\" y1=\"-2\" x2=\"146\" y2=\"-7\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"142\" y1=\"28\" x2=\"146\" y2=\"33\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"53.0\" y1=\"-4\" x2=\"51.0\" y2=\"-9\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"85.0\" y1=\"-4\" x2=\"87.0\" y2=\"-9\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-6\" y1=\"13.0\" x2=\"-11\" y2=\"13.0\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"144\" y1=\"13.0\" x2=\"149\" y2=\"13.0\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"35.0\" y1=\"-4\" x2=\"31.0\" y2=\"-9\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"103.0\" y1=\"-4\" x2=\"107.0\" y2=\"-9\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"69.0\" y1=\"-4\" x2=\"69.0\" y2=\"-10\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"53.0\" y1=\"30\" x2=\"51.0\" y2=\"35\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"85.0\" y1=\"30\" x2=\"87.0\" y2=\"35\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><rect width=\"138\" height=\"26\" rx=\"13\" fill=\"url(#cf4)\"/><rect x=\"2\" y=\"1.5\" width=\"134\" height=\"11.0\" rx=\"11\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"13\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M10.14,9.1 Q13,13.0 10.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M15.86,9.1 Q13,13.0 15.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"28\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M25.14,9.1 Q28,13.0 25.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M30.86,9.1 Q28,13.0 30.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"43\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M40.14,9.1 Q43,13.0 40.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M45.86,9.1 Q43,13.0 45.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><g transform=\"translate(58,13.0) scale(1.0)\"><polygon points=\"-6,-2 -3,-6 3,-6 6,-2 0,6\" fill=\"#f2efe6\"/><polyline points=\"-6,-2 6,-2 M-3,-6 -1.5,-2 0,6 M3,-6 1.5,-2\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\".9\" opacity=\".6\"/></g><line x1=\"70\" y1=\"6\" x2=\"70\" y2=\"20\" stroke=\"#0f1b2b\" stroke-width=\"1\" opacity=\".35\"/><text x=\"76\" y=\"13.5\" class=\"bc\" fill=\"#0f1b2b\">4TH TODAY</text></svg>", "5": "<svg class=\"badge count c5\" viewBox=\"0 0 153 26\" width=\"153\" height=\"26\" role=\"img\" aria-label=\"5TH home run today\"><title>5TH home run today</title><defs><filter id=\"cg5\" x=\"-40%\" y=\"-80%\" width=\"180%\" height=\"260%\"><feGaussianBlur stdDeviation=\"2.6\"/></filter><linearGradient id=\"cf5\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#cdb8ff\"/><stop offset=\".45\" stop-color=\"#8b5cf6\"/><stop offset=\"1\" stop-color=\"#6236c9\"/></linearGradient></defs><rect x=\"-4\" y=\"-4\" width=\"161\" height=\"34\" rx=\"16\" fill=\"#cdb8ff\" opacity=\".5\" filter=\"url(#cg5)\"/><rect x=\"-2\" y=\"-2\" width=\"157\" height=\"30\" rx=\"15\" fill=\"none\" stroke=\"#cdb8ff\" stroke-width=\"1.2\" opacity=\".95\"/><line x1=\"-4\" y1=\"-2\" x2=\"-8\" y2=\"-7\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-4\" y1=\"28\" x2=\"-8\" y2=\"33\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"157\" y1=\"-2\" x2=\"161\" y2=\"-7\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"157\" y1=\"28\" x2=\"161\" y2=\"33\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"60.5\" y1=\"-4\" x2=\"58.5\" y2=\"-9\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"92.5\" y1=\"-4\" x2=\"94.5\" y2=\"-9\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-6\" y1=\"13.0\" x2=\"-11\" y2=\"13.0\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"159\" y1=\"13.0\" x2=\"164\" y2=\"13.0\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"42.5\" y1=\"-4\" x2=\"38.5\" y2=\"-9\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"110.5\" y1=\"-4\" x2=\"114.5\" y2=\"-9\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"76.5\" y1=\"-4\" x2=\"76.5\" y2=\"-10\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"60.5\" y1=\"30\" x2=\"58.5\" y2=\"35\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"92.5\" y1=\"30\" x2=\"94.5\" y2=\"35\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><circle cx=\"-10\" cy=\"-4\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"163\" cy=\"-4\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"-10\" cy=\"30\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"163\" cy=\"30\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"32.5\" cy=\"34\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"120.5\" cy=\"34\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"68.5\" cy=\"-10\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"84.5\" cy=\"-10\" r=\"1.6\" fill=\"#cdb8ff\"/><rect width=\"153\" height=\"26\" rx=\"13\" fill=\"url(#cf5)\"/><rect x=\"2\" y=\"1.5\" width=\"149\" height=\"11.0\" rx=\"11\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"13\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M10.14,9.1 Q13,13.0 10.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M15.86,9.1 Q13,13.0 15.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"28\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M25.14,9.1 Q28,13.0 25.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M30.86,9.1 Q28,13.0 30.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"43\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M40.14,9.1 Q43,13.0 40.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M45.86,9.1 Q43,13.0 45.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"58\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M55.14,9.1 Q58,13.0 55.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M60.86,9.1 Q58,13.0 60.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><g transform=\"translate(73,13.0) scale(1.0)\"><path d=\"M-4,-6 L4,-6 L4,-1 C4,2 2,3.5 0,3.5 C-2,3.5 -4,2 -4,-1 Z\" fill=\"#f2efe6\"/><path d=\"M-4,-5 L-6.5,-5 C-6.5,-1 -5,0.5 -3.5,0.5 M4,-5 L6.5,-5 C6.5,-1 5,0.5 3.5,0.5\" fill=\"none\" stroke=\"#f2efe6\" stroke-width=\"1.3\"/><rect x=\"-1\" y=\"3.5\" width=\"2\" height=\"2\" fill=\"#f2efe6\"/><rect x=\"-3.5\" y=\"5.5\" width=\"7\" height=\"1.6\" fill=\"#f2efe6\"/></g><line x1=\"85\" y1=\"6\" x2=\"85\" y2=\"20\" stroke=\"#0f1b2b\" stroke-width=\"1\" opacity=\".35\"/><text x=\"91\" y=\"13.5\" class=\"bc\" fill=\"#0f1b2b\">5TH TODAY</text></svg>"};
+
+function distBadge(ft) {
+  if (ft == null || ft < 400) return "";
+  const tier = ft >= 500 ? 500 : ft >= 475 ? 475 : ft >= 450 ? 450 : ft >= 425 ? 425 : 400;
+  return DIST_BADGES[tier];
+}
+function countBadge(nth) { return nth >= 2 ? COUNT_BADGES[Math.min(nth, 5)] : ""; }
+// Number each batter's homers within a game-day, in the order they were hit.
+function tagNth(list) {
+  for (const h of list) if (favs.has(String(h.batterId)) && favs.get(String(h.batterId)).startsWith("Player ")) { favs.set(String(h.batterId), h.batter); saveFavs(); }
+  const groups = {};
+  for (const h of list) (groups[`${h.date ?? ""}|${h.batterId}`] ||= []).push(h);
+  for (const g of Object.values(groups)) g.sort((a, b) => (a.time ?? "").localeCompare(b.time ?? "")).forEach((h, i) => h.nth = i + 1);
+  return list;
+}
+
+// ============================================================
+// Favorites (stored in this browser; shareable via #mine=)
+// ============================================================
+const FAV_KEY = "nodoubters.favs";
+let favs = new Map();
+try { for (const [id, name] of JSON.parse(localStorage.getItem(FAV_KEY) || "[]")) favs.set(String(id), name); } catch {}
+function saveFavs() { try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch {} }
+function toggleFav(id, name) { id = String(id); favs.has(id) ? favs.delete(id) : favs.set(id, name); saveFavs(); render(); }
+function toast(msg) { const t = document.querySelector("#toast"); t.textContent = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 1800); }
+
+// ============================================================
 // UI
 // ============================================================
 const $ = s => document.querySelector(s);
 const listEl = $("#list"), dateEl = $("#date"), filterEl = $("#filter"), summaryEl = $("#summary");
 let data = { games: [], homeRuns: [] };
+let mode = "today";                          // "today" | "season"
+let season = null;                           // { season, updated, homeRuns } once loaded
+const PAGE = 100; let shown = PAGE;
+let mineOnly = false;
+let autoDate = true;                         // true until the visitor picks a date themselves
+const noticeEl = document.querySelector("#notice");
 let sortKey = "distance", sortDir = -1;    // -1 desc, 1 asc
 let openId = null;
 
+// MLB's "today" is the Pacific-time date: a 10pm West Coast homer still belongs to that day's slate.
+function mlbToday() { return new Date().toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" }); }
 function localISODate(d = new Date()) {
   const off = d.getTimezoneOffset() * 60000;
   return new Date(d - off).toISOString().slice(0, 10);
@@ -265,8 +359,9 @@ function shiftDate(days) {
   const d = new Date(dateEl.value + "T12:00:00");
   d.setDate(d.getDate() + days);
   dateEl.value = localISODate(d);
-  load();
+  autoDate = false; load();
 }
+function fmtDate(d) { return new Date(d + "T12:00:00").toLocaleDateString([], { month: "short", day: "numeric" }); }
 function fmtTime(iso) {
   return iso ? new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "—";
 }
@@ -282,8 +377,19 @@ const comparators = {
 
 function render() {
   const q = filterEl.value.trim().toLowerCase();
-  let rows = data.homeRuns.filter(h => !q || h.batter.toLowerCase().includes(q) || h.team.toLowerCase().includes(q) || h.teamAbbr.toLowerCase().includes(q));
+  const isSeason = mode === "season";
+  const source = isSeason ? (season?.homeRuns ?? []) : data.homeRuns;
+  document.querySelector('.sort[data-key="time"] .lbl').textContent = isSeason ? "Date" : "Time hit";
+  let rows = source.filter(h => !q || h.batter.toLowerCase().includes(q) || h.team.toLowerCase().includes(q) || h.teamAbbr.toLowerCase().includes(q));
+  if (mineOnly) rows = rows.filter(h => favs.has(String(h.batterId)));
+  document.querySelector("#mine").setAttribute("aria-pressed", mineOnly);
+  document.querySelector("#share").style.display = favs.size ? "inline-block" : "none";
   rows.sort((a, b) => comparators[sortKey](a, b) * sortDir);
+  // rank by distance regardless of the current sort, so #1 is always the longest
+  const rank = new Map();
+  if (isSeason) [...source].filter(h => h.distance != null).sort((a, b) => b.distance - a.distance).forEach((h, i) => rank.set(h.id ?? h.playId, i + 1));
+  const total = rows.length;
+  if (isSeason) rows = rows.slice(0, shown);
 
   // sort buttons
   document.querySelectorAll(".sort").forEach(b => {
@@ -294,14 +400,27 @@ function render() {
 
   const finals = data.games.filter(g => g.status?.abstractGameState === "Final").length;
   const live = data.games.filter(g => g.status?.abstractGameState === "Live").length;
-  const withDist = data.homeRuns.filter(h => h.distance != null);
+  const withDist = source.filter(h => h.distance != null);
   const longest = withDist.length ? Math.max(...withDist.map(h => h.distance)) : null;
-  summaryEl.innerHTML = data.games.length
+  if (isSeason) {
+    const lead = Object.entries(source.reduce((m, h) => (m[h.batter] = (m[h.batter] || 0) + 1, m), {})).sort((a, b) => b[1] - a[1])[0];
+    summaryEl.innerHTML = season
+      ? `<b>${source.length}</b> HR this season${longest ? ` · longest <b>${longest} ft</b>` : ""}${lead ? ` · leader <b>${lead[0]}</b> (${lead[1]})` : ""}`
+      : "";
+  } else summaryEl.innerHTML = data.games.length
     ? `<b>${data.homeRuns.length}</b> HR · <b>${data.games.length}</b> games (${finals} final${live ? `, <b>${live} live</b>` : ""})${longest ? ` · longest <b>${longest} ft</b>` : ""}`
     : "";
 
+  if (!rows.length && mineOnly) {
+    listEl.innerHTML = favs.size
+      ? `<div class="state">None of your players went deep${isSeason ? " this season" : " on this day"}<small>Turn off ★ Mine to see everyone.</small></div>`
+      : `<div class="state">No starred players yet<small>Tap the ☆ next to any player to add them, then ★ Mine shows only their homers.</small></div>`;
+    return;
+  }
   if (!rows.length) {
-    listEl.innerHTML = data.homeRuns.length
+    listEl.innerHTML = isSeason
+      ? (season ? `<div class="state">No matches<small>Nothing this season matches "${filterEl.value}".</small></div>` : `<div class="state">Loading season…</div>`)
+      : data.homeRuns.length
       ? `<div class="state">No matches<small>Nothing on this date matches "${filterEl.value}".</small></div>`
       : data.games.length
         ? `<div class="state">No home runs yet<small>${finals === data.games.length ? "Every game is final and nobody went deep." : "Games are still in progress or haven't started — hit ↻ to check again."}</small></div>`
@@ -310,21 +429,24 @@ function render() {
   }
 
   listEl.innerHTML = rows.map(h => {
-    const id = h.playId ?? `${h.gamePk}-${h.batterId}-${h.inning}`;
+    const id = h.id ?? h.playId ?? `${h.gamePk}-${h.batterId}-${h.inning}`;
     const hasDist = h.distance != null;
+    const r = rank.get(id);
     return `
       <article class="hr ${h.mp4 ? "" : "nohl"}" data-id="${id}" tabindex="0" aria-expanded="${openId === id}">
         <div class="who-wrap">
+          ${isSeason ? `<div class="rank ${r && r <= 10 ? "top" : ""}">${r ? "#" + r : ""}</div>` : ""}
+          <button class="fav ${favs.has(String(h.batterId)) ? "on" : ""}" data-fav="${h.batterId}" data-name="${h.batter.replace(/"/g, "&quot;")}" title="${favs.has(String(h.batterId)) ? "Remove from" : "Add to"} my players" aria-label="${favs.has(String(h.batterId)) ? "Remove" : "Add"} ${h.batter} ${favs.has(String(h.batterId)) ? "from" : "to"} my players">${favs.has(String(h.batterId)) ? "★" : "☆"}</button>
           <img class="headshot" alt="" loading="lazy"
                src="https://img.mlbstatic.com/mlb-photos/image/upload/w_88,q_auto:best/v1/people/${h.batterId}/headshot/67/current"
                onerror="this.style.visibility='hidden'">
           <div style="min-width:0">
-            <div class="who">${h.batter}</div>
+            <div class="who-line"><div class="who">${h.batter}</div>${distBadge(h.distance)}${countBadge(h.nth)}</div>
             <div class="meta"><b>${h.teamAbbr}</b> vs ${h.against} · ${h.half === "top" ? "T" : "B"}${h.inning} · ${h.rbi}-run${h.live ? ' · <span class="live">LIVE</span>' : ""}</div>
           </div>
         </div>
         <div class="track">
-          <div class="time">${fmtTime(h.time)}</div>
+          <div class="time">${isSeason ? fmtDate(h.date) : fmtTime(h.time)}</div>
           <div class="lane">
             <div class="bar ${hasDist ? "" : "none"}" style="width:${hasDist ? pct(h.distance) : 0}%"></div>
             <div class="ft" style="left:${hasDist ? pct(h.distance) : 0}%">
@@ -337,10 +459,11 @@ function render() {
           ${openId === id ? playerHTML(h) : ""}
         </div>
       </article>`;
-  }).join("");
+  }).join("") + (isSeason && total > shown ? `<button class="more" id="more">Show ${Math.min(PAGE, total - shown)} more (${total - shown} remaining)</button>` : "");
 }
 
 function playerHTML(h) {
+  if (!h.savant && h.id && h.id.includes("-") && h.id.length > 30) h.savant = `https://baseballsavant.mlb.com/sporty-videos?playId=${h.id}`;
   if (!h.mp4) {
     return `<div class="caption">MLB hasn't posted the clip for this one yet.${h.savant ? ` <a href="${h.savant}" target="_blank" rel="noopener">Try Baseball Savant ↗</a>` : ""}</div>`;
   }
@@ -364,22 +487,59 @@ async function load() {
   openId = null;
   listEl.innerHTML = `<div class="state">Loading ${dateEl.value}…</div>`;
   summaryEl.textContent = "";
+  noticeEl.classList.remove("show");
   try {
+    if (autoDate) dateEl.value = mlbToday();
     data = await fetchHomeRuns(dateEl.value);
+    tagNth(data.homeRuns);
+    // Nothing yet today (or an off day)? Show yesterday's board instead of an empty page.
+    if (autoDate && data.homeRuns.length === 0) {
+      const today = dateEl.value;
+      const y = new Date(today + "T12:00:00"); y.setDate(y.getDate() - 1);
+      dateEl.value = localISODate(y);
+      data = await fetchHomeRuns(dateEl.value);
+      tagNth(data.homeRuns);
+      noticeEl.innerHTML = `No homers yet today — showing <b>${fmtDate(dateEl.value)}</b>. Hit ↻ to check again.`;
+      noticeEl.classList.add("show");
+    }
     render();
   } catch (e) {
     listEl.innerHTML = `<div class="state error">Couldn't reach MLB<small>${e.message}. Check your connection and hit ↻.</small></div>`;
   }
 }
 
+async function loadSeason() {
+  if (season) return;
+  try {
+    const r = await fetch("data/season.json", { cache: "no-cache" });
+    if (!r.ok) throw new Error(`${r.status}`);
+    season = await r.json();
+    tagNth(season.homeRuns);
+    render();
+  } catch (e) {
+    listEl.innerHTML = `<div class="state error">Couldn't load the season file<small>${e.message}. It should be at data/season.json.</small></div>`;
+  }
+}
+function setMode(m) {
+  mode = m; openId = null; shown = PAGE;
+  document.querySelector("#mode-today").setAttribute("aria-pressed", m === "today");
+  document.querySelector("#mode-season").setAttribute("aria-pressed", m === "season");
+  document.querySelector(".date-nav").style.display = m === "season" ? "none" : "";
+  history.replaceState(null, "", m === "season" ? "#season" : location.pathname);
+  if (m === "season") { sortKey = "distance"; sortDir = -1; render(); loadSeason(); }
+  else render();
+}
+
 // ---- wiring ----
+document.querySelector("#mode-today").addEventListener("click", () => setMode("today"));
+document.querySelector("#mode-season").addEventListener("click", () => setMode("season"));
 renderScale();
 dateEl.value = localISODate();
-dateEl.addEventListener("change", load);
+dateEl.addEventListener("change", () => { autoDate = false; load(); });
 $("#prev").addEventListener("click", () => shiftDate(-1));
 $("#next").addEventListener("click", () => shiftDate(1));
 $("#refresh").addEventListener("click", load);
-filterEl.addEventListener("input", render);
+filterEl.addEventListener("input", () => { shown = PAGE; render(); });
 document.querySelectorAll(".sort").forEach(b => b.addEventListener("click", () => {
   const key = b.dataset.key;
   if (key === sortKey) sortDir *= -1;
@@ -388,6 +548,9 @@ document.querySelectorAll(".sort").forEach(b => b.addEventListener("click", () =
 }));
 listEl.addEventListener("click", e => {
   if (e.target.closest("a, video")) return;
+  const fb = e.target.closest(".fav");
+  if (fb) { toggleFav(fb.dataset.fav, fb.dataset.name); return; }
+  if (e.target.id === "more") { shown += PAGE; render(); return; }
   const row = e.target.closest(".hr"); if (!row) return;
   openId = openId === row.dataset.id ? null : row.dataset.id;
   render();
@@ -396,7 +559,22 @@ listEl.addEventListener("click", e => {
 listEl.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.classList.contains("hr")) e.target.click();
 });
-load();
+document.querySelector("#mine").addEventListener("click", () => { mineOnly = !mineOnly; shown = PAGE; render(); });
+document.querySelector("#share").addEventListener("click", async () => {
+  const url = `${location.origin}${location.pathname}#mine=${[...favs.keys()].join(",")}`;
+  try { await navigator.clipboard.writeText(url); toast("Link copied — open it on any device to import your players"); }
+  catch { prompt("Copy this link:", url); }
+});
+
+// #season shows the leaderboard; #mine=ID,ID,… imports starred players (names fill in as they appear)
+const hashParams = Object.fromEntries(location.hash.slice(1).split("&").filter(Boolean).map(kv => { const [k, v = "1"] = kv.split("="); return [k, v]; }));
+if (hashParams.mine) {
+  let added = 0;
+  for (const id of hashParams.mine.split(",")) if (id && !favs.has(id)) { favs.set(id, favs.get(id) ?? `Player ${id}`); added++; }
+  saveFavs(); if (added) { mineOnly = true; setTimeout(() => toast(`Imported ${added} player${added === 1 ? "" : "s"} to ★ Mine`), 300); }
+}
+load().then(() => { /* fill in names for imported ids as we see them */ });
+if (hashParams.season) setMode("season");
 </script>
 </body>
 </html>

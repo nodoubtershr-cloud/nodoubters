@@ -14,6 +14,12 @@ Static site — no build step, no backend, no API keys. Data comes directly from
 
 then open http://localhost:8000
 
+## Season data
+
+`data/season.json` holds every home run of the season. `scripts/update-season.mjs` rebuilds it
+from the MLB API (defaults to the last 3 days; pass two dates for a range). A GitHub Action in
+`.github/workflows/update-season.yml` runs it every morning and commits the result.
+
 ## Deploy
 
 Hosted on GitHub Pages from the `main` branch root. Push to `main` to deploy.
