@@ -344,6 +344,7 @@ let mode = "today";                          // "today" | "season"
 let season = null;                           // { season, updated, homeRuns } once loaded
 const PAGE = 100; let shown = PAGE;
 let mineOnly = false;
+let pendingOpen = null;                      // playId to auto-expand after load (from #hr=)
 let autoDate = true;                         // true until the visitor picks a date themselves
 const noticeEl = document.querySelector("#notice");
 let sortKey = "distance", sortDir = -1;    // -1 desc, 1 asc
@@ -503,6 +504,11 @@ async function load() {
       noticeEl.classList.add("show");
     }
     render();
+    if (pendingOpen) {
+      const row = listEl.querySelector(`.hr[data-id="${pendingOpen}"]`);
+      pendingOpen = null;
+      if (row) { openId = row.dataset.id; render(); listEl.querySelector(`.hr[data-id="${openId}"]`)?.scrollIntoView({ block: "start", behavior: "smooth" }); }
+    }
   } catch (e) {
     listEl.innerHTML = `<div class="state error">Couldn't reach MLB<small>${e.message}. Check your connection and hit ↻.</small></div>`;
   }
@@ -573,7 +579,9 @@ if (hashParams.mine) {
   for (const id of hashParams.mine.split(",")) if (id && !favs.has(id)) { favs.set(id, favs.get(id) ?? `Player ${id}`); added++; }
   saveFavs(); if (added) { mineOnly = true; setTimeout(() => toast(`Imported ${added} player${added === 1 ? "" : "s"} to ★ Mine`), 300); }
 }
-load().then(() => { /* fill in names for imported ids as we see them */ });
+if (/^\d{4}-\d{2}-\d{2}$/.test(hashParams.d ?? "")) { dateEl.value = hashParams.d; autoDate = false; }
+if (hashParams.hr) pendingOpen = hashParams.hr;
+load();
 if (hashParams.season) setMode("season");
 </script>
 </body>
