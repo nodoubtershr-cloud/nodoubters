@@ -24,6 +24,7 @@ await mkdir("data/all/players", { recursive: true });
 const ranked = all.filter(h => h.distance != null).sort(byDist);
 await writeFile("data/all/top.json", JSON.stringify({
   from: years[0], to: years.at(-1), total: all.length, updated: new Date().toISOString(),
+  through: all.reduce((m, h) => (h.date > m ? h.date : m), ""),
   homeRuns: ranked.slice(0, 500),
 }));
 

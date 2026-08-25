@@ -109,12 +109,36 @@ function titleMatch(h, items, gameHRsByBatter) {
       ?? (gameHRsByBatter === 1 ? one(mine.filter(it => !/field view/i.test(it.title))) ?? one(mine) : null); // his only HR of the game, one clip
 }
 
+// Baseball Savant has a video page per play with a direct mp4, including years MLB's highlight
+// archive doesn't cover. Used only for homers MLB has no clip for. Bounded per run to stay polite.
+const UA = { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36" };
+async function fillFromSavant(list) {
+  const max = Number(process.env.SAVANT_MAX ?? 300);
+  const missing = list.filter(h => !h.mp4 && h.id && !h.savantChecked).sort((a, b) => b.date.localeCompare(a.date)).slice(0, max);
+  if (!missing.length) return;
+  let filled = 0, failed = 0;
+  const SAV = 6; let i = 0;
+  await Promise.all(Array.from({ length: SAV }, async () => {
+    while (i < missing.length) {
+      const h = missing[i++];
+      try {
+        const r = await fetch(`https://baseballsavant.mlb.com/sporty-videos?playId=${h.id}`, { headers: UA });
+        if (!r.ok) { failed++; continue; }
+        const m = (await r.text()).match(/https:\/\/[^"']+\.mp4[^"']*/);
+        if (m) { h.mp4 = m[0]; h.src = "savant"; filled++; }
+        else if (Date.now() - new Date(h.date) > 7 * 864e5) h.savantChecked = true;   // old play with no video — don't keep asking
+      } catch { failed++; }
+    }
+  }));
+  console.log(`savant fill: tried ${missing.length} → filled ${filled}${failed ? `, ${failed} request failures` : ""}`);
+}
+
 async function fillMissingClips(list) {
-  if (Number(YEAR) < 2019) return;   // no highlight archive before 2019
+  if (Number(YEAR) < 2019) return fillFromSavant(list);   // no MLB highlight archive before 2019
   seasonNumbers(list);
   const missing = list.filter(h => !h.mp4 && h.id);
   const games = [...new Set(missing.sort((a, b) => b.date.localeCompare(a.date)).map(h => h.gamePk))].slice(0, Number(process.env.MAX_FILL_GAMES ?? 400));
-  if (!games.length) return;
+  if (!games.length) return fillFromSavant(list);
   let filled = 0;
   await pool(games, async pk => {
     const content = await getJSON(`${API}/v1/game/${pk}/content`, 4);
@@ -133,6 +157,7 @@ async function fillMissingClips(list) {
     }
   });
   console.log(`clip fill: ${missing.length} missing across ${games.length} games → filled ${filled}`);
+  await fillFromSavant(list);
 }
 
 async function main() {

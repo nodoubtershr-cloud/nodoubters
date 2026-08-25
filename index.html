@@ -177,7 +177,9 @@
   /* ---------- notice, support, footer ---------- */
   .notice { margin: 10px 24px 0; padding: 8px 12px; border: 1px solid var(--line); border-left: 3px solid var(--amber); border-radius: 6px; font-family: var(--mono); font-size: 12px; color: var(--chalk-dim); display: none; }
   .notice.show { display: block; }
+  .notice.info { border-left-color: var(--line); }
   .notice b { color: var(--chalk); font-weight: 500; }
+  .notice a { color: var(--chalk); }
   .support { font-family: var(--mono); font-size: 13px; color: var(--chalk-dim); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
   .support:hover { color: var(--amber); border-color: var(--amber); }
   .prerender { padding: 28px 24px 8px; border-top: 1px solid var(--line); color: var(--chalk-dim); font-size: 14px; line-height: 1.6; max-width: 900px; }
@@ -246,6 +248,7 @@
     <a class="support" href="https://buymeacoffee.com/nodoubters" target="_blank" rel="noopener" title="Support No Doubters">☕ <span>Support</span></a>
   </div>
   <div class="notice" id="notice"></div>
+  <div class="notice info" id="season-note"></div>
 </header>
 
 <div class="scale" id="scale"><div></div><div class="ticks" id="ticks"></div></div>
@@ -403,6 +406,18 @@ let mineOnly = false;
 let pendingOpen = null;                      // playId to auto-expand after load (from #hr=)
 let autoDate = true;                         // true until the visitor picks a date themselves
 const noticeEl = document.querySelector("#notice");
+const seasonNoteEl = document.querySelector("#season-note");
+function showSeasonNote() {
+  if (mode !== "season" || !season) { seasonNoteEl.classList.remove("show"); return; }
+  const src = season.all ? allTop : season;
+  const through = src?.through ?? (src?.homeRuns?.length ? src.homeRuns.reduce((m, h) => (h.date > m ? h.date : m), "") : null);
+  const isCurrent = !season.all && Number(seasonYear) === Math.max(...seasonYears);
+  seasonNoteEl.innerHTML = isCurrent || season.all
+    ? `Season and player history update every morning · includes games through <b>${through ? fmtDate(through) : "—"}</b>. Tonight's homers are on the <a href="#" id="go-today">Today</a> board.`
+    : `Complete ${season.season} season · ${Number(seasonYear) < 2019 ? "video via Baseball Savant where available" : "clips where MLB or Baseball Savant still has them"}.`;
+  seasonNoteEl.classList.add("show");
+  seasonNoteEl.querySelector("#go-today")?.addEventListener("click", e => { e.preventDefault(); setMode("today"); });
+}
 let sortKey = "distance", sortDir = -1;    // -1 desc, 1 asc
 let openId = null;
 
@@ -433,6 +448,7 @@ const comparators = {
 };
 
 function render() {
+  showSeasonNote();
   const q = filterEl.value.trim().toLowerCase();
   const isSeason = mode === "season";
   const source = isSeason ? (season?.homeRuns ?? []) : data.homeRuns;
@@ -552,6 +568,7 @@ function playerHTML(h) {
     <div class="caption">
       <span>${h.title ?? h.description}</span>
       <span>off ${h.pitcher}</span>
+      ${h.src === "savant" ? `<span>video via Baseball Savant</span>` : ""}
       <a href="https://www.mlb.com/gameday/${h.gamePk}/final/video" target="_blank" rel="noopener">MLB.com ↗</a>
       ${h.savant ? `<a href="${h.savant}" target="_blank" rel="noopener">Savant ↗</a>` : ""}
     </div>`;
@@ -649,6 +666,7 @@ function setMode(m) {
   document.querySelector(".date-nav").style.display = m === "season" ? "none" : "";
   document.querySelector("#year-nav").style.display = m === "season" ? "" : "none";
   noticeEl.style.display = m === "season" ? "none" : "";
+  if (m !== "season") seasonNoteEl.classList.remove("show");
   history.replaceState(null, "", m === "season" ? `#season${seasonYear ? "=" + seasonYear : ""}` : location.pathname);
   if (m === "season") { sortKey = "distance"; sortDir = -1; render(); loadSeason(); }
   else render();
