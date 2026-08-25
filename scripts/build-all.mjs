@@ -26,6 +26,7 @@ await writeFile("data/all/top.json", JSON.stringify({
   from: years[0], to: years.at(-1), total: all.length, updated: new Date().toISOString(),
   through: all.reduce((m, h) => (h.date > m ? h.date : m), ""),
   homeRuns: ranked.slice(0, 500),
+  postseason: ranked.filter(h => h.gt && h.gt !== "R").slice(0, 500),   // longest playoff homers
 }));
 
 // players
