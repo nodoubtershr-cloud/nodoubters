@@ -42,7 +42,7 @@ async function homeRunsFor(date) {
         id: bip?.playId, batter: p.matchup.batter.fullName, pitcher: p.matchup.pitcher.fullName,
         team: teams[isTop ? g.teams.away.team.id : g.teams.home.team.id], against: teams[isTop ? g.teams.home.team.id : g.teams.away.team.id],
         distance: hd.totalDistance ?? null, ev: hd.launchSpeed ?? null, time: p.about.endTime ?? p.about.startTime ?? "",
-        inning: p.about.inning, half: isTop ? "top" : "bottom", rbi: p.result.rbi,
+        inning: p.about.inning, half: isTop ? "top" : "bottom", rbi: p.result.rbi, gt: g.gameType,
         gs: p.result.rbi === 4,
         wo: !isTop && p.about.inning >= 9 && g.status.abstractGameState === "Final" && p === (pbp.allPlays ?? []).at(-1),
       });
@@ -87,6 +87,8 @@ function tags(h) {
   else if (h.distance >= 475) t.push("🪐 Into orbit (475+)");
   else if (h.distance >= 450) t.push("🌕 Moonshot (450+)");
   else if (h.distance >= 425) t.push("🔥 425+");
+  if (h.gt === "W") t.push("🏆 World Series");
+  else if (h.gt && h.gt !== "R") t.push("🍂 Postseason");
   if (h.wo && h.gs) t.push("Walk-off grand slam!");
   else if (h.wo) t.push("Walk-off!");
   else if (h.gs) t.push("Grand slam");

@@ -68,7 +68,7 @@ async function gameHomeRuns(game, teams) {
     out.push({
       id: bip?.playId ?? `${pk}-${p.about.atBatIndex}`,
       date: game.officialDate ?? game.gameDate.slice(0, 10),
-      gamePk: pk,
+      gamePk: pk, gt: game.gameType,
       batter: p.matchup.batter.fullName, batterId: p.matchup.batter.id,
       pitcher: p.matchup.pitcher.fullName,
       team: bat.name, teamAbbr: bat.abbr, against: pit.abbr,
