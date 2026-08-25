@@ -1,0 +1,47 @@
+name: Backfill clips (one-time)
+
+# Fills missing video for every season from MLB (2019+) and Baseball Savant (all years).
+# Run it by hand from the Actions tab; it takes roughly 45 minutes the first time and is
+# safe to run again later — it only touches homers that still lack a clip.
+
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "Seasons to fill, space-separated (default: all)"
+        default: "2015 2016 2017 2019 2020 2021 2022 2023 2024 2025 2026"
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fill missing clips season by season
+        env:
+          SAVANT_MAX: "10000"
+          MAX_FILL_GAMES: "1500"
+        run: |
+          for y in ${{ github.event.inputs.years }}; do
+            echo "=== $y ==="
+            node scripts/update-season.mjs $y-10-01 $y-10-01 || echo "season $y failed, continuing"
+            git add data/seasons
+            git -c user.name=nodoubters-bot -c user.email=actions@users.noreply.github.com commit -m "Backfill clips: $y" || true
+          done
+      - name: Rebuild the all-seasons data and pages
+        run: |
+          node scripts/build-all.mjs
+          node scripts/build-pages.mjs
+      - name: Push
+        run: |
+          git config user.name "nodoubters-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data days players teams season sitemap.xml index.html
+          git diff --cached --quiet || git commit -m "Backfill clips: rebuild"
+          git pull --rebase && git push
