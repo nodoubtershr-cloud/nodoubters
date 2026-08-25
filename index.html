@@ -463,10 +463,28 @@ function render() {
   }).join("") + (isSeason && total > shown ? `<button class="more" id="more">Show ${Math.min(PAGE, total - shown)} more (${total - shown} remaining)</button>` : "");
 }
 
+// A clip can be missing because MLB is still publishing the game's highlights or one request failed.
+// When someone opens such a row, re-ask MLB for that game's clips right then.
+const retried = new Set();
+async function retryClip(h) {
+  const key = `${h.gamePk}:${h.id}`;
+  if (retried.has(key) || !h.id) return;
+  retried.add(key);
+  try {
+    const content = await getJSON(`${API}/v1/game/${h.gamePk}/content`);
+    const clip = (content?.highlights?.highlights?.items ?? []).find(it => it.guid === h.id);
+    if (!clip) return;
+    h.mp4 = clip.playbacks?.find(x => x.name === "mp4Avc")?.url ?? clip.playbacks?.find(x => /mp4/i.test(x.name))?.url ?? null;
+    h.poster = clip.image?.cuts?.find(c => c.width >= 640)?.src ?? null;
+    h.title = clip.title ?? h.title;
+    if (h.mp4) render();
+  } catch {}
+}
 function playerHTML(h) {
   if (!h.savant && h.id && h.id.includes("-") && h.id.length > 30) h.savant = `https://baseballsavant.mlb.com/sporty-videos?playId=${h.id}`;
   if (!h.mp4) {
-    return `<div class="caption">MLB hasn't posted the clip for this one yet.${h.savant ? ` <a href="${h.savant}" target="_blank" rel="noopener">Try Baseball Savant ↗</a>` : ""}</div>`;
+    retryClip(h);
+    return `<div class="caption">Checking MLB for this clip… if it doesn't appear, MLB hasn't posted it yet.${h.savant ? ` <a href="${h.savant}" target="_blank" rel="noopener">Try Baseball Savant ↗</a>` : ""}</div>`;
   }
   return `
     <video controls autoplay playsinline preload="metadata" ${h.poster ? `poster="${h.poster}"` : ""} src="${h.mp4}"></video>
