@@ -10,14 +10,17 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 
 const API = "https://statsapi.mlb.com/api";
-const OUT = "data/season.json";
+const SEASONS_DIR = "data/seasons";   // one file per year: data/seasons/2026.json, plus index.json
 const CONCURRENCY = 12;
 const GAME_TYPES = new Set(["R", "F", "D", "L", "W"]); // regular season + postseason
 
 const iso = d => d.toISOString().slice(0, 10);
-const [argFrom, argTo] = process.argv.slice(2);
+let [argFrom, argTo] = process.argv.slice(2);
+if (argFrom && /^\d{4}$/.test(argFrom)) { argTo = `${argFrom}-11-15`; argFrom = `${argFrom}-03-15`; }   // whole season
 const to = argTo ?? iso(new Date());
 const from = argFrom ?? iso(new Date(Date.now() - 3 * 864e5));
+const YEAR = from.slice(0, 4);
+const OUT = `${SEASONS_DIR}/${YEAR}.json`;
 
 async function getJSON(url, tries = 3) {
   for (let i = 0; i < tries; i++) {
@@ -42,9 +45,10 @@ async function pool(items, worker) {
 
 async function gameHomeRuns(game, teams) {
   const pk = game.gamePk;
+  // MLB's highlight archive only goes back to 2019; skip the clip lookup for earlier seasons.
   const [pbp, content] = await Promise.all([
     getJSON(`${API}/v1/game/${pk}/playByPlay`),
-    getJSON(`${API}/v1/game/${pk}/content`),
+    Number(YEAR) >= 2019 && !process.env.SKIP_CONTENT ? getJSON(`${API}/v1/game/${pk}/content`) : null,
   ]);
   if (!pbp) return [];
   const clips = new Map();
@@ -89,13 +93,24 @@ function seasonNumbers(list) {
   const byBatter = {};
   for (const h of [...list].sort((a, b) => (a.time ?? a.date).localeCompare(b.time ?? b.date))) h.seasonNo = (byBatter[h.batterId] = (byBatter[h.batterId] ?? 0) + 1);
 }
-function titleMatch(h, items) {
+function titleMatch(h, items, gameHRsByBatter) {
   const last = norm(h.batter.split(" ").filter(w => !/^(jr\.?|sr\.?|ii|iii)$/i.test(w)).at(-1));
-  const cands = items.filter(it => /homer|home run/i.test(it.title) && norm(it.title).includes(last) && it.title.includes(`(${h.seasonNo})`) && !/two-homer|three-homer|homers\b|multi/i.test(it.title));
-  return cands.length === 1 ? cands[0] : null;
+  const ord = n => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][Math.min(n % 10, 4)] ?? "th");
+  const isHR = t => /homer|home run|\bHR\b|goes deep|blast|dinger|tater|moonshot/i.test(t);
+  const isMulti = t => /two-|three-|four-|multi|\bHRs\b|\b(two|three|four) homers/i.test(t);
+  const isAnalysis = t => /talks|discusses|on his|measuring|the stats|the distance behind|data viz|deep dive|bat tracking|visualizing|animated|breaking down|through the numbers/i.test(t);
+  const mine = items.filter(it => isHR(it.title) && norm(it.title).includes(last) && !isMulti(it.title) && !isAnalysis(it.title));
+  const one = list => (list.length === 1 ? list[0] : null);
+  const n = h.seasonNo;
+  return one(mine.filter(it => it.title.includes(`(${n})`)))                               // "solo home run (16)"
+      ?? one(mine.filter(it => new RegExp(`\\b${ord(n)}\\b`, "i").test(it.title)))          // "16th homer of the year"
+      ?? one(mine.filter(it => h.distance && it.title.includes(`${Math.round(h.distance)}-foot`))) // "hammers 442-foot homer"
+      ?? (n === 1 ? one(mine.filter(it => /first career/i.test(it.title))) : null)          // "first career home run"
+      ?? (gameHRsByBatter === 1 ? one(mine.filter(it => !/field view/i.test(it.title))) ?? one(mine) : null); // his only HR of the game, one clip
 }
 
 async function fillMissingClips(list) {
+  if (Number(YEAR) < 2019) return;   // no highlight archive before 2019
   seasonNumbers(list);
   const missing = list.filter(h => !h.mp4 && h.id);
   const games = [...new Set(missing.sort((a, b) => b.date.localeCompare(a.date)).map(h => h.gamePk))].slice(0, Number(process.env.MAX_FILL_GAMES ?? 400));
@@ -105,9 +120,11 @@ async function fillMissingClips(list) {
     const content = await getJSON(`${API}/v1/game/${pk}/content`, 4);
     const items = content?.highlights?.highlights?.items ?? [];
     const clips = new Map(items.filter(it => it.guid).map(it => [it.guid, it]));
+    const perBatterInGame = {};
+    for (const x of list) if (x.gamePk === pk) perBatterInGame[x.batterId] = (perBatterInGame[x.batterId] ?? 0) + 1;
     for (const h of missing) {
       if (h.gamePk !== pk) continue;
-      const clip = clips.get(h.id) ?? titleMatch(h, items);
+      const clip = clips.get(h.id) ?? titleMatch(h, items, perBatterInGame[h.batterId]);
       if (!clip) continue;
       h.mp4 = clip.playbacks?.find(x => x.name === "mp4Avc")?.url ?? clip.playbacks?.find(x => /mp4/i.test(x.name))?.url ?? null;
       h.poster = clip.image?.cuts?.find(c => c.width >= 640)?.src ?? null;
@@ -131,6 +148,7 @@ async function main() {
     .filter(g => !seen.has(g.gamePk) && seen.add(g.gamePk));
   console.log(`${from} → ${to}: ${games.length} games`);
 
+  const season = Number(process.env.SEASON ?? games[0]?.season ?? from.slice(0, 4));
   let existing = { homeRuns: [] };
   try { existing = JSON.parse(await readFile(OUT, "utf8")); } catch {}
 
@@ -143,13 +161,26 @@ async function main() {
 
   const touched = new Set(games.map(g => g.gamePk));
   const kept = existing.homeRuns.filter(h => !touched.has(h.gamePk));
+  // MLB's highlight feed for a game can go briefly empty while they rebuild it. Never let a re-fetch
+  // erase a clip we already had.
+  const prior = new Map(existing.homeRuns.map(h => [h.id, h]));
+  for (const h of fresh) {
+    const old = prior.get(h.id);
+    if (old?.mp4 && !h.mp4) { h.mp4 = old.mp4; h.poster = old.poster; h.title = old.title; }
+  }
   const byId = new Map([...kept, ...fresh].map(h => [h.id, h]));
   await fillMissingClips([...byId.values()]);
   const all = [...byId.values()].sort((a, b) => (a.time ?? a.date).localeCompare(b.time ?? b.date));
 
   await mkdir("data", { recursive: true });
-  const season = Number((games[0]?.season) ?? existing.season ?? new Date().getFullYear());
   await writeFile(OUT, JSON.stringify({ season, updated: new Date().toISOString(), homeRuns: all }));
+  // keep the list of available seasons current (newest first)
+  let years = [];
+  try { years = JSON.parse(await readFile(`${SEASONS_DIR}/index.json`, "utf8")).years ?? []; } catch {}
+  if (!years.includes(season)) years.push(season);
+  years.sort((a, b) => b - a);
+  await mkdir(SEASONS_DIR, { recursive: true });
+  await writeFile(`${SEASONS_DIR}/index.json`, JSON.stringify({ years, updated: new Date().toISOString() }));
   console.log(`wrote ${all.length} home runs (${fresh.length} from this run) → ${OUT}`);
 }
 

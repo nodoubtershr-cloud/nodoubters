@@ -69,6 +69,8 @@
     border-radius: 6px; height: 34px; padding: 0 12px; font-family: var(--mono); font-size: 14px; cursor: pointer;
   }
   .date-nav input { color-scheme: dark; cursor: text; }
+  .year-nav select { background: var(--night-2); color: var(--chalk); border: 1px solid var(--line); border-radius: 6px; height: 34px; padding: 0 12px; font-family: var(--mono); font-size: 14px; cursor: pointer; }
+  .year-nav select:hover { border-color: var(--amber); }
   .date-nav button:hover { border-color: var(--amber); }
   .mode { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
   .mode button { background: transparent; color: var(--chalk-dim); border: 0; height: 34px; padding: 0 14px; font-family: var(--display); font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; cursor: pointer; }
@@ -135,6 +137,8 @@
     transform: translateX(10px); transition: left .5s cubic-bezier(.2,.8,.2,1);
   }
   .ft small { font-size: 11px; color: var(--chalk-dim); margin-left: 8px; }
+  .ft.flip { transform: translateX(calc(-100% - 10px)); }
+  .ft.flip small { color: var(--chalk); opacity: .8; }
   .time { position: absolute; right: 0; top: 0; font-family: var(--mono); font-size: 12px; color: var(--chalk-dim); }
   .hr.nohl .time::after { content: "no clip"; margin-left: 10px; color: var(--dirt); }
   .hr.nohl.pending .time::after { content: "clip pending"; color: var(--chalk-dim); animation: blink 2s ease-in-out infinite; }
@@ -218,6 +222,9 @@
     <div class="mode" role="group" aria-label="View">
       <button id="mode-today" aria-pressed="true">Today</button>
       <button id="mode-season" aria-pressed="false">Season</button>
+    </div>
+    <div class="year-nav" id="year-nav" style="display:none">
+      <select id="year" aria-label="Season"></select>
     </div>
     <div class="date-nav">
       <button id="prev" aria-label="Previous day">‹</button>
@@ -384,7 +391,13 @@ const $ = s => document.querySelector(s);
 const listEl = $("#list"), dateEl = $("#date"), filterEl = $("#filter"), summaryEl = $("#summary");
 let data = { games: [], homeRuns: [] };
 let mode = "today";                          // "today" | "season"
-let season = null;                           // { season, updated, homeRuns } once loaded
+let season = null;                           // { season, updated, homeRuns } for the selected year
+let seasonYear = null;                       // selected year; null = latest
+let seasonYears = [];                        // available years, newest first
+const seasonCache = {};
+let allIndex = null;                         // { players: [...] } for the All view
+let allTop = null;                           // all-time top list
+const playerCache = {};                      // batterId -> that player's full history
 const PAGE = 100; let shown = PAGE;
 let mineOnly = false;
 let pendingOpen = null;                      // playId to auto-expand after load (from #hr=)
@@ -424,7 +437,8 @@ function render() {
   const isSeason = mode === "season";
   const source = isSeason ? (season?.homeRuns ?? []) : data.homeRuns;
   document.querySelector('.sort[data-key="time"] .lbl').textContent = isSeason ? "Date" : "Time hit";
-  let rows = source.filter(h => !q || h.batter.toLowerCase().includes(q) || h.team.toLowerCase().includes(q) || h.teamAbbr.toLowerCase().includes(q));
+  let rows = (isSeason && season?.all && season.players) ? [...source]
+    : source.filter(h => !q || h.batter.toLowerCase().includes(q) || h.team.toLowerCase().includes(q) || h.teamAbbr.toLowerCase().includes(q));
   if (mineOnly) rows = rows.filter(h => favs.has(String(h.batterId)));
   document.querySelector("#mine").setAttribute("aria-pressed", mineOnly);
   document.querySelector("#share").style.display = favs.size ? "inline-block" : "none";
@@ -446,10 +460,14 @@ function render() {
   const live = data.games.filter(g => g.status?.abstractGameState === "Live").length;
   const withDist = source.filter(h => h.distance != null);
   const longest = withDist.length ? Math.max(...withDist.map(h => h.distance)) : null;
-  if (isSeason) {
+  if (isSeason && season?.all) {
+    summaryEl.innerHTML = season.top
+      ? `Longest <b>${source.length}</b> of <b>${allTop.total.toLocaleString()}</b> HR since ${allTop.from} · type a name for a player's full history`
+      : season.players.map(p => `<b>${p.name}</b> ${p.n} HR since ${p.seasons[0]}, longest ${p.longest} ft`).join(" · ");
+  } else if (isSeason) {
     const lead = Object.entries(source.reduce((m, h) => (m[h.batter] = (m[h.batter] || 0) + 1, m), {})).sort((a, b) => b[1] - a[1])[0];
     summaryEl.innerHTML = season
-      ? `<b>${source.length}</b> HR this season${longest ? ` · longest <b>${longest} ft</b>` : ""}${lead ? ` · leader <b>${lead[0]}</b> (${lead[1]})` : ""}`
+      ? `<b>${source.length}</b> HR in ${season.season}${longest ? ` · longest <b>${longest} ft</b>` : ""}${lead ? ` · leader <b>${lead[0]}</b> (${lead[1]})` : ""}`
       : "";
   } else summaryEl.innerHTML = data.games.length
     ? `<b>${data.homeRuns.length}</b> HR · <b>${data.games.length}</b> games (${finals} final${live ? `, <b>${live} live</b>` : ""})${longest ? ` · longest <b>${longest} ft</b>` : ""}`
@@ -490,10 +508,10 @@ function render() {
           </div>
         </div>
         <div class="track">
-          <div class="time">${isSeason ? fmtDate(h.date) : fmtTime(h.time)}</div>
+          <div class="time">${isSeason ? (season?.all ? `${fmtDate(h.date)} ${h.season}` : fmtDate(h.date)) : fmtTime(h.time)}</div>
           <div class="lane">
             <div class="bar ${hasDist ? "" : "none"}" style="width:${hasDist ? pct(h.distance) : 0}%"></div>
-            <div class="ft" style="left:${hasDist ? pct(h.distance) : 0}%">
+            <div class="ft ${hasDist && pct(h.distance) > 80 ? "flip" : ""}" style="left:${hasDist ? pct(h.distance) : 0}%">
               ${hasDist ? `${h.distance} ft` : "no Statcast"}
               ${h.ev ? `<small>${h.ev} mph · ${h.la}°</small>` : ""}
             </div>
@@ -576,23 +594,62 @@ async function load() {
 }
 
 async function loadSeason() {
-  if (season) return;
   try {
-    const r = await fetch("data/season.json", { cache: "no-cache" });
-    if (!r.ok) throw new Error(`${r.status}`);
-    season = await r.json();
-    tagNth(season.homeRuns);
-    render();
+    if (!seasonYears.length) {
+      const r = await fetch("data/seasons/index.json", { cache: "no-cache" });
+      if (!r.ok) throw new Error(`${r.status}`);
+      seasonYears = (await r.json()).years;
+      const sel = document.querySelector("#year");
+      sel.innerHTML = seasonYears.map(y => `<option value="${y}">${y} season</option>`).join("") + `<option value="all">All seasons (${Math.min(...seasonYears)}–${Math.max(...seasonYears)})</option>`;
+    }
+    if (seasonYear === "all") { document.querySelector("#year").value = "all"; return loadAll(); }
+    const y = seasonYears.includes(Number(seasonYear)) ? Number(seasonYear) : seasonYears[0];
+    seasonYear = y; document.querySelector("#year").value = y;
+    if (!seasonCache[y]) {
+      season = null; render();
+      const r = await fetch(`data/seasons/${y}.json`, { cache: "no-cache" });
+      if (!r.ok) throw new Error(`${r.status}`);
+      const d = await r.json(); tagNth(d.homeRuns); seasonCache[y] = d;
+    }
+    if (mode === "season" && seasonYear === y) { season = seasonCache[y]; render(); }
   } catch (e) {
-    listEl.innerHTML = `<div class="state error">Couldn't load the season file<small>${e.message}. It should be at data/season.json.</small></div>`;
+    listEl.innerHTML = `<div class="state error">Couldn't load that season<small>${e.message}. The file should be at data/seasons/${seasonYear}.json.</small></div>`;
   }
+}
+// "All seasons": the all-time top list, or — when a name is typed — that player's complete history.
+async function loadAll() {
+  try {
+    if (!allTop) {
+      season = null; render();
+      const [t, i] = await Promise.all([fetch("data/all/top.json", { cache: "no-cache" }), fetch("data/all/players.json", { cache: "no-cache" })]);
+      if (!t.ok || !i.ok) throw new Error(`${t.status}/${i.status}`);
+      allTop = await t.json(); allIndex = await i.json();
+      for (const h of allTop.homeRuns) h.nth = 1;
+    }
+    await applyAllFilter();
+  } catch (e) {
+    listEl.innerHTML = `<div class="state error">Couldn't load all-seasons data<small>${e.message}. The files should be under data/all/.</small></div>`;
+  }
+}
+async function applyAllFilter() {
+  const q = filterEl.value.trim().toLowerCase();
+  const matches = q.length >= 2 ? allIndex.players.filter(p => p.name.toLowerCase().includes(q)).slice(0, 5) : [];
+  if (matches.length) {
+    await Promise.all(matches.map(async p => { if (!playerCache[p.id]) { const r = await fetch(`data/all/players/${p.id}.json`); if (r.ok) { const d = await r.json(); tagNth(d.homeRuns); playerCache[p.id] = d.homeRuns; } } }));
+    season = { season: `${allTop.from}–${allTop.to}`, all: true, players: matches, homeRuns: matches.flatMap(p => playerCache[p.id] ?? []) };
+  } else {
+    season = { season: `${allTop.from}–${allTop.to}`, all: true, top: true, homeRuns: allTop.homeRuns };
+  }
+  if (mode === "season" && seasonYear === "all") render();
 }
 function setMode(m) {
   mode = m; openId = null; shown = PAGE;
   document.querySelector("#mode-today").setAttribute("aria-pressed", m === "today");
   document.querySelector("#mode-season").setAttribute("aria-pressed", m === "season");
   document.querySelector(".date-nav").style.display = m === "season" ? "none" : "";
-  history.replaceState(null, "", m === "season" ? "#season" : location.pathname);
+  document.querySelector("#year-nav").style.display = m === "season" ? "" : "none";
+  noticeEl.style.display = m === "season" ? "none" : "";
+  history.replaceState(null, "", m === "season" ? `#season${seasonYear ? "=" + seasonYear : ""}` : location.pathname);
   if (m === "season") { sortKey = "distance"; sortDir = -1; render(); loadSeason(); }
   else render();
 }
@@ -662,7 +719,8 @@ dateEl.addEventListener("change", () => { autoDate = false; load(); });
 $("#prev").addEventListener("click", () => shiftDate(-1));
 $("#next").addEventListener("click", () => shiftDate(1));
 $("#refresh").addEventListener("click", load);
-filterEl.addEventListener("input", () => { shown = PAGE; render(); });
+let filterTimer = null;
+filterEl.addEventListener("input", () => { shown = PAGE; if (mode === "season" && seasonYear === "all" && allTop) { clearTimeout(filterTimer); filterTimer = setTimeout(applyAllFilter, 250); } else render(); });
 document.querySelectorAll(".sort").forEach(b => b.addEventListener("click", () => {
   const key = b.dataset.key;
   if (key === sortKey) sortDir *= -1;
@@ -682,6 +740,7 @@ listEl.addEventListener("click", e => {
 listEl.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.classList.contains("hr")) e.target.click();
 });
+document.querySelector("#year").addEventListener("change", e => { seasonYear = e.target.value === "all" ? "all" : Number(e.target.value); openId = null; shown = PAGE; history.replaceState(null, "", `#season=${seasonYear}`); filterEl.placeholder = seasonYear === "all" ? "Type a player's name…" : "Filter by player or team…"; loadSeason(); });
 document.querySelector("#mine").addEventListener("click", () => { mineOnly = !mineOnly; shown = PAGE; render(); });
 document.querySelector("#share").addEventListener("click", async () => {
   const url = `${location.origin}${location.pathname}#mine=${[...favs.keys()].join(",")}`;
@@ -699,7 +758,7 @@ if (hashParams.mine) {
 if (/^\d{4}-\d{2}-\d{2}$/.test(hashParams.d ?? "")) { dateEl.value = hashParams.d; autoDate = false; }
 if (hashParams.hr) pendingOpen = hashParams.hr;
 load();
-if (hashParams.season) setMode("season");
+if (hashParams.season) { if (/^\d{4}$/.test(hashParams.season)) seasonYear = Number(hashParams.season); else if (hashParams.season === "all") seasonYear = "all"; if (hashParams.q) filterEl.value = decodeURIComponent(hashParams.q); setMode("season"); }
 </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// Builds real HTML pages from data/season.json so search engines can index the content:
+// Builds real HTML pages from data/seasons/*.json so search engines can index the content:
 //   days/YYYY-MM-DD/index.html   every game day
 //   players/<slug>/index.html    every player with a homer
 //   teams/<abbr>/index.html      every team
@@ -14,7 +14,8 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 const SITE = "https://nodoubters.com";
 const NAVY = "#0f1b2b", CHALK = "#f2efe6", DIM = "#b9b6ad", AMBER = "#f5b342", LINE = "rgba(242,239,230,.12)";
 
-const data = JSON.parse(await readFile("data/season.json", "utf8"));
+const YEARS = JSON.parse(await readFile("data/seasons/index.json", "utf8")).years;   // newest first
+const data = JSON.parse(await readFile(`data/seasons/${YEARS[0]}.json`, "utf8"));
 const HR = data.homeRuns.filter(h => h.date);
 const SEASON = data.season;
 
@@ -118,13 +119,32 @@ for (const [i, d] of dates.entries()) {
   const counts = Object.values(players).map(l => ({ h: l[0], n: l.length })).sort((a, b) => b.n - a.n).slice(0, 15);
   const body = `<h2>Longest 100 home runs of ${SEASON}</h2>` + rowsTable(top, { showDate: true }) +
     `<h2>Home run leaders</h2><table><thead><tr><th></th><th>Player</th><th>HR</th><th>Longest</th></tr></thead><tbody>${counts.map((c, i) => { const lg = [...players[c.h.batterId]].sort(byDist)[0]; return `<tr><td class="n">${i + 1}</td><td><a href="/players/${playerSlug(c.h)}/">${esc(c.h.batter)}</a></td><td class="d">${c.n}</td><td class="d">${ft(lg)}</td></tr>`; }).join("")}</tbody></table>`;
+  const yearLinks = `<p class="chips">${YEARS.map(y => y === SEASON ? `<a href="/season/" style="border-color:var(--amber);color:var(--amber)">${y}</a>` : `<a href="/season/${y}/">${y}</a>`).join("")}</p>`;
   await write("season/index.html", layout({
     title: `Longest MLB Home Runs of the ${SEASON} Season — Ranked by Distance | No Doubters`,
     description: `The ${SEASON} MLB season's longest home runs, ranked by Statcast distance. #1: ${best.batter} (${best.teamAbbr}), ${ft(best)} on ${shortDate(best.date)}. ${HR.length} homers tracked, each with the highlight.`,
     path: "/season/", h1: `Longest MLB home runs of ${SEASON}`,
     intro: `<b>${HR.length} home runs</b> tracked this season. The longest so far is <b>${esc(best.batter)}</b> (${best.teamAbbr}), <b>${ft(best)}</b> on ${longDate(best.date)}. Updated every morning. The <a href="/#season">interactive leaderboard</a> has every homer, sortable, with the clip.`,
-    body, jsonld: itemList(`Longest MLB home runs of ${SEASON}`, top, "/season/") }));
+    body: yearLinks + body, jsonld: itemList(`Longest MLB home runs of ${SEASON}`, top, "/season/") }));
   urls.push({ loc: "/season/", lastmod: dates.at(-1), changefreq: "daily", priority: "0.9" });
+
+  // one page per past season
+  for (const y of YEARS.slice(1)) {
+    const past = JSON.parse(await readFile(`data/seasons/${y}.json`, "utf8")).homeRuns.filter(h => h.date);
+    const prows = [...past].sort(byDist); const ptop = prows.slice(0, 100); const pbest = prows[0];
+    const pplayers = {}; for (const h of past) (pplayers[h.batterId] ||= []).push(h);
+    const pcounts = Object.values(pplayers).map(l => ({ h: l[0], n: l.length })).sort((a, b) => b.n - a.n).slice(0, 15);
+    const links = `<p class="chips">${YEARS.map(z => z === y ? `<a href="/season/${y}/" style="border-color:var(--amber);color:var(--amber)">${z}</a>` : z === SEASON ? `<a href="/season/">${z}</a>` : `<a href="/season/${z}/">${z}</a>`).join("")}</p>`;
+    const pbody = links + `<h2>Longest 100 home runs of ${y}</h2>` + rowsTable(ptop, { showDate: true }).replaceAll(`href="/players/`, `href="/#season=${y}&amp;q=`).replace(/href="\/days\/([\d-]+)\/"/g, `href="/#d=$1"`) +
+      `<h2>Home run leaders</h2><table><thead><tr><th></th><th>Player</th><th>HR</th><th>Longest</th></tr></thead><tbody>${pcounts.map((c, i) => { const lg = [...pplayers[c.h.batterId]].sort(byDist)[0]; return `<tr><td class="n">${i + 1}</td><td>${esc(c.h.batter)}</td><td class="d">${c.n}</td><td class="d">${ft(lg)}</td></tr>`; }).join("")}</tbody></table>`;
+    await write(`season/${y}/index.html`, layout({
+      title: `Longest MLB Home Runs of the ${y} Season — Ranked by Distance | No Doubters`,
+      description: `The ${y} MLB season's longest home runs, ranked by Statcast distance. #1: ${pbest.batter} (${pbest.teamAbbr}), ${ft(pbest)} on ${shortDate(pbest.date)}. ${past.length} homers, each with the highlight where MLB has one.`,
+      path: `/season/${y}/`, h1: `Longest MLB home runs of ${y}`,
+      intro: `<b>${past.length} home runs</b> in ${y}. The longest: <b>${esc(pbest.batter)}</b> (${pbest.teamAbbr}), <b>${ft(pbest)}</b> on ${longDate(pbest.date)}. Open the <a href="/#season=${y}">interactive ${y} leaderboard</a> to sort and play each clip.`,
+      body: pbody, jsonld: itemList(`Longest MLB home runs of ${y}`, ptop, `/season/${y}/`) }));
+    urls.push({ loc: `/season/${y}/`, lastmod: prows.map(r => r.date).sort().at(-1), changefreq: "yearly", priority: "0.6" });
+  }
 }
 
 // ---------- player pages + index ----------
