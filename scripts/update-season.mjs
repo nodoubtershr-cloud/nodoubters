@@ -82,16 +82,32 @@ async function gameHomeRuns(game, teams) {
 
 // MLB posts clips minutes to hours after a game and its highlight feed sometimes answers incompletely.
 // Every run, revisit homers that still lack a clip (newest first) and fill in what MLB has now.
+// Second-chance match for clips MLB published without the play-ID tag: the batter's name plus his
+// season HR number, which MLB puts in the title as "(17)". Only used when there is exactly one candidate.
+const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+function seasonNumbers(list) {
+  const byBatter = {};
+  for (const h of [...list].sort((a, b) => (a.time ?? a.date).localeCompare(b.time ?? b.date))) h.seasonNo = (byBatter[h.batterId] = (byBatter[h.batterId] ?? 0) + 1);
+}
+function titleMatch(h, items) {
+  const last = norm(h.batter.split(" ").filter(w => !/^(jr\.?|sr\.?|ii|iii)$/i.test(w)).at(-1));
+  const cands = items.filter(it => /homer|home run/i.test(it.title) && norm(it.title).includes(last) && it.title.includes(`(${h.seasonNo})`) && !/two-homer|three-homer|homers\b|multi/i.test(it.title));
+  return cands.length === 1 ? cands[0] : null;
+}
+
 async function fillMissingClips(list) {
+  seasonNumbers(list);
   const missing = list.filter(h => !h.mp4 && h.id);
   const games = [...new Set(missing.sort((a, b) => b.date.localeCompare(a.date)).map(h => h.gamePk))].slice(0, Number(process.env.MAX_FILL_GAMES ?? 400));
   if (!games.length) return;
   let filled = 0;
   await pool(games, async pk => {
     const content = await getJSON(`${API}/v1/game/${pk}/content`, 4);
-    const clips = new Map((content?.highlights?.highlights?.items ?? []).filter(it => it.guid).map(it => [it.guid, it]));
+    const items = content?.highlights?.highlights?.items ?? [];
+    const clips = new Map(items.filter(it => it.guid).map(it => [it.guid, it]));
     for (const h of missing) {
-      const clip = h.gamePk === pk ? clips.get(h.id) : null;
+      if (h.gamePk !== pk) continue;
+      const clip = clips.get(h.id) ?? titleMatch(h, items);
       if (!clip) continue;
       h.mp4 = clip.playbacks?.find(x => x.name === "mp4Avc")?.url ?? clip.playbacks?.find(x => /mp4/i.test(x.name))?.url ?? null;
       h.poster = clip.image?.cuts?.find(c => c.width >= 640)?.src ?? null;
