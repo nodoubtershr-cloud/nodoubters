@@ -25,6 +25,7 @@ async function getJSON(url, tries = 3) {
       const r = await fetch(url);
       if (r.ok) return r.json();
       if (r.status === 404) return null;
+      if (i === tries - 1) return null;
     } catch (e) { if (i === tries - 1) throw e; }
     await new Promise(res => setTimeout(res, 800 * (i + 1)));
   }
@@ -79,6 +80,28 @@ async function gameHomeRuns(game, teams) {
   return out;
 }
 
+// MLB posts clips minutes to hours after a game and its highlight feed sometimes answers incompletely.
+// Every run, revisit homers that still lack a clip (newest first) and fill in what MLB has now.
+async function fillMissingClips(list) {
+  const missing = list.filter(h => !h.mp4 && h.id);
+  const games = [...new Set(missing.sort((a, b) => b.date.localeCompare(a.date)).map(h => h.gamePk))].slice(0, Number(process.env.MAX_FILL_GAMES ?? 400));
+  if (!games.length) return;
+  let filled = 0;
+  await pool(games, async pk => {
+    const content = await getJSON(`${API}/v1/game/${pk}/content`, 4);
+    const clips = new Map((content?.highlights?.highlights?.items ?? []).filter(it => it.guid).map(it => [it.guid, it]));
+    for (const h of missing) {
+      const clip = h.gamePk === pk ? clips.get(h.id) : null;
+      if (!clip) continue;
+      h.mp4 = clip.playbacks?.find(x => x.name === "mp4Avc")?.url ?? clip.playbacks?.find(x => /mp4/i.test(x.name))?.url ?? null;
+      h.poster = clip.image?.cuts?.find(c => c.width >= 640)?.src ?? null;
+      h.title = clip.title ?? h.title;
+      if (h.mp4) filled++;
+    }
+  });
+  console.log(`clip fill: ${missing.length} missing across ${games.length} games → filled ${filled}`);
+}
+
 async function main() {
   // team id -> abbreviation/name
   const teamsRes = await getJSON(`${API}/v1/teams?sportId=1`);
@@ -105,6 +128,7 @@ async function main() {
   const touched = new Set(games.map(g => g.gamePk));
   const kept = existing.homeRuns.filter(h => !touched.has(h.gamePk));
   const byId = new Map([...kept, ...fresh].map(h => [h.id, h]));
+  await fillMissingClips([...byId.values()]);
   const all = [...byId.values()].sort((a, b) => (a.time ?? a.date).localeCompare(b.time ?? b.date));
 
   await mkdir("data", { recursive: true });
