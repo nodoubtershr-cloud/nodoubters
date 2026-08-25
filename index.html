@@ -624,6 +624,13 @@ async function fillMissingClips() {
 }
 async function pollLive() {
   if (mode !== "today" || document.hidden) return;
+  // Sitting on yesterday's board because today was empty? Check whether today has started.
+  if (autoDate && noticeEl.classList.contains("show") && !openId) {
+    try {
+      const today = await fetchHomeRuns(mlbToday());
+      if (today.homeRuns.length) { load(); return; }
+    } catch {}
+  }
   if (!liveDay() && !data.homeRuns.some(h => !h.mp4)) return;
   try {
     let changed = await fillMissingClips();
