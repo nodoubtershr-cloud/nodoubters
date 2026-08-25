@@ -136,7 +136,10 @@
   }
   .ft small { font-size: 11px; color: var(--chalk-dim); margin-left: 8px; }
   .time { position: absolute; right: 0; top: 0; font-family: var(--mono); font-size: 12px; color: var(--chalk-dim); }
-  .hr.nohl .time::after { content: "no clip yet"; margin-left: 10px; color: var(--dirt); }
+  .hr.nohl .time::after { content: "no clip"; margin-left: 10px; color: var(--dirt); }
+  .hr.nohl.pending .time::after { content: "clip pending"; color: var(--chalk-dim); animation: blink 2s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity: .45; } }
+  @media (prefers-reduced-motion: reduce) { .hr.nohl.pending .time::after { animation: none; } }
 
   /* ---------- player ---------- */
   .player { display: none; padding: 4px 0 20px; grid-column: 1 / -1; }
@@ -264,9 +267,9 @@ const SCALE_MIN = 300, SCALE_MAX = 500;     // feet; the bar track spans this ra
 
 // Highlight lists change for hours after a game, and MLB's CDN may serve a stale copy if its origin hiccups.
 // A time bucket on the URL forces a fresh edge fetch; no-store keeps the browser from reusing its own copy.
-async function getJSON(url) {
-  const bust = (url.includes("?") ? "&" : "?") + "_=" + Math.floor(Date.now() / 60000);
-  const r = await fetch(url + bust, { cache: "no-store" });
+async function getJSON(url, fresh = false) {
+  if (fresh) url += (url.includes("?") ? "&" : "?") + "_=" + Date.now();
+  const r = await fetch(url, fresh ? { cache: "no-store" } : {});
   if (!r.ok) throw new Error(`${r.status} ${url}`);
   return r.json();
 }
@@ -474,7 +477,7 @@ function render() {
     const hasDist = h.distance != null;
     const r = rank.get(id);
     return `
-      <article class="hr ${h.mp4 ? "" : "nohl"}" data-id="${id}" tabindex="0" aria-expanded="${openId === id}">
+      <article class="hr ${h.mp4 ? "" : "nohl"} ${!h.mp4 && liveDay() ? "pending" : ""}" data-id="${id}" tabindex="0" aria-expanded="${openId === id}">
         <div class="who-wrap">
           ${isSeason ? `<div class="rank ${r && r <= 10 ? "top" : ""}">${r ? "#" + r : ""}</div>` : ""}
           <button class="fav ${favs.has(String(h.batterId)) ? "on" : ""}" data-fav="${h.batterId}" data-name="${h.batter.replace(/"/g, "&quot;")}" title="${favs.has(String(h.batterId)) ? "Remove from" : "Add to"} my players" aria-label="${favs.has(String(h.batterId)) ? "Remove" : "Add"} ${h.batter} ${favs.has(String(h.batterId)) ? "from" : "to"} my players">${favs.has(String(h.batterId)) ? "★" : "☆"}</button>
@@ -511,7 +514,7 @@ async function retryClip(h) {
   if (retried.has(key) || !h.id) return;
   retried.add(key);
   try {
-    const content = await getJSON(`${API}/v1/game/${h.gamePk}/content`);
+    const content = await getJSON(`${API}/v1/game/${h.gamePk}/content`, true);
     const clip = (content?.highlights?.highlights?.items ?? []).find(it => it.guid === h.id);
     if (!clip) return;
     h.mp4 = clip.playbacks?.find(x => x.name === "mp4Avc")?.url ?? clip.playbacks?.find(x => /mp4/i.test(x.name))?.url ?? null;
@@ -594,7 +597,56 @@ function setMode(m) {
   else render();
 }
 
+// ---- live updates ----
+// While games are in progress, MLB posts clips a few minutes after each homer and new homers keep
+// landing. Re-check quietly in the background instead of leaving the page as a snapshot.
+function liveDay() { return mode === "today" && data.games.some(g => g.status?.abstractGameState === "Live"); }
+let pollTimer = null, lastFull = 0;
+async function fillMissingClips() {
+  const missing = data.homeRuns.filter(h => !h.mp4 && h.id);
+  const byGame = [...new Set(missing.map(h => h.gamePk))];
+  let changed = false;
+  await Promise.all(byGame.map(async pk => {
+    try {
+      const content = await getJSON(`${API}/v1/game/${pk}/content`, true);
+      const clips = new Map((content?.highlights?.highlights?.items ?? []).filter(it => it.guid).map(it => [it.guid, it]));
+      for (const h of missing) {
+        const clip = h.gamePk === pk ? clips.get(h.id) : null;
+        if (!clip) continue;
+        h.mp4 = clip.playbacks?.find(x => x.name === "mp4Avc")?.url ?? clip.playbacks?.find(x => /mp4/i.test(x.name))?.url ?? null;
+        h.poster = clip.image?.cuts?.find(c => c.width >= 640)?.src ?? null;
+        h.title = clip.title ?? h.title;
+        if (h.mp4) changed = true;
+      }
+    } catch {}
+  }));
+  return changed;
+}
+async function pollLive() {
+  if (mode !== "today" || document.hidden) return;
+  if (!liveDay() && !data.homeRuns.some(h => !h.mp4)) return;
+  try {
+    let changed = await fillMissingClips();
+    if (liveDay() && Date.now() - lastFull > 90000) {           // new homers + game states
+      lastFull = Date.now();
+      const fresh = await fetchHomeRuns(dateEl.value);
+      const known = new Map(data.homeRuns.map(h => [h.id ?? `${h.gamePk}-${h.batterId}-${h.inning}`, h]));
+      for (const h of fresh.homeRuns) {                          // keep clips we already found
+        const k = h.id ?? `${h.gamePk}-${h.batterId}-${h.inning}`;
+        const old = known.get(k);
+        if (old?.mp4 && !h.mp4) { h.mp4 = old.mp4; h.poster = old.poster; h.title = old.title; }
+        if (!old) changed = true;
+      }
+      data = fresh; tagNth(data.homeRuns); changed = true;
+    }
+    if (changed && !openId) render();                            // don't rebuild while a clip is open
+  } catch {}
+}
+function startPolling() { clearInterval(pollTimer); pollTimer = setInterval(pollLive, 60000); }
+document.addEventListener("visibilitychange", () => { if (!document.hidden) pollLive(); });
+
 // ---- wiring ----
+startPolling();
 document.querySelector("#mode-today").addEventListener("click", () => setMode("today"));
 document.querySelector("#mode-season").addEventListener("click", () => setMode("season"));
 renderScale();
