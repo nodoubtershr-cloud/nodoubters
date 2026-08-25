@@ -42,11 +42,16 @@ async function homeRunsFor(date) {
         id: bip?.playId, batter: p.matchup.batter.fullName, pitcher: p.matchup.pitcher.fullName,
         team: teams[isTop ? g.teams.away.team.id : g.teams.home.team.id], against: teams[isTop ? g.teams.home.team.id : g.teams.away.team.id],
         distance: hd.totalDistance ?? null, ev: hd.launchSpeed ?? null, time: p.about.endTime ?? p.about.startTime ?? "",
-        inning: p.about.inning, half: isTop ? "top" : "bottom",
+        inning: p.about.inning, half: isTop ? "top" : "bottom", rbi: p.result.rbi,
+        gs: p.result.rbi === 4,
+        wo: !isTop && p.about.inning >= 9 && g.status.abstractGameState === "Final" && p === (pbp.allPlays ?? []).at(-1),
       });
     }
   }));
-  return out.sort((a, b) => a.time.localeCompare(b.time));
+  out.sort((a, b) => a.time.localeCompare(b.time));
+  const perBatter = {};
+  for (const h of out) h.nth = (perBatter[h.batter] = (perBatter[h.batter] ?? 0) + 1);
+  return out;
 }
 
 // ---------- X (OAuth 1.0a user context, no dependencies) ----------
@@ -75,9 +80,23 @@ async function postTweet(text) {
 // ---------- text ----------
 const fmtDate = d => new Date(d + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
 const link = (date, h) => `${SITE}/#d=${date}&hr=${h.id}`;
+// Mirrors the site's badges: distance tier · grand slam / walk-off · multi-homer count
+function tags(h) {
+  const t = [];
+  if (h.distance >= 500) t.push("⭐ 500-foot club");
+  else if (h.distance >= 475) t.push("🪐 Into orbit (475+)");
+  else if (h.distance >= 450) t.push("🌕 Moonshot (450+)");
+  else if (h.distance >= 425) t.push("🔥 425+");
+  if (h.wo && h.gs) t.push("Walk-off grand slam!");
+  else if (h.wo) t.push("Walk-off!");
+  else if (h.gs) t.push("Grand slam");
+  const nth = { 2: "⭐ 2nd", 3: "🚀 3rd", 4: "💎 4th", 5: "🏆 5th" }[h.nth];
+  if (nth) t.push(`${nth} HR of the day`);
+  return t.length ? `\n${t.join(" · ")}` : "";
+}
 function describe(h) {
   const ev = h.ev ? `, ${h.ev} mph` : "";
-  return `${h.batter} (${h.team}) — ${h.distance} ft${ev} off ${h.pitcher}, ${h.half === "top" ? "T" : "B"}${h.inning} vs ${h.against}`;
+  return `${h.batter} (${h.team}) — ${h.distance} ft${ev} off ${h.pitcher}, ${h.half === "top" ? "T" : "B"}${h.inning} vs ${h.against}${tags(h)}`;
 }
 function tweetText(kind, date, h, count) {
   const withLink = LINKS === "all" || kind === "recap";

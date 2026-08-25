@@ -68,6 +68,8 @@ async function gameHomeRuns(game, teams) {
       pitcher: p.matchup.pitcher.fullName,
       team: bat.name, teamAbbr: bat.abbr, against: pit.abbr,
       inning: p.about.inning, half: p.about.halfInning, rbi: p.result.rbi,
+      gs: p.result.rbi === 4,
+      wo: !isTop && p.about.inning >= 9 && game.status.abstractGameState === "Final" && p === (pbp.allPlays ?? []).at(-1),
       distance: hd.totalDistance ?? null, ev: hd.launchSpeed ?? null, la: hd.launchAngle ?? null,
       time: p.about.endTime ?? p.about.startTime ?? null,
       title: clip?.title ?? null, mp4,
