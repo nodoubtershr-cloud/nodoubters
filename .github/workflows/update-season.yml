@@ -18,6 +18,8 @@ jobs:
           node-version: 22
       - name: Fetch the last 3 days of home runs
         run: node scripts/update-season.mjs
+      - name: Park counts (No Doubter data) for recent homers
+        run: RECENT_DAYS=4 node scripts/fill-parks.mjs $(TZ=America/Los_Angeles date +%Y) || echo "park data unavailable today"
       - name: Rebuild the all-seasons leaderboard and player histories
         run: node scripts/build-all.mjs
       - name: Rebuild the day / player / team pages and sitemap
@@ -26,5 +28,5 @@ jobs:
         run: |
           git config user.name "nodoubters-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add data/seasons data/all days players teams season sitemap.xml index.html
+          git add data/seasons data/all days players teams season hr sitemap.xml index.html
           git diff --cached --quiet || (git commit -m "Season data: $(date -u +%Y-%m-%d)" && git pull --rebase && git push)
