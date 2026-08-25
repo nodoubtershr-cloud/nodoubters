@@ -229,8 +229,11 @@
 const API = "https://statsapi.mlb.com/api";
 const SCALE_MIN = 300, SCALE_MAX = 500;     // feet; the bar track spans this range
 
+// Highlight lists change for hours after a game, and MLB's CDN may serve a stale copy if its origin hiccups.
+// A time bucket on the URL forces a fresh edge fetch; no-store keeps the browser from reusing its own copy.
 async function getJSON(url) {
-  const r = await fetch(url);
+  const bust = (url.includes("?") ? "&" : "?") + "_=" + Math.floor(Date.now() / 60000);
+  const r = await fetch(url + bust, { cache: "no-store" });
   if (!r.ok) throw new Error(`${r.status} ${url}`);
   return r.json();
 }
@@ -484,14 +487,14 @@ function playerHTML(h) {
   if (!h.savant && h.id && h.id.includes("-") && h.id.length > 30) h.savant = `https://baseballsavant.mlb.com/sporty-videos?playId=${h.id}`;
   if (!h.mp4) {
     retryClip(h);
-    return `<div class="caption">Checking MLB for this clip… if it doesn't appear, MLB hasn't posted it yet.${h.savant ? ` <a href="${h.savant}" target="_blank" rel="noopener">Try Baseball Savant ↗</a>` : ""}</div>`;
+    return `<div class="caption">Checking MLB for this clip… if it doesn't appear here, it's usually already on <a href="https://www.mlb.com/gameday/${h.gamePk}/final/video" target="_blank" rel="noopener">MLB.com's game video page ↗</a>${h.savant ? ` or <a href="${h.savant}" target="_blank" rel="noopener">Baseball Savant ↗</a>` : ""}.</div>`;
   }
   return `
     <video controls autoplay playsinline preload="metadata" ${h.poster ? `poster="${h.poster}"` : ""} src="${h.mp4}"></video>
     <div class="caption">
       <span>${h.title ?? h.description}</span>
       <span>off ${h.pitcher}</span>
-      <a href="${h.mp4}" target="_blank" rel="noopener">mp4 ↗</a>
+      <a href="https://www.mlb.com/gameday/${h.gamePk}/final/video" target="_blank" rel="noopener">MLB.com ↗</a>
       ${h.savant ? `<a href="${h.savant}" target="_blank" rel="noopener">Savant ↗</a>` : ""}
     </div>`;
 }
