@@ -217,7 +217,9 @@ await writeFile("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset 
 
 // ---------- homepage prerender block ----------
 {
-  const latest = dates.at(-1); const rows = [...days[latest]].sort(byDist).slice(0, 5); const seasonBest = [...HR].sort(byDist)[0];
+  // the latest *finished* day: never today's slate, even if a manual run pulled in-progress homers
+  const todayPT = new Date().toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" });
+  const latest = dates.filter(d => d < todayPT).at(-1) ?? dates.at(-1); const rows = [...days[latest]].sort(byDist).slice(0, 5); const seasonBest = [...HR].sort(byDist)[0];
   const block = `
 <h2 data-date="${latest}">Yesterday's longest home runs — ${longDate(latest)}</h2>
 <ol>${rows.map(h => `<li><a href="${watch(h)}">${esc(h.batter)}</a> (${h.teamAbbr}) — ${ft(h)}${h.ev ? `, ${h.ev} mph` : ""}</li>`).join("")}</ol>
