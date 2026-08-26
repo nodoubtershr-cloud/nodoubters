@@ -162,6 +162,7 @@
   .player .vidwrap { position: relative; max-width: 960px; }
   .player .unmute { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; background: rgba(15,27,43,.72); color: var(--chalk); border: 1px solid rgba(242,239,230,.25); border-radius: 50%; font-size: 16px; line-height: 32px; text-align: center; padding: 0; cursor: pointer; backdrop-filter: blur(4px); transition: opacity .4s; }
   .player .unmute.fade { opacity: 0; pointer-events: none; }
+  @media (hover: none) and (pointer: coarse) { .player .unmute { display: none; } }   /* phones and tablets: the native player already has a mute toggle */
   .player .vidwrap:hover .unmute.fade { opacity: 1; pointer-events: auto; }
   .player .caption .actions { display: inline-flex; gap: 14px; align-items: center; margin-left: auto; }
   .player .caption button { background: transparent; color: var(--chalk-dim); border: 1px solid var(--line); border-radius: 999px; height: 26px; padding: 0 12px; font-family: var(--mono); font-size: 12px; cursor: pointer; }
