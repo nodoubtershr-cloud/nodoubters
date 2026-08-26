@@ -239,5 +239,7 @@ await writeFile("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset 
   const html = await readFile("index.html", "utf8");
   const out = html.replace(/<!-- prerender:start -->[\s\S]*?<!-- prerender:end -->/, `<!-- prerender:start -->${block}\n<!-- prerender:end -->`);
   if (out !== html) await writeFile("index.html", out);
+  // the same block as a small file the page can refresh itself from (index.html uploads can carry a stale copy)
+  await writeFile("data/yesterday.json", JSON.stringify({ date: latest, html: block }));
 }
 console.log(`built ${dates.length} day pages, ${playerList.length} player pages, ${teamList.length} team pages, season page, sitemap (${urls.length} urls)`);
