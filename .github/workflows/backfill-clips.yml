@@ -12,6 +12,9 @@ on:
       years:
         description: "Seasons to fill, space-separated (default: all)"
         default: "2026 2025 2024 2023 2022 2021 2020 2019 2018 2017 2016 2015"
+      what:
+        description: "all = re-pull plays + clips + park data · parks = Savant park data only (fast)"
+        default: "all"
 
 permissions:
   contents: write
@@ -38,7 +41,9 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           for y in ${{ github.event.inputs.years }}; do
             echo "=== $y ==="
-            node scripts/update-season.mjs $y-03-01 $y-11-15 || echo "season $y: update failed, continuing"
+            if [ "${{ github.event.inputs.what }}" != "parks" ]; then
+              node scripts/update-season.mjs $y-03-01 $y-11-15 || echo "season $y: update failed, continuing"
+            fi
             node scripts/fill-parks.mjs $y || echo "season $y: park data failed, continuing"
             git add data
             if ! git diff --cached --quiet; then
