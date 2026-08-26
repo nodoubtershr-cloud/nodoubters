@@ -16,6 +16,7 @@ const year = process.argv[2] ?? new Date().getFullYear();
 const FILE = `data/seasons/${year}.json`;
 const UA = { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36" };
 const MAX = Number(process.env.MAX_PLAYERS ?? 800);
+const PARKS = ["ari","atl","bal","bos","chc","cin","cle","col","cws","det","hou","kc","laa","lad","mia","mil","min","nym","nyy","oak","phi","pit","sd","sea","sf","stl","tb","tex","tor","wsh"];
 
 const data = JSON.parse(await readFile(FILE, "utf8"));
 const byId = new Map(data.homeRuns.map(h => [h.id, h]));
@@ -48,8 +49,14 @@ await Promise.all(Array.from({ length: 5 }, async () => {
       for (const x of rawRows) {
         const h = byId.get(x.play_id);
         if (!h || x.result !== "home_run") continue;
-        const parks = Number(x.ct);
-        if (!Number.isNaN(parks)) { h.parks = parks; h.cat = x.hr_cat || null; }
+        let parks = Number(x.ct);
+        // 2020: the raw model's Toronto entry (the Blue Jays' Buffalo season) is broken and marks almost every
+        // homer as "not out in TOR". Savant's own play pages ignore it; so do we.
+        if (String(year) === "2020" && !Number.isNaN(parks)) {
+          const others = PARKS.filter(p => p !== "tor").reduce((n, p) => n + (Number(x[p]) ? 1 : 0), 0);
+          parks = others + 1;
+        }
+        if (!Number.isNaN(parks)) { h.parks = parks; h.cat = parks === 30 ? "No Doubter" : (x.hr_cat || null); }
         if (x.pitcher_id && !h.pitcherId) h.pitcherId = Number(x.pitcher_id);
         joined++;
       }
