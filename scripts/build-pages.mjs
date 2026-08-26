@@ -219,10 +219,10 @@ await writeFile("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset 
 {
   const latest = dates.at(-1); const rows = [...days[latest]].sort(byDist).slice(0, 5); const seasonBest = [...HR].sort(byDist)[0];
   const block = `
-<h2>Longest home runs — ${longDate(latest)}</h2>
+<h2 data-date="${latest}">Yesterday's longest home runs — ${longDate(latest)}</h2>
 <ol>${rows.map(h => `<li><a href="${watch(h)}">${esc(h.batter)}</a> (${h.teamAbbr}) — ${ft(h)}${h.ev ? `, ${h.ev} mph` : ""}</li>`).join("")}</ol>
 <p>${days[latest].length} home runs that day. <a href="/days/${latest}/">Full list for ${shortDate(latest)}</a> · Longest of ${SEASON} so far: <a href="/players/${playerSlug(seasonBest)}/">${esc(seasonBest.batter)}</a>, ${ft(seasonBest)} on <a href="/days/${seasonBest.date}/">${shortDate(seasonBest.date)}</a>. <a href="/season/">Season leaderboard</a></p>
-<p>No Doubters tracks every Major League Baseball home run with its Statcast distance, exit velocity, and launch angle, and links each one to the official MLB highlight. The board above updates live during games; these pages update every morning.</p>
+<p>No Doubters tracks every Major League Baseball home run since 2015 with its Statcast distance, exit velocity, and launch angle, and links each one to the official highlight.<br>The board above updates live during games; the season archive, player and pitcher histories, and these pages update every morning.</p>
 <p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: ${dates.slice(-7).reverse().map(d => `<a href="/days/${d}/">${shortDate(d)}</a>`).join(" · ")}</p>`;
   const html = await readFile("index.html", "utf8");
   const out = html.replace(/<!-- prerender:start -->[\s\S]*?<!-- prerender:end -->/, `<!-- prerender:start -->${block}\n<!-- prerender:end -->`);
