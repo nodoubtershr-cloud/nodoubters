@@ -1012,7 +1012,7 @@ function setBy(pitcher) {
   byPitcher = pitcher; openId = null; shown = PAGE;
   document.querySelector("#by-hitter").setAttribute("aria-pressed", !pitcher);
   document.querySelector("#by-pitcher").setAttribute("aria-pressed", pitcher);
-  filterEl.placeholder = pitcher ? "Pitcher, team, park, date" : "Player, team, park, date";
+
   updateHash();
   if (mode === "season" && seasonYear === "all" && allTop) applyAllFilter(); else render();
 }
