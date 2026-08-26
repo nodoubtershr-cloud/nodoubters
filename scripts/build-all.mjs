@@ -9,7 +9,8 @@
 import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
 
 const DIR = "data/seasons";
-const years = JSON.parse(await readFile(`${DIR}/index.json`, "utf8")).years.sort((a, b) => a - b);
+const FIRST_SEASON = 2016;
+const years = JSON.parse(await readFile(`${DIR}/index.json`, "utf8")).years.filter(y => y >= FIRST_SEASON).sort((a, b) => a - b);
 const byDist = (a, b) => (b.distance ?? -1) - (a.distance ?? -1);
 
 const all = [];
