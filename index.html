@@ -338,7 +338,7 @@
 <ol><li><a href="/#d=2026-08-24&hr=d24c0640-829f-3c66-b1fa-bb4701f66b56">Michael Conforto</a> (CHC) — 431 ft, 110.9 mph</li><li><a href="/#d=2026-08-24&hr=7de07fa5-fefe-3c7a-b436-adff94e2bd25">Rafael Devers</a> (SF) — 427 ft, 108.9 mph</li><li><a href="/#d=2026-08-24&hr=cb066bd9-ceaa-36cc-acfc-37277d39b612">Daylen Lile</a> (WSH) — 420 ft, 105.2 mph</li><li><a href="/#d=2026-08-24&hr=6ffca17c-1aa0-3bd9-b8a6-a216b9245eb2">Ezequiel Tovar</a> (COL) — 416 ft, 104.8 mph</li><li><a href="/#d=2026-08-24&hr=c0ced64e-977a-36c5-bde6-3be25f9b1dc3">Esmerlyn Valdez</a> (PIT) — 414 ft, 111.6 mph</li></ol>
 <p>19 home runs that day. <a href="/days/2026-08-24/">Full list for Aug 24</a> · Longest of 2026 so far: <a href="/players/fernando-tatis-jr-665487/">Fernando Tatis Jr.</a>, 474 ft on <a href="/days/2026-07-21/">Jul 21</a>. <a href="/season/">Season leaderboard</a></p>
 <p>No Doubters tracks every Major League Baseball home run since 2016 with its Statcast distance, exit velocity, and launch angle, and links each one to the official highlight.<br>The board above updates live during games; the season archive, player and pitcher histories, and these pages update every morning.</p>
-<p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: <a href="/days/2026-08-25/">Aug 25</a> · <a href="/days/2026-08-24/">Aug 24</a> · <a href="/days/2026-08-23/">Aug 23</a> · <a href="/days/2026-08-22/">Aug 22</a> · <a href="/days/2026-08-21/">Aug 21</a> · <a href="/days/2026-08-20/">Aug 20</a> · <a href="/days/2026-08-19/">Aug 19</a></p>
+<p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: <a href="/days/2026-08-24/">Aug 24</a> · <a href="/days/2026-08-23/">Aug 23</a> · <a href="/days/2026-08-22/">Aug 22</a> · <a href="/days/2026-08-21/">Aug 21</a> · <a href="/days/2026-08-20/">Aug 20</a> · <a href="/days/2026-08-19/">Aug 19</a> · <a href="/days/2026-08-18/">Aug 18</a></p>
 <!-- prerender:end -->
 </section>
 <footer>
@@ -594,9 +594,18 @@ async function mergeCareer(list) {
   }
 }
 let recentParks = null;                      // play id → park count, from data/recent-parks.json (yesterday and earlier)
+const PARKS_API = "https://nodoubters-tweets.connorbeeks1.workers.dev/parks";   // live counts for today's games, via the Worker
 async function mergeParks(list) {
   if (!recentParks) { try { const r = await fetch("data/recent-parks.json", { cache: "no-cache" }); recentParks = r.ok ? (await r.json()).parks : {}; } catch { recentParks = {}; } }
   for (const h of list) if (h.parks == null && recentParks[h.id] != null) h.parks = recentParks[h.id];
+  // still missing (today's games): ask the live source
+  const missing = list.filter(h => h.parks == null && h.id);
+  if (missing.length && dateEl.value) {
+    try {
+      const r = await fetch(`${PARKS_API}?date=${dateEl.value}`);
+      if (r.ok) { const live = (await r.json()).parks ?? {}; for (const h of missing) if (live[h.id] != null) h.parks = live[h.id]; }
+    } catch {}
+  }
 }                      // playId to auto-expand after load (from #hr=)
 let autoDate = true;                         // true until the visitor picks a date themselves
 const noticeEl = document.querySelector("#notice");
