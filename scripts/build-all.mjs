@@ -21,6 +21,47 @@ for (const y of years) {
 
 await mkdir("data/all/players", { recursive: true });
 
+// ---------- career numbering + milestones ----------
+// Regular-season homers only. For each hitter, "base" = career HR before our data began (MLB career total
+// minus what we have), computed once and cached so daily runs don't hit the API for 1,500 players.
+const CAREER_FILE = "data/all/career-base.json";
+let careerBase = {};
+try { careerBase = JSON.parse(await readFile(CAREER_FILE, "utf8")); } catch {}
+const regular = all.filter(h => (h.gt ?? "R") === "R");
+const byBatter = {};
+for (const h of regular) (byBatter[h.batterId] ||= []).push(h);
+const need = Object.keys(byBatter).filter(id => careerBase[id] == null);
+let i = 0;
+await Promise.all(Array.from({ length: 8 }, async () => {
+  while (i < need.length) {
+    const id = need[i++];
+    try {
+      const r = await fetch(`https://statsapi.mlb.com/api/v1/people/${id}/stats?stats=career&group=hitting`);
+      const total = Number((await r.json()).stats?.[0]?.splits?.[0]?.stat?.homeRuns ?? NaN);
+      if (!Number.isNaN(total)) careerBase[id] = Math.max(0, total - byBatter[id].length);
+    } catch {}
+  }
+}));
+if (need.length) await writeFile(CAREER_FILE, JSON.stringify(careerBase));
+const isMilestone = n => n === 1 || (n > 0 && n % 100 === 0);
+let milestones = 0;
+const careerIndex = {};
+for (const [id, list] of Object.entries(byBatter)) {
+  const base = careerBase[id] ?? 0;
+  list.sort((a, b) => (a.time ?? a.date).localeCompare(b.time ?? b.date));
+  list.forEach((h, k) => { h.career = base + k + 1; if (isMilestone(h.career)) { h.ms = h.career; milestones++; } else delete h.ms; });
+  careerIndex[id] = { name: list.at(-1).batter, base, count: base + list.length, through: list.at(-1).date };
+}
+await writeFile("data/all/career.json", JSON.stringify({ updated: new Date().toISOString(), players: careerIndex }));
+// write career numbers back into the season files so the Season tab has them too
+for (const y of years) {
+  const f = `${DIR}/${y}.json`; const d = JSON.parse(await readFile(f, "utf8"));
+  const m = new Map(all.filter(h => h.season === y).map(h => [h.id, h]));
+  for (const h of d.homeRuns) { const x = m.get(h.id); if (x?.career) { h.career = x.career; if (x.ms) h.ms = x.ms; else delete h.ms; } }
+  await writeFile(f, JSON.stringify(d));
+}
+console.log(`career milestones: ${milestones} (${need.length} players looked up this run)`);
+
 // leaderboard
 const ranked = all.filter(h => h.distance != null).sort(byDist);
 await writeFile("data/all/top.json", JSON.stringify({

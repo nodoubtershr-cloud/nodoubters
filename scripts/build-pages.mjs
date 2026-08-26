@@ -29,7 +29,10 @@ const shortDate = d => new Date(d + "T12:00:00").toLocaleDateString("en-US", { m
 const byDist = (a, b) => (b.distance ?? -1) - (a.distance ?? -1);
 const watch = h => `/#d=${h.date}&hr=${h.id}`;
 const ft = h => h.distance != null ? `${h.distance} ft` : "—";
-const evTags = h => (h.gs ? '<span class="ev gs">GRAND SLAM</span>' : "") + (h.wo ? '<span class="ev wo">WALK-OFF</span>' : "") + (h.gt === "W" ? '<span class="ev ws">WS</span>' : h.gt && h.gt !== "R" ? '<span class="ev ps">PS</span>' : "");
+const ord = n => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][Math.min(n % 10, 4)] ?? "th");
+const msColor = n => n === 1 ? "#f2efe6" : n === 100 ? "#3c8a4a" : n === 200 ? "#22b8cf" : n === 300 ? "#3b82c4" : n === 400 ? "#8b5cf6" : n === 500 ? "#f5b342" : "#ff3d8e";
+const msFg = n => [1, 200, 500].includes(n) ? "#0f1b2b" : "#f2efe6";
+const evTags = h => (h.ms ? `<span class="ev ms" style="background:${msColor(h.ms)};color:${msFg(h.ms)}">${ord(h.ms).toUpperCase()} CAREER</span>` : "") + (h.gs ? '<span class="ev gs">GRAND SLAM</span>' : "") + (h.wo ? '<span class="ev wo">WALK-OFF</span>' : "") + (h.gt === "W" ? '<span class="ev ws">WS</span>' : h.gt && h.gt !== "R" ? '<span class="ev ps">PS</span>' : "");
 const write = async (path, html) => { await mkdir(path.replace(/\/[^/]*$/, ""), { recursive: true }); await writeFile(path, html); };
 
 function layout({ title, description, path, h1, intro, body, jsonld }) {
@@ -63,7 +66,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld)}</script
   td.w a{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--amber);text-decoration:none;border:1px solid var(--amber);border-radius:999px;padding:3px 10px;white-space:nowrap} td.w a:hover{background:var(--amber);color:var(--night)}
   .bar{display:inline-block;height:8px;background:var(--grass);border-radius:0 2px 2px 0;vertical-align:middle;margin-right:8px}
   .meta{color:var(--dim);font-size:12px;font-family:"IBM Plex Mono",monospace}
-  .ev{display:inline-block;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:11px;letter-spacing:1px;color:var(--chalk);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle} .ev.gs{background:#3c8a4a} .ev.wo{background:#e5533d} .ev.ps{border:1px solid var(--amber);color:var(--amber)} .ev.ws{background:var(--amber);color:var(--night)}
+  .ev{display:inline-block;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:11px;letter-spacing:1px;color:var(--chalk);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle} .ev.gs{background:#3c8a4a} .ev.wo{background:#e5533d} .ev.ps{border:1px solid var(--amber);color:var(--amber)} .ev.ws{background:var(--amber);color:var(--night)} .ev.ms{background:var(--chalk);color:var(--night)}
   .chips a{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:12px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;margin:0 6px 6px 0;text-decoration:none}
   .pn{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",monospace;font-size:13px;margin:18px 0}
   footer{padding:24px;border-top:1px solid var(--line);color:var(--dim);font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.7} footer a{color:var(--dim)}

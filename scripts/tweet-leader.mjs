@@ -40,7 +40,7 @@ async function homeRunsFor(date) {
       const hd = bip?.hitData ?? {};
       const isTop = p.about.halfInning === "top";
       out.push({
-        id: bip?.playId, batter: p.matchup.batter.fullName, pitcher: p.matchup.pitcher.fullName,
+        id: bip?.playId, batter: p.matchup.batter.fullName, batterId: p.matchup.batter.id, pitcher: p.matchup.pitcher.fullName,
         team: teams[isTop ? g.teams.away.team.id : g.teams.home.team.id], against: teams[isTop ? g.teams.home.team.id : g.teams.away.team.id],
         distance: hd.totalDistance ?? null, ev: hd.launchSpeed ?? null, time: p.about.endTime ?? p.about.startTime ?? "",
         inning: p.about.inning, half: isTop ? "top" : "bottom", rbi: p.result.rbi, gt: g.gameType,
@@ -51,7 +51,18 @@ async function homeRunsFor(date) {
   }));
   out.sort((a, b) => a.time.localeCompare(b.time));
   const perBatter = {};
-  for (const h of out) h.nth = (perBatter[h.batter] = (perBatter[h.batter] ?? 0) + 1);
+  for (const h of out) { const k = `${h.gamePk ?? ""}|${h.batter}`; h.nth = (perBatter[k] = (perBatter[k] ?? 0) + 1); }
+  // career milestones (regular season): the site's archive knows each hitter's total through yesterday
+  try {
+    const idx = (await (await fetch("https://nodoubters.com/data/all/career.json")).json()).players;
+    const seen = {};
+    for (const h of out) {
+      if ((h.gt ?? "R") !== "R") continue;
+      const c = idx[h.batterId]; if (!c || !(date > c.through)) continue;
+      const n = c.count + (seen[h.batterId] = (seen[h.batterId] ?? 0) + 1);
+      if (n === 1 || n % 100 === 0) h.ms = n;
+    }
+  } catch {}
   return out;
 }
 
@@ -84,6 +95,7 @@ const link = (date, h) => `${SITE}/#d=${date}&hr=${h.id}`;
 // Mirrors the site's badges: distance tier · grand slam / walk-off · multi-homer count
 function tags(h) {
   const t = [];
+  if (h.ms) t.push(h.ms === 1 ? "🎉 1st career HR" : `🏅 ${h.ms}th career HR`);
   if (h.distance >= 500) t.push("⭐ 500-foot club");
   else if (h.distance >= 475) t.push("🪐 Into orbit (475+)");
   else if (h.distance >= 450) t.push("🌕 Moonshot (450+)");
@@ -94,7 +106,7 @@ function tags(h) {
   else if (h.wo) t.push("Walk-off!");
   else if (h.gs) t.push("Grand slam");
   const nth = { 2: "⭐ 2nd", 3: "🚀 3rd", 4: "💎 4th", 5: "🏆 5th" }[h.nth];
-  if (nth) t.push(`${nth} HR of the day`);
+  if (nth) t.push(`${nth} HR of the game`);
   return t.length ? `\n${t.join(" · ")}` : "";
 }
 function describe(h) {
