@@ -160,7 +160,9 @@
   .player .caption a { color: var(--chalk-dim); }
   .player .caption a:hover { color: var(--amber); }
   .player .vidwrap { position: relative; max-width: 960px; }
-  .player .unmute { position: absolute; left: 12px; bottom: 56px; background: var(--chalk); color: var(--night); border: 0; border-radius: 999px; padding: 8px 14px; font: 600 13px var(--body); cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,.4); }
+  .player .unmute { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; background: rgba(15,27,43,.72); color: var(--chalk); border: 1px solid rgba(242,239,230,.25); border-radius: 50%; font-size: 16px; line-height: 32px; text-align: center; padding: 0; cursor: pointer; backdrop-filter: blur(4px); transition: opacity .4s; }
+  .player .unmute.fade { opacity: 0; pointer-events: none; }
+  .player .vidwrap:hover .unmute.fade { opacity: 1; pointer-events: auto; }
   .player .caption .actions { display: inline-flex; gap: 14px; align-items: center; margin-left: auto; }
   .player .caption button { background: transparent; color: var(--chalk-dim); border: 1px solid var(--line); border-radius: 999px; height: 26px; padding: 0 12px; font-family: var(--mono); font-size: 12px; cursor: pointer; }
   .player .caption button:hover { color: var(--amber); border-color: var(--amber); }
@@ -662,9 +664,11 @@ function ensurePlaying() {
     v.muted = true;
     v.play().then(() => {
       const wrap = v.parentElement; if (wrap.querySelector(".unmute")) return;
-      const b = document.createElement("button"); b.className = "unmute"; b.textContent = "🔇 Tap for sound";
+      const b = document.createElement("button"); b.className = "unmute"; b.textContent = "🔇"; b.title = "Tap for sound"; b.setAttribute("aria-label", "Unmute");
       b.addEventListener("click", e => { e.stopPropagation(); v.muted = false; b.remove(); });
+      v.addEventListener("volumechange", () => { if (!v.muted) b.remove(); });
       wrap.appendChild(b);
+      setTimeout(() => b.classList.add("fade"), 5000);
     }).catch(() => {});
   });
 }
