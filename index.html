@@ -629,6 +629,7 @@ function showSeasonNote() {
   const src = season.all ? allTop : season;
   const through = src?.through ?? (src?.homeRuns?.length ? src.homeRuns.reduce((m, h) => (h.date > m ? h.date : m), "") : null);
   const isCurrent = !season.all && Number(seasonYear) === Math.max(...seasonYears);
+  if (isCurrent || season.all) { seasonNoteEl.classList.remove("show"); return; }   // live views need no note
   if (byPitcher && !season.all) { seasonNoteEl.innerHTML = `Every home run of ${season.season} by the pitcher who allowed it. Star a pitcher to follow him in ★ Starred.`; seasonNoteEl.classList.add("show"); return; }
   seasonNoteEl.innerHTML = isCurrent || season.all
     ? `Archive through <b>${through ? fmtDate(through) : "—"}</b>, plus today's homers as they happen${liveToday?.length ? ` (<b>${liveToday.length}</b> so far)` : ""} · the morning update makes them permanent.`
