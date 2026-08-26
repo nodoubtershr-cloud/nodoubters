@@ -1,4 +1,4 @@
-// Tweets the longest home run of the day from @nodoubters.
+// Tweets the longest home run of the day from @NoDoubtersMLB.
 //
 //   node scripts/tweet-leader.mjs live    # during games: announce leader at HR #5, then every lead change
 //   node scripts/tweet-leader.mjs recap   # next morning: yesterday's final longest

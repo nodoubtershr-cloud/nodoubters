@@ -36,7 +36,7 @@ from the MLB API (defaults to the last 3 days; pass two dates for a range). A Gi
 
 ## Tweets
 
-`scripts/tweet-leader.mjs` posts to @nodoubters: the day's longest-HR leader once 5 homers are in,
+`scripts/tweet-leader.mjs` posts to @NoDoubtersMLB: the day's longest-HR leader once 5 homers are in,
 each lead change after that, and a morning recap. `.github/workflows/tweet-leader.yml` schedules it.
 Needs X_API_KEY / X_API_SECRET / X_ACCESS_TOKEN / X_ACCESS_SECRET as repository secrets.
 Set `LINKS=recap` in the workflow env to link only the recap (cheaper on X's per-URL pricing).

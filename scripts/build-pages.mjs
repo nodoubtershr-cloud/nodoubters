@@ -47,7 +47,7 @@ function layout({ title, description, path, h1, intro, body, jsonld }) {
 <meta property="og:type" content="website"><meta property="og:site_name" content="No Doubters">
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${SITE}${path}"><meta property="og:image" content="${SITE}/og-image.png">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@nodoubters">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@NoDoubtersMLB">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld)}</script>` : ""}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -83,7 +83,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld)}</script
 <p class="intro">${intro}</p>
 ${body}
 </main>
-<footer>Independent fan project, not affiliated with Major League Baseball. Video, data, and player images are MLB property. Distances are Statcast projected distances via the MLB Stats API.<br><a href="/">nodoubters.com</a> · <a href="https://x.com/nodoubters">@nodoubters</a> · <a href="https://buymeacoffee.com/nodoubters">buy me a coffee ☕</a></footer>
+<footer>Independent fan project, not affiliated with Major League Baseball. Video, data, and player images are MLB property. Distances are Statcast projected distances via the MLB Stats API.<br><a href="/">nodoubters.com</a> · <a href="https://x.com/NoDoubtersMLB">@NoDoubtersMLB</a> · <a href="https://buymeacoffee.com/nodoubters">buy me a coffee ☕</a></footer>
 </body>
 </html>`;
 }
@@ -206,7 +206,7 @@ urls.push({ loc: "/teams/", lastmod: dates.at(-1), changefreq: "daily", priority
 <meta name="description" content="${esc(desc)}"><link rel="canonical" href="${SITE}${target}"><meta name="robots" content="noindex">
 <meta property="og:type" content="video.other"><meta property="og:site_name" content="No Doubters"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${SITE}/hr/${h.id}/"><meta property="og:image" content="${h.poster ?? SITE + "/og-image.png"}">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@nodoubters">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@NoDoubtersMLB">
 <meta http-equiv="refresh" content="0;url=${target}"><script>location.replace(${JSON.stringify(target)})</script>
 <style>body{background:#0f1b2b;color:#f2efe6;font-family:system-ui;padding:40px}a{color:#f5b342}</style></head>
 <body><p>${esc(title)}. <a href="${target}">Watch on No Doubters →</a></p></body></html>`);
