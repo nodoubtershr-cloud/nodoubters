@@ -682,7 +682,7 @@ function playerHTML(h) {
   return `
     <div class="vidwrap"><video controls autoplay playsinline preload="metadata" ${h.poster ? `poster="${h.poster}"` : ""} src="${h.mp4}"></video></div>
     <div class="caption">
-      <span>${(h.title ?? h.description).replace(/[.!]+$/, "")} off ${h.pitcher}${h.venue ? ` · ${h.venue}` : ""}${h.src === "savant" ? " · video via Baseball Savant" : ""}</span>
+      <span>${(h.title ?? h.description ?? `${h.batter}'s ${h.distance ? `${h.distance}-foot ` : ""}${h.rbi === 4 ? "grand slam" : h.rbi ? `${h.rbi}-run home run` : "home run"}`).replace(/[.!]+$/, "")} off ${h.pitcher}${h.venue ? ` · ${h.venue}` : ""}${h.src === "savant" ? " · video via Baseball Savant" : ""}</span>
       <span class="actions"><button data-share="${h.id ?? h.playId}">Share</button>
       <a href="https://x.com/intent/post?text=${encodeURIComponent(shareText(h) + " ⚾")}&url=${encodeURIComponent(shareUrl(h))}" target="_blank" rel="noopener">Post on X ↗</a>
       <a href="https://www.mlb.com/gameday/${h.gamePk}/final/video" target="_blank" rel="noopener">MLB.com ↗</a>
