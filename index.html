@@ -118,6 +118,8 @@
     padding: 12px 0; border-top: 1px solid var(--line); cursor: pointer;
   }
   .hr:hover .who { color: var(--amber); }
+  .hr { scroll-margin-top: 140px; }
+  @media (max-width: 720px) { .hr { scroll-margin-top: 12px; } }
   .who-wrap { display: flex; align-items: center; gap: 12px; min-width: 0; }
   .headshot {
     width: 44px; height: 44px; border-radius: 50%; background: var(--night-2); object-fit: cover; flex: none;
@@ -157,6 +159,8 @@
   .player .caption { font-family: var(--mono); font-size: 12px; color: var(--chalk-dim); margin-top: 8px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; max-width: 960px; }
   .player .caption a { color: var(--chalk-dim); }
   .player .caption a:hover { color: var(--amber); }
+  .player .vidwrap { position: relative; max-width: 960px; }
+  .player .unmute { position: absolute; left: 12px; bottom: 56px; background: var(--chalk); color: var(--night); border: 0; border-radius: 999px; padding: 8px 14px; font: 600 13px var(--body); cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,.4); }
   .player .caption .actions { display: inline-flex; gap: 14px; align-items: center; margin-left: auto; }
   .player .caption button { background: transparent; color: var(--chalk-dim); border: 1px solid var(--line); border-radius: 999px; height: 26px; padding: 0 12px; font-family: var(--mono); font-size: 12px; cursor: pointer; }
   .player .caption button:hover { color: var(--amber); border-color: var(--amber); }
@@ -287,11 +291,11 @@
 <main id="list"></main>
 <section class="prerender" id="prerender">
 <!-- prerender:start -->
-<h2 data-date="2026-08-25">Yesterday's longest home runs — Tuesday, August 25, 2026</h2>
-<ol><li><a href="/#d=2026-08-25&hr=0b8ec59d-4491-3fde-a1cd-05bc90704c56">Christian Encarnacion-Strand</a> (BAL) — 450 ft, 111.8 mph</li><li><a href="/#d=2026-08-25&hr=e79263ea-fb83-3b48-bad8-98ea66353a94">Pete Alonso</a> (BAL) — 435 ft, 111.3 mph</li><li><a href="/#d=2026-08-25&hr=64372995-0d52-3360-b510-97dc91281a0a">Hunter Goodman</a> (COL) — 432 ft, 109.5 mph</li><li><a href="/#d=2026-08-25&hr=c989b299-5a8f-384f-b5eb-557aaa981559">Jake Burger</a> (TEX) — 424 ft, 110.2 mph</li><li><a href="/#d=2026-08-25&hr=996ceb6d-9461-327e-a723-9728f1e0abbc">Mickey Gasper</a> (BOS) — 418 ft, 102.1 mph</li></ol>
-<p>13 home runs that day. <a href="/days/2026-08-25/">Full list for Aug 25</a> · Longest of 2026 so far: <a href="/players/fernando-tatis-jr-665487/">Fernando Tatis Jr.</a>, 474 ft on <a href="/days/2026-07-21/">Jul 21</a>. <a href="/season/">Season leaderboard</a></p>
+<h2 data-date="2026-08-24">Yesterday's longest home runs — Monday, August 24, 2026</h2>
+<ol><li><a href="/#d=2026-08-24&hr=d24c0640-829f-3c66-b1fa-bb4701f66b56">Michael Conforto</a> (CHC) — 431 ft, 110.9 mph</li><li><a href="/#d=2026-08-24&hr=7de07fa5-fefe-3c7a-b436-adff94e2bd25">Rafael Devers</a> (SF) — 427 ft, 108.9 mph</li><li><a href="/#d=2026-08-24&hr=cb066bd9-ceaa-36cc-acfc-37277d39b612">Daylen Lile</a> (WSH) — 420 ft, 105.2 mph</li><li><a href="/#d=2026-08-24&hr=6ffca17c-1aa0-3bd9-b8a6-a216b9245eb2">Ezequiel Tovar</a> (COL) — 416 ft, 104.8 mph</li><li><a href="/#d=2026-08-24&hr=c0ced64e-977a-36c5-bde6-3be25f9b1dc3">Esmerlyn Valdez</a> (PIT) — 414 ft, 111.6 mph</li></ol>
+<p>19 home runs that day. <a href="/days/2026-08-24/">Full list for Aug 24</a> · Longest of 2026 so far: <a href="/players/fernando-tatis-jr-665487/">Fernando Tatis Jr.</a>, 474 ft on <a href="/days/2026-07-21/">Jul 21</a>. <a href="/season/">Season leaderboard</a></p>
 <p>No Doubters tracks every Major League Baseball home run since 2015 with its Statcast distance, exit velocity, and launch angle, and links each one to the official highlight.<br>The board above updates live during games; the season archive, player and pitcher histories, and these pages update every morning.</p>
-<p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: <a href="/days/2026-08-25/">Aug 25</a> · <a href="/days/2026-08-24/">Aug 24</a> · <a href="/days/2026-08-23/">Aug 23</a> · <a href="/days/2026-08-22/">Aug 22</a> · <a href="/days/2026-08-21/">Aug 21</a> · <a href="/days/2026-08-20/">Aug 20</a> · <a href="/days/2026-08-19/">Aug 19</a></p>
+<p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: <a href="/days/2026-08-24/">Aug 24</a> · <a href="/days/2026-08-23/">Aug 23</a> · <a href="/days/2026-08-22/">Aug 22</a> · <a href="/days/2026-08-21/">Aug 21</a> · <a href="/days/2026-08-20/">Aug 20</a> · <a href="/days/2026-08-19/">Aug 19</a> · <a href="/days/2026-08-18/">Aug 18</a></p>
 <!-- prerender:end -->
 </section>
 <footer>
@@ -650,6 +654,20 @@ async function shareHR(id) {
   try { await navigator.clipboard.writeText(`${text}\n${url}`); toast("Copied — paste it anywhere"); }
   catch { prompt("Copy this:", `${text} ${url}`); }
 }
+// Browsers block autoplay with sound until the visitor has interacted with the page (e.g. arriving
+// from a tweet). Try with sound; if refused, start muted and show a one-tap unmute.
+function ensurePlaying() {
+  const v = listEl.querySelector(".player.open video"); if (!v) return;
+  v.play().catch(() => {
+    v.muted = true;
+    v.play().then(() => {
+      const wrap = v.parentElement; if (wrap.querySelector(".unmute")) return;
+      const b = document.createElement("button"); b.className = "unmute"; b.textContent = "🔇 Tap for sound";
+      b.addEventListener("click", e => { e.stopPropagation(); v.muted = false; b.remove(); });
+      wrap.appendChild(b);
+    }).catch(() => {});
+  });
+}
 function playerHTML(h) {
   if (!h.savant && h.id && h.id.includes("-") && h.id.length > 30) h.savant = `https://baseballsavant.mlb.com/sporty-videos?playId=${h.id}`;
   if (!h.mp4) {
@@ -657,7 +675,7 @@ function playerHTML(h) {
     return `<div class="caption">Checking MLB for this clip… if it doesn't appear here, it's usually already on <a href="https://www.mlb.com/gameday/${h.gamePk}/final/video" target="_blank" rel="noopener">MLB.com's game video page ↗</a>${h.savant ? ` or <a href="${h.savant}" target="_blank" rel="noopener">Baseball Savant ↗</a>` : ""}.</div>`;
   }
   return `
-    <video controls autoplay playsinline preload="metadata" ${h.poster ? `poster="${h.poster}"` : ""} src="${h.mp4}"></video>
+    <div class="vidwrap"><video controls autoplay playsinline preload="metadata" ${h.poster ? `poster="${h.poster}"` : ""} src="${h.mp4}"></video></div>
     <div class="caption">
       <span>${(h.title ?? h.description).replace(/[.!]+$/, "")} off ${h.pitcher}${h.venue ? ` · ${h.venue}` : ""}${h.src === "savant" ? " · video via Baseball Savant" : ""}</span>
       <span class="actions"><button data-share="${h.id ?? h.playId}">Share</button>
@@ -696,7 +714,7 @@ async function load() {
     if (pendingOpen) {
       const row = listEl.querySelector(`.hr[data-id="${pendingOpen}"]`);
       pendingOpen = null;
-      if (row) { openId = row.dataset.id; render(); listEl.querySelector(`.hr[data-id="${openId}"]`)?.scrollIntoView({ block: "start", behavior: "smooth" }); }
+      if (row) { openId = row.dataset.id; render(); listEl.querySelector(`.hr[data-id="${openId}"]`)?.scrollIntoView({ block: "start", behavior: "smooth" }); ensurePlaying(); }
     }
   } catch (e) {
     listEl.innerHTML = `<div class="state error">Couldn't reach MLB<small>${e.message}. Check your connection and hit ↻.</small></div>`;
@@ -872,7 +890,7 @@ listEl.addEventListener("click", e => {
   const row = e.target.closest(".hr"); if (!row) return;
   openId = openId === row.dataset.id ? null : row.dataset.id;
   render();
-  if (openId) row.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  if (openId) { listEl.querySelector(`.hr[data-id="${openId}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" }); ensurePlaying(); }
 });
 listEl.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.classList.contains("hr")) e.target.click();
