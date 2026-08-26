@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: data-writes
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -29,4 +33,4 @@ jobs:
           git config user.name "nodoubters-bot"
           git config user.email "actions@users.noreply.github.com"
           git add data/seasons data/all data/recent-parks.json days players teams season hr sitemap.xml index.html
-          git diff --cached --quiet || (git commit -m "Season data: $(date -u +%Y-%m-%d)" && git pull --rebase && git push)
+          git diff --cached --quiet || (git commit -m "Season data: $(date -u +%Y-%m-%d)" && (git pull --rebase -X theirs origin main || { git rebase --abort; git pull -X ours origin main; }) && git push)
