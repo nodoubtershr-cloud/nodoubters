@@ -100,6 +100,12 @@
     border-radius: 999px; height: 32px; padding: 0 14px; font-size: 13px; min-width: 230px;
   }
   .filter::placeholder { color: var(--chalk-dim); }
+  .filter::-webkit-search-cancel-button { -webkit-appearance: none; }
+  .filterwrap { position: relative; display: inline-flex; margin-left: auto; }
+  .filterwrap .filter { margin-left: 0; width: 100%; padding-right: 30px; }
+  .clearsearch { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; border: 0; border-radius: 50%; background: transparent; color: var(--chalk-dim); font-size: 18px; line-height: 1; cursor: pointer; display: none; }
+  .clearsearch:hover { color: var(--night); background: var(--amber); }
+  .filterwrap.has .clearsearch { display: block; }
   :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 
   /* ---------- the distance scale (signature) ---------- */
@@ -256,6 +262,7 @@
     .lane { right: 0; }
     .masthead h1 { font-size: 36px; }
     .filter { margin-left: 0; width: 100%; }
+    .filterwrap { margin-left: 0; width: 100%; }
     .chips { display: flex; flex-wrap: nowrap; gap: 6px; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 2px 0; margin: 0 -24px; padding-left: 24px; padding-right: 24px; width: calc(100% + 48px); }
     .chips::-webkit-scrollbar { display: none; }
     .chips > * { flex: none; }
@@ -300,7 +307,7 @@
       <button class="sort" data-key="team">Team <span class="dir"></span></button>
       <button class="sort" data-key="player">Player <span class="dir"></span></button>
     </div>
-    <input class="filter" id="filter" type="search" placeholder="Player, team, park, date">
+    <span class="filterwrap"><input class="filter" id="filter" type="search" placeholder="Player, team, park, date" autocomplete="off"><button type="button" class="clearsearch" id="clearsearch" aria-label="Clear search" title="Clear">×</button></span>
     <div class="chips">
       <div class="mode by" role="group" aria-label="Show by">
         <button id="by-hitter" aria-pressed="true" title="Rows are the hitter">Hitters</button>
@@ -1087,6 +1094,9 @@ $("#prev").addEventListener("click", () => shiftDate(-1));
 $("#next").addEventListener("click", () => shiftDate(1));
 $("#refresh").addEventListener("click", load);
 let filterTimer = null;
+const filterWrap = document.querySelector("#clearsearch").parentElement;
+document.querySelector("#clearsearch").addEventListener("click", () => { filterEl.value = ""; filterEl.dispatchEvent(new Event("input")); filterEl.focus(); });
+filterEl.addEventListener("input", () => { filterWrap.classList.toggle("has", filterEl.value.length > 0); });
 filterEl.addEventListener("input", () => { shown = PAGE;
   if (mode === "season" && seasonYear !== "all") { const { date } = parseDateWords(words(filterEl.value)); if (date?.y && seasonYears.includes(date.y) && date.y !== seasonYear) { seasonYear = date.y; document.querySelector("#year").value = date.y; updateHash(); loadSeason(); return; } } if (mode === "season" && seasonYear === "all" && allTop) { clearTimeout(filterTimer); filterTimer = setTimeout(applyAllFilter, 250); } else render(); });
 document.querySelectorAll(".sort").forEach(b => b.addEventListener("click", () => {
