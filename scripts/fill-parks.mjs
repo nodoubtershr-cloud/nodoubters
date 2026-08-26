@@ -25,7 +25,12 @@ if (process.env.RECENT_DAYS) {
   batters = [...new Set(data.homeRuns.filter(h => h.parks == null).map(h => h.batterId))];
 }
 batters = batters.slice(0, MAX);
-if (!batters.length) { console.log(`${year}: park data complete`); process.exit(0); }
+if (!batters.length) {
+  const since = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
+  const recent = Object.fromEntries(data.homeRuns.filter(h => h.date >= since && h.parks != null).map(h => [h.id, h.parks]));
+  await writeFile("data/recent-parks.json", JSON.stringify({ updated: new Date().toISOString(), parks: recent }));
+  console.log(`${year}: park data complete`); process.exit(0);
+}
 
 let joined = 0, failed = 0, i = 0;
 await Promise.all(Array.from({ length: 5 }, async () => {
@@ -47,5 +52,9 @@ await Promise.all(Array.from({ length: 5 }, async () => {
   }
 }));
 await writeFile(FILE, JSON.stringify(data));
+// small lookup the live Today board can merge: play id → park count, last 14 days
+const since = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
+const recent = Object.fromEntries(data.homeRuns.filter(h => h.date >= since && h.parks != null).map(h => [h.id, h.parks]));
+await writeFile("data/recent-parks.json", JSON.stringify({ updated: new Date().toISOString(), parks: recent }));
 const done = data.homeRuns.filter(h => h.parks != null).length, nd = data.homeRuns.filter(h => h.parks === 30).length;
 console.log(`${year}: checked ${batters.length} batters, joined ${joined}${failed ? `, ${failed} failures` : ""} → ${done}/${data.homeRuns.length} have park data, ${nd} no-doubters (30/30)`);

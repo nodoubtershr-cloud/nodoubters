@@ -129,6 +129,7 @@
   .meta .live { color: var(--amber); }
 
   .track { position: relative; height: 44px; }
+  .hr:has(.ft.flip) .track { height: 50px; }
   .lane { position: absolute; left: 0; right: 96px; top: 0; bottom: 0; }
   .bar {
     position: absolute; left: 0; top: 14px; height: 16px; border-radius: 0 3px 3px 0;
@@ -142,8 +143,7 @@
   }
   .ft small { font-size: 11px; color: var(--chalk-dim); margin-left: 8px; }
   .nd { display: inline-block; width: 14px; height: 14px; vertical-align: -2px; margin-left: 5px; }
-  .ft.flip { transform: translateX(calc(-100% - 10px)); }
-  .ft.flip small { color: var(--chalk); opacity: .8; }
+  .ft.flip small { position: absolute; top: 21px; right: 100%; margin: 0 -3px 0 0; white-space: nowrap; }
   .time { position: absolute; right: 0; top: 0; font-family: var(--mono); font-size: 12px; color: var(--chalk-dim); }
   .hr.nohl .time::after { content: "no clip"; margin-left: 10px; color: var(--dirt); }
   .hr.nohl.pending .time::after { content: "clip pending"; color: var(--chalk-dim); animation: blink 2s ease-in-out infinite; }
@@ -454,7 +454,12 @@ let byPitcher = false;                      // Hitters / Pitchers perspective
 let mineOnly = false;
 let postOnly = false;
 let ndOnly = false;
-let pendingOpen = null;                      // playId to auto-expand after load (from #hr=)
+let pendingOpen = null;
+let recentParks = null;                      // play id → park count, from data/recent-parks.json (yesterday and earlier)
+async function mergeParks(list) {
+  if (!recentParks) { try { const r = await fetch("data/recent-parks.json", { cache: "no-cache" }); recentParks = r.ok ? (await r.json()).parks : {}; } catch { recentParks = {}; } }
+  for (const h of list) if (h.parks == null && recentParks[h.id] != null) h.parks = recentParks[h.id];
+}                      // playId to auto-expand after load (from #hr=)
 let autoDate = true;                         // true until the visitor picks a date themselves
 const noticeEl = document.querySelector("#notice");
 const seasonNoteEl = document.querySelector("#season-note");
@@ -676,14 +681,14 @@ async function load() {
   try {
     if (autoDate) dateEl.value = mlbToday();
     data = await fetchHomeRuns(dateEl.value);
-    tagNth(data.homeRuns);
+    tagNth(data.homeRuns); await mergeParks(data.homeRuns);
     // Nothing yet today (or an off day)? Show yesterday's board instead of an empty page.
     if (autoDate && data.homeRuns.length === 0) {
       const today = dateEl.value;
       const y = new Date(today + "T12:00:00"); y.setDate(y.getDate() - 1);
       dateEl.value = localISODate(y);
       data = await fetchHomeRuns(dateEl.value);
-      tagNth(data.homeRuns);
+      tagNth(data.homeRuns); await mergeParks(data.homeRuns);
       noticeEl.innerHTML = `No homers yet today — showing <b>${fmtDate(dateEl.value)}</b>. Hit ↻ to check again.`;
       noticeEl.classList.add("show");
     }
@@ -829,7 +834,7 @@ async function pollLive() {
         if (old?.mp4 && !h.mp4) { h.mp4 = old.mp4; h.poster = old.poster; h.title = old.title; }
         if (!old) changed = true;
       }
-      data = fresh; tagNth(data.homeRuns); changed = true;
+      data = fresh; tagNth(data.homeRuns); await mergeParks(data.homeRuns); changed = true;
     }
     if (changed && !openId) render();                            // don't rebuild while a clip is open
   } catch {}

@@ -6,7 +6,8 @@
 // Bindings this Worker expects (Settings → Variables / Bindings):
 //   KV namespace  STATE
 //   Secrets       X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET
-//   Optional vars DRY_RUN ("1" = log instead of posting), LINKS ("all" or "recap"), ANNOUNCE_AT, MIN_CHANGE_FT
+//   Optional vars DRY_RUN ("1" = log instead of posting), LINKS ("all" or "recap"), ANNOUNCE_AT, MIN_CHANGE_FT,
+//                 INSTANT_FT (a homer this long tweets right away, before the day reaches ANNOUNCE_AT; default 450)
 
 const API = "https://statsapi.mlb.com/api";
 const SITE = "https://nodoubters.com";
@@ -53,6 +54,7 @@ async function run(mode, env, verbose = false) {
   const DRY = env.DRY_RUN === "1";
   const ANNOUNCE_AT = Number(env.ANNOUNCE_AT ?? 5);
   const MIN_CHANGE_FT = Number(env.MIN_CHANGE_FT ?? 0);
+  const INSTANT_FT = Number(env.INSTANT_FT ?? 450);
   const LINKS = env.LINKS ?? "all";
   let state = (await env.STATE.get("state", "json")) ?? {};
   const before = JSON.stringify(state);
@@ -70,8 +72,8 @@ async function run(mode, env, verbose = false) {
     if (state.date !== date) state = { ...state, date, announced: false, leaderId: null, leaderFt: null };
     const hrs = (await homeRunsFor(date)).filter(h => h.distance != null);
     say(`${date}: ${hrs.length} HR with distance`);
-    if (hrs.length >= ANNOUNCE_AT) {
-      const best = hrs.reduce((a, b) => (b.distance > a.distance ? b : a));
+    const best = hrs.length ? hrs.reduce((a, b) => (b.distance > a.distance ? b : a)) : null;
+    if (best && (hrs.length >= ANNOUNCE_AT || best.distance >= INSTANT_FT)) {
       if (!state.announced) {
         await postTweet(tweetText("early", date, best, hrs.length, LINKS), env, DRY, say);
         state.announced = true; state.leaderId = best.id; state.leaderFt = best.distance;
@@ -79,7 +81,7 @@ async function run(mode, env, verbose = false) {
         await postTweet(tweetText("change", date, best, hrs.length, LINKS), env, DRY, say);
         state.leaderId = best.id; state.leaderFt = best.distance;
       } else say(`leader unchanged: ${best.batter} ${best.distance} ft`);
-    } else say(`waiting for HR #${ANNOUNCE_AT}`);
+    } else say(`waiting for HR #${ANNOUNCE_AT} (or a ${INSTANT_FT}-footer)`);
   }
   if (!DRY && JSON.stringify(state) !== before) await env.STATE.put("state", JSON.stringify(state));
   return log;
@@ -122,6 +124,28 @@ async function homeRunsFor(date) {
   return out;
 }
 
+// ---------- tagging ----------
+// Team X handles (stable). Tagging the hitter's team puts the post in that fanbase's mentions.
+const TEAM_HANDLES = { ARI: "Dbacks", ATL: "Braves", BAL: "Orioles", BOS: "RedSox", CHC: "Cubs", CWS: "whitesox", CIN: "Reds", CLE: "CleGuardians",
+  COL: "Rockies", DET: "tigers", HOU: "astros", KC: "Royals", LAA: "Angels", LAD: "Dodgers", MIA: "Marlins", MIL: "Brewers", MIN: "Twins",
+  NYM: "Mets", NYY: "Yankees", ATH: "Athletics", OAK: "Athletics", PHI: "Phillies", PIT: "Pirates", SD: "Padres", SF: "SFGiants", SEA: "Mariners",
+  STL: "Cardinals", TB: "RaysBaseball", TEX: "Rangers", TOR: "BlueJays", WSH: "Nationals" };
+// MLB's official 2026 team hashtags (they change most seasons — refresh this list each spring from @MLB's opening-day post).
+const TEAM_TAGS = { ARI: "Dbacks", ATH: "Athletics", OAK: "Athletics", ATL: "BravesCountry", BAL: "Birdland", BOS: "DirtyWater", CHC: "Cubs", CWS: "WhiteSox",
+  CIN: "ATOBTTR", CLE: "GuardsBall", COL: "Rockies", DET: "DNMW", HOU: "ChaseTheFight", KC: "FountainsUp", LAA: "RepTheHalo", LAD: "Dodgers",
+  MIA: "FightinFish", MIL: "ThisIsMyCrew", MIN: "NoPlaceLikeHERE", NYM: "LGM", NYY: "RepBX", PHI: "RingTheBell", PIT: "LetsGoBucs", SD: "ForTheFaithful",
+  SEA: "TridentsUp", SF: "SFGiants", STL: "STLCards", TB: "RaysUp", TEX: "AllForTX", TOR: "BlueJays50", WSH: "Natitude" };
+// Player handles are not in MLB's data. Add any you want tagged, keyed by the player's exact name:
+//   "Shohei Ohtani": "shoheiohtani",
+const PLAYER_HANDLES = {};
+function mentions(h) {
+  const m = [];
+  if (PLAYER_HANDLES[h.batter]) m.push("@" + PLAYER_HANDLES[h.batter]);
+  if (TEAM_HANDLES[h.team]) m.push("@" + TEAM_HANDLES[h.team]);
+  if (TEAM_TAGS[h.team]) m.push("#" + TEAM_TAGS[h.team]);
+  return m.length ? `\n${m.join(" ")}` : "";
+}
+
 // ---------- text (mirrors the site's badges) ----------
 const fmtDate = d => new Date(d + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
 const link = (date, h) => `${SITE}/#d=${date}&hr=${h.id}`;
@@ -142,12 +166,12 @@ function tags(h) {
 }
 function describe(h) {
   const ev = h.ev ? `, ${h.ev} mph` : "";
-  return `${h.batter} (${h.team}) — ${h.distance} ft${ev} off ${h.pitcher}, ${h.half === "top" ? "T" : "B"}${h.inning} vs ${h.against}${tags(h)}`;
+  return `${h.batter} (${h.team}) — ${h.distance} ft${ev} off ${h.pitcher}, ${h.half === "top" ? "T" : "B"}${h.inning} vs ${h.against}${tags(h)}${mentions(h)}`;
 }
 function tweetText(kind, date, h, count, LINKS) {
   const withLink = LINKS === "all" || kind === "recap";
   const tail = withLink ? `\n\nWatch: ${link(date, h)}` : `\n\nWatch every homer of the day at nodoubters.com`;
-  if (kind === "early")  return `⚾ Early leader for longest HR of the day (${count} so far):\n\n${describe(h)}${tail}`;
+  if (kind === "early")  return (count < 5 ? `⚾ Longest HR of the day so far (${count} ${count === 1 ? "homer" : "homers"} in):\n\n` : `⚾ Early leader for longest HR of the day (${count} so far):\n\n`) + `${describe(h)}${tail}`;
   if (kind === "change") return `🚀 New longest HR of the day:\n\n${describe(h)}${tail}`;
   return `🏆 Longest home run of ${fmtDate(date)}:\n\n${describe(h)}\n\n${count} HR on the day. Full board: ${SITE}/#d=${date}`;
 }

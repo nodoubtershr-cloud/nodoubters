@@ -15,6 +15,7 @@ const SITE = "https://nodoubters.com";
 const STATE = "data/tweet-state.json";
 const ANNOUNCE_AT = 5;          // first tweet once the day has this many homers
 const MIN_CHANGE_FT = 0;        // raise (e.g. 425) to skip small lead changes
+const INSTANT_FT = 450;         // a homer this long tweets right away, even before ANNOUNCE_AT
 const LINKS = process.env.LINKS ?? "all";   // "all" = link every tweet · "recap" = link only the morning recap (cheaper)
 const GAME_TYPES = new Set(["R", "F", "D", "L", "W"]);
 
@@ -98,12 +99,12 @@ function tags(h) {
 }
 function describe(h) {
   const ev = h.ev ? `, ${h.ev} mph` : "";
-  return `${h.batter} (${h.team}) — ${h.distance} ft${ev} off ${h.pitcher}, ${h.half === "top" ? "T" : "B"}${h.inning} vs ${h.against}${tags(h)}`;
+  return `${h.batter} (${h.team}) — ${h.distance} ft${ev} off ${h.pitcher}, ${h.half === "top" ? "T" : "B"}${h.inning} vs ${h.against}${tags(h)}${mentions(h)}`;
 }
 function tweetText(kind, date, h, count) {
   const withLink = LINKS === "all" || kind === "recap";
   const tail = withLink ? `\n\nWatch: ${link(date, h)}` : `\n\nWatch every homer of the day at nodoubters.com`;
-  if (kind === "early")  return `⚾ Early leader for longest HR of the day (${count} so far):\n\n${describe(h)}${tail}`;
+  if (kind === "early")  return (count < 5 ? `⚾ Longest HR of the day so far (${count} ${count === 1 ? "homer" : "homers"} in):\n\n` : `⚾ Early leader for longest HR of the day (${count} so far):\n\n`) + `${describe(h)}${tail}`;
   if (kind === "change") return `🚀 New longest HR of the day:\n\n${describe(h)}${tail}`;
   return `🏆 Longest home run of ${fmtDate(date)}:\n\n${describe(h)}\n\n${count} HR on the day. Full board: ${SITE}/#d=${date}`;
 }
@@ -127,8 +128,8 @@ async function main() {
     if (state.date !== date) state = { ...state, date, announced: false, leaderId: null, leaderFt: null };
     const hrs = (await homeRunsFor(date)).filter(h => h.distance != null);
     console.log(`${date}: ${hrs.length} HR with distance`);
-    if (hrs.length < ANNOUNCE_AT) return console.log(`waiting for HR #${ANNOUNCE_AT}`);
-    const best = hrs.reduce((a, b) => (b.distance > a.distance ? b : a));
+    const best = hrs.length ? hrs.reduce((a, b) => (b.distance > a.distance ? b : a)) : null;
+    if (!best || (hrs.length < ANNOUNCE_AT && best.distance < INSTANT_FT)) return console.log(`waiting for HR #${ANNOUNCE_AT} (or a ${INSTANT_FT}-footer)`);
     if (!state.announced) {
       await postTweet(tweetText("early", date, best, hrs.length));
       state.announced = true; state.leaderId = best.id; state.leaderFt = best.distance;
