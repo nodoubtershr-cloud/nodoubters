@@ -1120,7 +1120,7 @@ listEl.addEventListener("click", e => {
 listEl.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.classList.contains("hr")) e.target.click();
 });
-document.querySelector("#year").addEventListener("change", e => { seasonYear = e.target.value === "all" ? "all" : Number(e.target.value); openId = null; shown = PAGE; updateHash(); filterEl.placeholder = seasonYear === "all" ? "Player, optionally a team" : "Player, team, or both"; loadSeason(); });
+document.querySelector("#year").addEventListener("change", e => { seasonYear = e.target.value === "all" ? "all" : Number(e.target.value); openId = null; shown = PAGE; updateHash(); loadSeason(); });
 const showPanel = document.querySelector("#showpanel");
 document.querySelector("#show").addEventListener("click", e => { e.stopPropagation(); const open = !showPanel.classList.contains("open"); showPanel.classList.toggle("open", open); document.querySelector("#show").setAttribute("aria-expanded", open); });
 document.addEventListener("click", e => { if (!e.target.closest("#showwrap")) { showPanel.classList.remove("open"); document.querySelector("#show").setAttribute("aria-expanded", "false"); } });
