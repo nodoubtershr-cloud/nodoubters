@@ -73,6 +73,9 @@
   .year-nav select:hover { border-color: var(--amber); }
   .date-nav button:hover { border-color: var(--amber); }
   .mode { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .chips { display: contents; }
+  .mode.by { margin-left: 0; }
+  .mode.by button { height: 32px; font-size: 13px; padding: 0 12px; }
   .mode button { background: transparent; color: var(--chalk-dim); border: 0; height: 34px; padding: 0 14px; font-family: var(--display); font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; cursor: pointer; }
   .mode button[aria-pressed="true"] { background: var(--chalk); color: var(--night); }
   .rank { font-family: var(--mono); font-size: 13px; color: var(--chalk-dim); width: 34px; flex: none; text-align: right; }
@@ -179,7 +182,7 @@
   .toast.show { opacity: 1; }
 
   /* ---------- notice, support, footer ---------- */
-  .notice { margin: 10px 24px 0; padding: 8px 12px; border: 1px solid var(--line); border-left: 3px solid var(--amber); border-radius: 6px; font-family: var(--mono); font-size: 12px; color: var(--chalk-dim); display: none; }
+  .notice { margin: 10px 0 0; padding: 8px 12px; border: 1px solid var(--line); border-left: 3px solid var(--amber); border-radius: 6px; font-family: var(--mono); font-size: 12px; color: var(--chalk-dim); display: none; }
   .notice.show { display: block; }
   .notice.info { border-left-color: var(--line); }
   .notice b { color: var(--chalk); font-weight: 500; }
@@ -220,7 +223,15 @@
     .lane { right: 0; }
     .masthead h1 { font-size: 36px; }
     .filter { margin-left: 0; width: 100%; }
-    .support span { display: none; }
+    .chips { display: flex; flex-wrap: nowrap; gap: 6px; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 2px 0; margin: 0 -24px; padding-left: 24px; padding-right: 24px; width: calc(100% + 48px); }
+    .chips::-webkit-scrollbar { display: none; }
+    .chips > * { flex: none; }
+    .mode.by button, .mine, .share { height: 30px; font-size: 12.5px; padding: 0 11px; }
+    .support { display: none; }
+    .notice { margin: 8px 0 0; padding: 6px 10px; font-size: 11px; }
+    .masthead { gap: 10px; }
+    .year-nav select { height: 34px; padding: 0 8px; font-size: 13px; }
+    .summary { margin-left: 0; font-size: 12px; }
     .rank { width: 24px; }
   }
   @media (prefers-reduced-motion: reduce) { .bar, .ft { transition: none; } }
@@ -234,7 +245,6 @@
     <div class="mode" role="group" aria-label="View">
       <button id="mode-today" aria-pressed="true">Today</button>
       <button id="mode-season" aria-pressed="false">Season</button>
-      <button id="mode-victims" aria-pressed="false" title="Home runs by the pitcher who gave them up">Victims</button>
     </div>
     <div class="year-nav" id="year-nav" style="display:none">
       <select id="year" aria-label="Season"></select>
@@ -256,11 +266,17 @@
       <button class="sort" data-key="player">Player <span class="dir"></span></button>
     </div>
     <input class="filter" id="filter" type="search" placeholder="Player, team, or both">
-    <button class="mine" id="mine" aria-pressed="false" title="Only players you've starred">★ Starred</button>
-    <button class="mine" id="post" aria-pressed="false" title="Only playoff home runs" style="display:none">🏆 Postseason</button>
-    <button class="mine" id="nd" aria-pressed="false" title="Only homers that would have left all 30 parks (Statcast)" style="display:none">◆ No doubters</button>
-    <button class="share" id="share" title="Copy a link that carries your starred players">Share list</button>
-    <a class="support" href="https://buymeacoffee.com/nodoubters" target="_blank" rel="noopener" title="Support No Doubters">☕ <span>Support</span></a>
+    <div class="chips">
+      <div class="mode by" role="group" aria-label="Show by">
+        <button id="by-hitter" aria-pressed="true" title="Rows are the hitter">Hitters</button>
+        <button id="by-pitcher" aria-pressed="false" title="Rows are the pitcher who gave it up">Pitchers</button>
+      </div>
+      <button class="mine" id="mine" aria-pressed="false" title="Only players you've starred">★ Starred</button>
+      <button class="mine" id="post" aria-pressed="false" title="Only playoff home runs" style="display:none">🏆 Postseason</button>
+      <button class="mine" id="nd" aria-pressed="false" title="Only homers that would have left all 30 parks (Statcast)" style="display:none">◆ No doubters</button>
+      <button class="share" id="share" title="Copy a link that carries your starred players">Share list</button>
+      <a class="support" href="https://buymeacoffee.com/nodoubters" target="_blank" rel="noopener" title="Support No Doubters">☕ <span>Support</span></a>
+    </div>
   </div>
   <div class="notice" id="notice"></div>
   <div class="notice info" id="season-note"></div>
@@ -270,11 +286,11 @@
 <main id="list"></main>
 <section class="prerender" id="prerender">
 <!-- prerender:start -->
-<h2>Longest home runs — Tuesday, August 25, 2026</h2>
-<ol><li><a href="/#d=2026-08-25&hr=64372995-0d52-3360-b510-97dc91281a0a">Hunter Goodman</a> (COL) — 432 ft, 109.5 mph</li><li><a href="/#d=2026-08-25&hr=2ebcf0a4-0b78-3e30-9184-38ae2e46d790">Daylen Lile</a> (WSH) — 401 ft, 104.1 mph</li><li><a href="/#d=2026-08-25&hr=c5300398-afbb-39f3-9d29-890f1a11d1ba">Mickey Gasper</a> (BOS) — 394 ft, 102.7 mph</li><li><a href="/#d=2026-08-25&hr=1943435c-a0db-3eaf-854b-6742018a0058">Yainer Diaz</a> (HOU) — 383 ft, 100.3 mph</li></ol>
-<p>4 home runs that day. <a href="/days/2026-08-25/">Full list for Aug 25</a> · Longest of 2026 so far: <a href="/players/fernando-tatis-jr-665487/">Fernando Tatis Jr.</a>, 474 ft on <a href="/days/2026-07-21/">Jul 21</a>. <a href="/season/">Season leaderboard</a></p>
+<h2>Longest home runs — Monday, August 24, 2026</h2>
+<ol><li><a href="/#d=2026-08-24&hr=d24c0640-829f-3c66-b1fa-bb4701f66b56">Michael Conforto</a> (CHC) — 431 ft, 110.9 mph</li><li><a href="/#d=2026-08-24&hr=7de07fa5-fefe-3c7a-b436-adff94e2bd25">Rafael Devers</a> (SF) — 427 ft, 108.9 mph</li><li><a href="/#d=2026-08-24&hr=cb066bd9-ceaa-36cc-acfc-37277d39b612">Daylen Lile</a> (WSH) — 420 ft, 105.2 mph</li><li><a href="/#d=2026-08-24&hr=6ffca17c-1aa0-3bd9-b8a6-a216b9245eb2">Ezequiel Tovar</a> (COL) — 416 ft, 104.8 mph</li><li><a href="/#d=2026-08-24&hr=c0ced64e-977a-36c5-bde6-3be25f9b1dc3">Esmerlyn Valdez</a> (PIT) — 414 ft, 111.6 mph</li></ol>
+<p>19 home runs that day. <a href="/days/2026-08-24/">Full list for Aug 24</a> · Longest of 2026 so far: <a href="/players/fernando-tatis-jr-665487/">Fernando Tatis Jr.</a>, 474 ft on <a href="/days/2026-07-21/">Jul 21</a>. <a href="/season/">Season leaderboard</a></p>
 <p>No Doubters tracks every Major League Baseball home run with its Statcast distance, exit velocity, and launch angle, and links each one to the official MLB highlight. The board above updates live during games; these pages update every morning.</p>
-<p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: <a href="/days/2026-08-25/">Aug 25</a> · <a href="/days/2026-08-24/">Aug 24</a> · <a href="/days/2026-08-23/">Aug 23</a> · <a href="/days/2026-08-22/">Aug 22</a> · <a href="/days/2026-08-21/">Aug 21</a> · <a href="/days/2026-08-20/">Aug 20</a> · <a href="/days/2026-08-19/">Aug 19</a></p>
+<p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: <a href="/days/2026-08-24/">Aug 24</a> · <a href="/days/2026-08-23/">Aug 23</a> · <a href="/days/2026-08-22/">Aug 22</a> · <a href="/days/2026-08-21/">Aug 21</a> · <a href="/days/2026-08-20/">Aug 20</a> · <a href="/days/2026-08-19/">Aug 19</a> · <a href="/days/2026-08-18/">Aug 18</a></p>
 <!-- prerender:end -->
 </section>
 <footer>
@@ -433,6 +449,7 @@ let allIndex = null;                         // { players: [...] } for the All v
 let allTop = null;                           // all-time top list
 const playerCache = {};                      // batterId -> that player's full history
 const PAGE = 100; let shown = PAGE;
+let byPitcher = false;                      // Hitters / Pitchers perspective
 let mineOnly = false;
 let postOnly = false;
 let ndOnly = false;
@@ -441,11 +458,11 @@ let autoDate = true;                         // true until the visitor picks a d
 const noticeEl = document.querySelector("#notice");
 const seasonNoteEl = document.querySelector("#season-note");
 function showSeasonNote() {
-  if ((mode !== "season" && mode !== "victims") || !season) { seasonNoteEl.classList.remove("show"); return; }
+  if (mode !== "season" || !season) { seasonNoteEl.classList.remove("show"); return; }
   const src = season.all ? allTop : season;
   const through = src?.through ?? (src?.homeRuns?.length ? src.homeRuns.reduce((m, h) => (h.date > m ? h.date : m), "") : null);
   const isCurrent = !season.all && Number(seasonYear) === Math.max(...seasonYears);
-  if (mode === "victims" && !season.all) { seasonNoteEl.innerHTML = `Every home run of ${season.season} by the pitcher who allowed it. Star a pitcher to follow him in ★ Starred.`; seasonNoteEl.classList.add("show"); return; }
+  if (byPitcher && !season.all) { seasonNoteEl.innerHTML = `Every home run of ${season.season} by the pitcher who allowed it. Star a pitcher to follow him in ★ Starred.`; seasonNoteEl.classList.add("show"); return; }
   seasonNoteEl.innerHTML = isCurrent || season.all
     ? `Season and player history update every morning · includes games through <b>${through ? fmtDate(through) : "—"}</b>. Tonight's homers are on the <a href="#" id="go-today">Today</a> board.`
     : `Complete ${season.season} season · ${Number(seasonYear) < 2019 ? "video via Baseball Savant where available" : "clips where MLB or Baseball Savant still has them"}.`;
@@ -477,15 +494,15 @@ function pct(ft) { return Math.max(2, Math.min(100, (ft - SCALE_MIN) / (SCALE_MA
 const comparators = {
   distance: (a, b) => (a.distance ?? -1) - (b.distance ?? -1),
   time:     (a, b) => (a.time ?? "").localeCompare(b.time ?? ""),
-  team:     (a, b) => (mode === "victims" ? a.against.localeCompare(b.against) : a.team.localeCompare(b.team)) || (a.time ?? "").localeCompare(b.time ?? ""),
-  player:   (a, b) => { const x = mode === "victims" ? a.pitcher : a.batter, y = mode === "victims" ? b.pitcher : b.batter; return lastName(x).localeCompare(lastName(y)) || x.localeCompare(y); },
+  team:     (a, b) => (byPitcher ? a.against.localeCompare(b.against) : a.team.localeCompare(b.team)) || (a.time ?? "").localeCompare(b.time ?? ""),
+  player:   (a, b) => { const x = byPitcher ? a.pitcher : a.batter, y = byPitcher ? b.pitcher : b.batter; return lastName(x).localeCompare(lastName(y)) || x.localeCompare(y); },
 };
 
 function render() {
   showSeasonNote();
   const q = filterEl.value.trim().toLowerCase();
-  const isSeason = mode === "season" || mode === "victims";
-  const isVictims = mode === "victims";
+  const isSeason = mode === "season";
+  const isVictims = byPitcher;
   // who is the headline of each row
   const who = h => isVictims ? { name: h.pitcher, id: h.pitcherId, team: h.against, vs: h.teamAbbr } : { name: h.batter, id: h.batterId, team: h.teamAbbr, vs: h.against };
   const source = isSeason ? (season?.homeRuns ?? []) : data.homeRuns;
@@ -522,9 +539,9 @@ function render() {
     summaryEl.innerHTML = season.top
       ? (postOnly ? `Longest <b>${source.length}</b> postseason HR since ${allTop.from} · type a name for a player's playoff history` : `Longest <b>${source.length}</b> of <b>${allTop.total.toLocaleString()}</b> HR since ${allTop.from} · type a name for a player's full history`)
       : season.players.map(p => `<b>${p.name}</b> ${p.n} HR since ${p.seasons[0]}, longest ${p.longest} ft`).join(" · ");
-  } else if (isVictims && season && !season.all) {
+  } else if (isVictims && ((isSeason && season && !season.all) || (!isSeason && data.games.length))) {
     const most = Object.entries(source.reduce((m, h) => (m[h.pitcher] = (m[h.pitcher] || 0) + 1, m), {})).sort((a, b) => b[1] - a[1])[0];
-    summaryEl.innerHTML = `<b>${source.length}</b> HR allowed in ${season.season}${longest ? ` · longest allowed <b>${longest} ft</b>` : ""}${most ? ` · most allowed <b>${most[0]}</b> (${most[1]})` : ""}`;
+    summaryEl.innerHTML = `<b>${source.length}</b> HR allowed ${isSeason ? `in ${season.season}` : "today"}${longest ? ` · longest allowed <b>${longest} ft</b>` : ""}${most ? ` · most allowed <b>${most[0]}</b> (${most[1]})` : ""}`;
   } else if (isSeason && postOnly && season) {
     const ps = source.filter(h => h.gt && h.gt !== "R"); const wsN = ps.filter(h => h.gt === "W").length;
     const psLong = ps.filter(h => h.distance != null).sort((a, b) => b.distance - a.distance)[0];
@@ -699,7 +716,7 @@ async function loadSeason() {
       if (!r.ok) throw new Error(`${r.status}`);
       const d = await r.json(); tagNth(d.homeRuns); seasonCache[y] = d;
     }
-    if ((mode === "season" || mode === "victims") && seasonYear === y) { season = seasonCache[y]; render(); }
+    if (mode === "season" && seasonYear === y) { season = seasonCache[y]; render(); }
   } catch (e) {
     listEl.innerHTML = `<div class="state error">Couldn't load that season<small>${e.message}. The file should be at data/seasons/${seasonYear}.json.</small></div>`;
   }
@@ -722,8 +739,8 @@ async function loadAll() {
 }
 async function applyAllFilter() {
   const toks = words(filterEl.value);
-  const pool = mode === "victims" ? (allIndex.pitchers ?? []) : allIndex.players;
-  const folder = mode === "victims" ? "pitchers" : "players";
+  const pool = byPitcher ? (allIndex.pitchers ?? []) : allIndex.players;
+  const folder = byPitcher ? "pitchers" : "players";
   const nameToks = toks.filter(t => !isTeamWord(t) || pool.some(p => norm(p.name).includes(t)));
   const matches = nameToks.length && nameToks.join("").length >= 2
     ? pool.filter(p => nameToks.every(t => norm(p.name).includes(t))).slice(0, 5) : [];
@@ -733,23 +750,36 @@ async function applyAllFilter() {
   } else {
     season = { season: `${allTop.from}–${allTop.to}`, all: true, top: true, homeRuns: postOnly && allTop.postseason ? allTop.postseason : allTop.homeRuns };
   }
-  if ((mode === "season" || mode === "victims") && seasonYear === "all") render();
+  if (mode === "season" && seasonYear === "all") render();
 }
 function setMode(m) {
   mode = m; openId = null; shown = PAGE;
-  const sv = m === "season" || m === "victims";
+  const sv = m === "season";
   document.querySelector("#mode-today").setAttribute("aria-pressed", m === "today");
-  document.querySelector("#mode-season").setAttribute("aria-pressed", m === "season");
-  document.querySelector("#mode-victims").setAttribute("aria-pressed", m === "victims");
+  document.querySelector("#mode-season").setAttribute("aria-pressed", sv);
   document.querySelector(".date-nav").style.display = sv ? "none" : "";
   document.querySelector("#year-nav").style.display = sv ? "" : "none";
   document.querySelector("#post").style.display = sv ? "" : "none";
   document.querySelector("#nd").style.display = sv ? "" : "none";
   noticeEl.style.display = sv ? "none" : "";
   if (!sv) seasonNoteEl.classList.remove("show");
-  history.replaceState(null, "", sv ? `#${m}${seasonYear ? "=" + seasonYear : ""}` : location.pathname);
+  updateHash();
   if (sv) { sortKey = "distance"; sortDir = -1; render(); loadSeason(); }
   else render();
+}
+function updateHash() {
+  const parts = [];
+  if (mode === "season") parts.push(`season${seasonYear ? "=" + seasonYear : ""}`);
+  if (byPitcher) parts.push("by=pitcher");
+  history.replaceState(null, "", parts.length ? "#" + parts.join("&") : location.pathname);
+}
+function setBy(pitcher) {
+  byPitcher = pitcher; openId = null; shown = PAGE;
+  document.querySelector("#by-hitter").setAttribute("aria-pressed", !pitcher);
+  document.querySelector("#by-pitcher").setAttribute("aria-pressed", pitcher);
+  filterEl.placeholder = pitcher ? "Pitcher, team, or both" : (seasonYear === "all" && mode === "season" ? "Player, optionally a team" : "Player, team, or both");
+  updateHash();
+  if (mode === "season" && seasonYear === "all" && allTop) applyAllFilter(); else render();
 }
 
 // ---- live updates ----
@@ -811,7 +841,8 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) poll
 startPolling();
 document.querySelector("#mode-today").addEventListener("click", () => setMode("today"));
 document.querySelector("#mode-season").addEventListener("click", () => setMode("season"));
-document.querySelector("#mode-victims").addEventListener("click", () => setMode("victims"));
+document.querySelector("#by-hitter").addEventListener("click", () => setBy(false));
+document.querySelector("#by-pitcher").addEventListener("click", () => setBy(true));
 renderScale();
 dateEl.value = localISODate();
 dateEl.addEventListener("change", () => { autoDate = false; load(); });
@@ -819,7 +850,7 @@ $("#prev").addEventListener("click", () => shiftDate(-1));
 $("#next").addEventListener("click", () => shiftDate(1));
 $("#refresh").addEventListener("click", load);
 let filterTimer = null;
-filterEl.addEventListener("input", () => { shown = PAGE; if ((mode === "season" || mode === "victims") && seasonYear === "all" && allTop) { clearTimeout(filterTimer); filterTimer = setTimeout(applyAllFilter, 250); } else render(); });
+filterEl.addEventListener("input", () => { shown = PAGE; if (mode === "season" && seasonYear === "all" && allTop) { clearTimeout(filterTimer); filterTimer = setTimeout(applyAllFilter, 250); } else render(); });
 document.querySelectorAll(".sort").forEach(b => b.addEventListener("click", () => {
   const key = b.dataset.key;
   if (key === sortKey) sortDir *= -1;
@@ -841,9 +872,9 @@ listEl.addEventListener("click", e => {
 listEl.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.classList.contains("hr")) e.target.click();
 });
-document.querySelector("#year").addEventListener("change", e => { seasonYear = e.target.value === "all" ? "all" : Number(e.target.value); openId = null; shown = PAGE; history.replaceState(null, "", `#${mode}=${seasonYear}`); filterEl.placeholder = seasonYear === "all" ? "Player, optionally a team" : "Player, team, or both"; loadSeason(); });
+document.querySelector("#year").addEventListener("change", e => { seasonYear = e.target.value === "all" ? "all" : Number(e.target.value); openId = null; shown = PAGE; updateHash(); filterEl.placeholder = seasonYear === "all" ? "Player, optionally a team" : "Player, team, or both"; loadSeason(); });
 document.querySelector("#nd").addEventListener("click", () => { ndOnly = !ndOnly; shown = PAGE; render(); });
-document.querySelector("#post").addEventListener("click", () => { postOnly = !postOnly; shown = PAGE; if ((mode === "season" || mode === "victims") && seasonYear === "all" && allTop) applyAllFilter(); else render(); });
+document.querySelector("#post").addEventListener("click", () => { postOnly = !postOnly; shown = PAGE; if (mode === "season" && seasonYear === "all" && allTop) applyAllFilter(); else render(); });
 document.querySelector("#mine").addEventListener("click", () => { mineOnly = !mineOnly; shown = PAGE; render(); });
 document.querySelector("#share").addEventListener("click", async () => {
   const url = `${location.origin}${location.pathname}#mine=${[...favs.keys()].join(",")}`;
@@ -863,7 +894,8 @@ if (hashParams.hr) pendingOpen = hashParams.hr;
 load();
 if (hashParams.post) postOnly = true;
 if (hashParams.nd) ndOnly = true;
-if (hashParams.victims) { if (/^\d{4}$/.test(hashParams.victims)) seasonYear = Number(hashParams.victims); else if (hashParams.victims === "all") seasonYear = "all"; setMode("victims"); }
+if (hashParams.by === "pitcher" || hashParams.victims) setBy(true);
+if (hashParams.victims) { if (/^\d{4}$/.test(hashParams.victims)) seasonYear = Number(hashParams.victims); else if (hashParams.victims === "all") seasonYear = "all"; setMode("season"); }
 else if (hashParams.season) { if (/^\d{4}$/.test(hashParams.season)) seasonYear = Number(hashParams.season); else if (hashParams.season === "all") seasonYear = "all"; if (hashParams.q) filterEl.value = decodeURIComponent(hashParams.q); setMode("season"); }
 </script>
 </body>
