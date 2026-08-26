@@ -190,7 +190,7 @@
   .notice a { color: var(--chalk); }
   .support { font-family: var(--mono); font-size: 13px; color: var(--chalk-dim); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
   .support:hover { color: var(--amber); border-color: var(--amber); }
-  .prerender { padding: 28px 24px 8px; border-top: 1px solid var(--line); color: var(--chalk-dim); font-size: 14px; line-height: 1.6; max-width: 900px; }
+  .prerender { padding: 28px 24px 8px; border-top: 1px solid var(--line); color: var(--chalk-dim); font-size: 14px; line-height: 1.6; }
   .prerender h2 { font-family: var(--display); font-size: 20px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--chalk); margin: 0 0 8px; }
   .prerender p { margin: 0 0 14px; }
   .prerender a { color: var(--chalk); }
@@ -287,16 +287,16 @@
 <main id="list"></main>
 <section class="prerender" id="prerender">
 <!-- prerender:start -->
-<h2>Longest home runs — Monday, August 24, 2026</h2>
+<h2 data-date="2026-08-24">Yesterday's longest home runs — Monday, August 24, 2026</h2>
 <ol><li><a href="/#d=2026-08-24&hr=d24c0640-829f-3c66-b1fa-bb4701f66b56">Michael Conforto</a> (CHC) — 431 ft, 110.9 mph</li><li><a href="/#d=2026-08-24&hr=7de07fa5-fefe-3c7a-b436-adff94e2bd25">Rafael Devers</a> (SF) — 427 ft, 108.9 mph</li><li><a href="/#d=2026-08-24&hr=cb066bd9-ceaa-36cc-acfc-37277d39b612">Daylen Lile</a> (WSH) — 420 ft, 105.2 mph</li><li><a href="/#d=2026-08-24&hr=6ffca17c-1aa0-3bd9-b8a6-a216b9245eb2">Ezequiel Tovar</a> (COL) — 416 ft, 104.8 mph</li><li><a href="/#d=2026-08-24&hr=c0ced64e-977a-36c5-bde6-3be25f9b1dc3">Esmerlyn Valdez</a> (PIT) — 414 ft, 111.6 mph</li></ol>
 <p>19 home runs that day. <a href="/days/2026-08-24/">Full list for Aug 24</a> · Longest of 2026 so far: <a href="/players/fernando-tatis-jr-665487/">Fernando Tatis Jr.</a>, 474 ft on <a href="/days/2026-07-21/">Jul 21</a>. <a href="/season/">Season leaderboard</a></p>
-<p>No Doubters tracks every Major League Baseball home run with its Statcast distance, exit velocity, and launch angle, and links each one to the official MLB highlight. The board above updates live during games; these pages update every morning.</p>
+<p>No Doubters tracks every Major League Baseball home run since 2015 with its Statcast distance, exit velocity, and launch angle, and links each one to the official highlight.<br>The board above updates live during games; the season archive, player and pitcher histories, and these pages update every morning.</p>
 <p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: <a href="/days/2026-08-24/">Aug 24</a> · <a href="/days/2026-08-23/">Aug 23</a> · <a href="/days/2026-08-22/">Aug 22</a> · <a href="/days/2026-08-21/">Aug 21</a> · <a href="/days/2026-08-20/">Aug 20</a> · <a href="/days/2026-08-19/">Aug 19</a> · <a href="/days/2026-08-18/">Aug 18</a></p>
 <!-- prerender:end -->
 </section>
 <footer>
-  Independent fan project, not affiliated with Major League Baseball. Video, data, and player images are MLB property.<br>
-  If this is useful to you, <a href="https://buymeacoffee.com/nodoubters" target="_blank" rel="noopener">buy me a coffee ☕</a> · <a href="/embed/get.html">Put the widget on your site</a>
+  Independent fan project, not affiliated with Major League Baseball. Video, data, and player images are MLB property; park counts via Baseball Savant.<br>
+  If this is useful to you, <a href="https://buymeacoffee.com/nodoubters" target="_blank" rel="noopener">buy me a coffee ☕</a> · <a href="/embed/get.html">Put the widget on your site</a> · <a href="https://x.com/nodoubters" target="_blank" rel="noopener">@nodoubters</a>
 </footer>
 <div class="toast" id="toast"></div>
 
@@ -501,6 +501,7 @@ const comparators = {
 
 function render() {
   showSeasonNote();
+  const pre = document.querySelector("#prerender h2"); if (pre) pre.parentElement.style.display = (mode === "today" && pre.dataset.date === dateEl.value) ? "none" : "";
   const q = filterEl.value.trim().toLowerCase();
   const isSeason = mode === "season";
   const isVictims = byPitcher;
