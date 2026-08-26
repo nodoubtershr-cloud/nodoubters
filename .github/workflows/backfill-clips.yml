@@ -44,7 +44,11 @@ jobs:
             if [ "${{ github.event.inputs.what }}" != "parks" ]; then
               node scripts/update-season.mjs $y-03-01 $y-11-15 || echo "season $y: update failed, continuing"
             fi
-            node scripts/fill-parks.mjs $y || echo "season $y: park data failed, continuing"
+            if [ "${{ github.event.inputs.what }}" = "parks" ]; then
+              FULL=1 node scripts/fill-parks.mjs $y || echo "season $y: park data failed, continuing"   # re-check every batter
+            else
+              node scripts/fill-parks.mjs $y || echo "season $y: park data failed, continuing"
+            fi
             git add data
             if ! git diff --cached --quiet; then
               git commit -m "Backfill: $y"
