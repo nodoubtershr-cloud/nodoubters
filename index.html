@@ -813,7 +813,7 @@ function shareText(h) {
 }
 function shareUrl(h) {
   const fromArchive = mode !== "today" && h.id;
-  return fromArchive ? `${location.origin}/hr/${h.id}/` : `${location.origin}${location.pathname}#d=${h.date}&hr=${h.id}`;
+  return fromArchive ? `${location.origin}/hr/${h.id}.html` : `${location.origin}${location.pathname}#d=${h.date}&hr=${h.id}`;
 }
 async function shareHR(id) {
   const h = [...(season?.homeRuns ?? []), ...data.homeRuns].find(x => (x.id ?? x.playId) === id);
