@@ -208,6 +208,7 @@
   footer { padding: 28px 24px 40px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12px; color: var(--chalk-dim); line-height: 1.7; }
   footer a { color: var(--chalk-dim); }
   footer a:hover { color: var(--amber); }
+  footer .build { opacity: .45; margin-left: 8px; }
 
   /* ---------- states ---------- */
   .state { padding: 60px 0; text-align: center; font-family: var(--display); font-size: 28px; color: var(--chalk-dim); }
@@ -223,12 +224,23 @@
     .sort[data-key="time"] .lbl.short { font-size: 0; }
     .sort[data-key="time"] .lbl.short::before { content: "Time"; font-size: 12.5px; }
     .scale { display: none; }
-    .hr { grid-template-columns: 1fr; gap: 6px; }
-    .track { height: 40px; }
-    .bar { top: 26px; height: 10px; }
-    .ft, .ft.flip { position: absolute; left: auto !important; right: 0; top: 0; transform: none; font-size: 14px; }
-    .ft.flip small { position: static; margin-left: 8px; }
-    .hr:has(.ft.flip) .track { height: 40px; }
+    /* phone layout: name left, distance right, bar as a thin line along the bottom of the row */
+    .hr { position: relative; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 12px 0 14px; }
+    .who-wrap { min-width: 0; gap: 8px; }
+    .rank { width: auto; min-width: 22px; font-size: 11px; text-align: left; }
+    .fav { font-size: 17px; padding: 4px; margin: -4px 0 -4px -4px; }
+    .headshot { width: 36px; height: 36px; }
+    .who { font-size: 20px; white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.05; }
+    .who-line { gap: 6px; }
+    .meta { white-space: normal; font-size: 11px; }
+    .track { position: static; height: auto; width: auto; }
+    .lane { position: static; }
+    .bar { top: auto; bottom: 0; left: 0; height: 3px; border-radius: 0; opacity: .9; }
+    .bar.none { display: none; }
+    .ft, .ft.flip { position: static; transform: none; display: block; text-align: right; font-size: 16px; line-height: 1.1; white-space: nowrap; }
+    .ft small, .ft.flip small { display: block; position: static; margin: 3px 0 0; font-size: 11px; }
+    .hr:has(.ft.flip) .track { height: auto; }
+    .player { grid-column: 1 / -1; }
     .time { display: none; }
     .lane { right: 0; }
     .masthead h1 { font-size: 36px; }
@@ -305,7 +317,7 @@
 </section>
 <footer>
   Independent fan project, not affiliated with Major League Baseball. Video, data, and player images are MLB property; park counts via Baseball Savant.<br>
-  If this is useful to you, <a href="https://buymeacoffee.com/nodoubters" target="_blank" rel="noopener">buy me a coffee ☕</a> · <a href="/embed/get.html">Put the widget on your site</a> · <a href="https://x.com/nodoubters" target="_blank" rel="noopener">@nodoubters</a>
+  If this is useful to you, <a href="https://buymeacoffee.com/nodoubters" target="_blank" rel="noopener">buy me a coffee ☕</a> · <a href="/embed/get.html">Put the widget on your site</a> · <a href="https://x.com/nodoubters" target="_blank" rel="noopener">@nodoubters</a> <span class="build">build 20260826.0240</span>
 </footer>
 <div class="toast" id="toast"></div>
 
