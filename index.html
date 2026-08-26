@@ -581,6 +581,20 @@ function indexMulti(list) { const c = {}; for (const h of list) c[`${h.gamePk}|$
 const multiGame = h => multiSet.has(`${h.gamePk}|${h.batterId}`);
 
 let pendingOpen = null;
+// Season / All views are built from files that end yesterday. Overlay today's live homers so the
+// leaderboard, player histories, and team lists move as games are played; the morning job then makes it permanent.
+let liveToday = null, liveTodayAt = 0;
+async function todayLive() {
+  if (mode === "today") return data.homeRuns;                       // already have it
+  if (liveToday && Date.now() - liveTodayAt < 60000) return liveToday;
+  try { const t = await fetchHomeRuns(mlbToday()); tagNth(t.homeRuns); await mergeParks(t.homeRuns); await mergeCareer(t.homeRuns); liveToday = t.homeRuns; liveTodayAt = Date.now(); } catch { liveToday ??= []; }
+  return liveToday;
+}
+function overlayLive(list, live, pick = () => true) {
+  const have = new Set(list.map(h => h.id)); let added = 0;
+  for (const h of live) if (h.id && !have.has(h.id) && pick(h)) { list.push({ ...h, season: Number(h.date?.slice(0, 4)), live: true }); added++; }
+  return added;
+}
 let careerIdx = null;                        // batterId → { base, count, through } from data/all/career.json
 async function mergeCareer(list) {
   if (!careerIdx) { try { const r = await fetch("data/all/career.json", { cache: "no-cache" }); careerIdx = r.ok ? (await r.json()).players : {}; } catch { careerIdx = {}; } }
@@ -617,7 +631,7 @@ function showSeasonNote() {
   const isCurrent = !season.all && Number(seasonYear) === Math.max(...seasonYears);
   if (byPitcher && !season.all) { seasonNoteEl.innerHTML = `Every home run of ${season.season} by the pitcher who allowed it. Star a pitcher to follow him in ★ Starred.`; seasonNoteEl.classList.add("show"); return; }
   seasonNoteEl.innerHTML = isCurrent || season.all
-    ? `Season and player history update every morning · includes games through <b>${through ? fmtDate(through) : "—"}</b>. Tonight's homers are on the <a href="#" id="go-today">Today</a> board.`
+    ? `Archive through <b>${through ? fmtDate(through) : "—"}</b>, plus today's homers as they happen${liveToday?.length ? ` (<b>${liveToday.length}</b> so far)` : ""} · the morning update makes them permanent.`
     : `Complete ${season.season} season · ${Number(seasonYear) < 2019 ? "video via Baseball Savant where available" : "clips where MLB or Baseball Savant still has them"}.`;
   seasonNoteEl.classList.add("show");
   seasonNoteEl.querySelector("#go-today")?.addEventListener("click", e => { e.preventDefault(); setMode("today"); });
@@ -739,7 +753,7 @@ function render() {
     const hasDist = h.distance != null;
     const r = rank.get(id);
     return `
-      <article class="hr ${h.mp4 ? "" : "nohl"} ${!h.mp4 && liveDay() ? "pending" : ""}" data-id="${id}" tabindex="0" aria-expanded="${openId === id}">
+      <article class="hr ${h.mp4 ? "" : "nohl"} ${!h.mp4 && (liveDay() || h.live) ? "pending" : ""}" data-id="${id}" tabindex="0" aria-expanded="${openId === id}">
         <div class="who-wrap">
           ${isSeason ? `<div class="rank ${r && r <= 10 ? "top" : ""}">${r ? "#" + r : ""}</div>` : ""}
           ${(() => { const w = who(h); const on = w.id && favs.has(String(w.id)); return `<button class="fav ${on ? "on" : ""}" data-fav="${w.id ?? ""}" data-name="${(w.name ?? "").replace(/"/g, "&quot;")}" title="${on ? "Remove from" : "Add to"} my players" aria-label="${on ? "Remove" : "Add"} ${w.name} ${on ? "from" : "to"} my players" ${w.id ? "" : "disabled"}>${on ? "★" : "☆"}</button>
@@ -748,7 +762,7 @@ function render() {
                onerror="this.style.visibility='hidden'">
           <div style="min-width:0">
             <div class="who-line"><div class="who">${w.name}</div>${distBadge(h.distance)}${eventBadges(h)}${isVictims ? "" : milestoneBadge(h.ms)}${isVictims ? "" : countBadge(h.nth)}</div>
-            <div class="meta">${isVictims ? `<b>${h.against}</b> · to ${h.batter} (${h.teamAbbr})` : `<b>${h.teamAbbr}</b> vs ${h.against}`} · ${h.half === "top" ? "T" : "B"}${h.inning} · ${h.rbi}-run${h.live ? ' · <span class="live">LIVE</span>' : ""}</div>
+            <div class="meta">${isVictims ? `<b>${h.against}</b> · to ${h.batter} (${h.teamAbbr})` : `<b>${h.teamAbbr}</b> vs ${h.against}`} · ${h.half === "top" ? "T" : "B"}${h.inning} · ${h.rbi}-run${h.live ? ' · <span class="live">' + (isSeason ? "TODAY" : "LIVE") + '</span>' : ""}</div>
           </div>`; })()}
         </div>
         <div class="track">
@@ -888,6 +902,7 @@ async function loadSeason() {
       if (!r.ok) throw new Error(`${r.status}`);
       const d = await r.json(); tagNth(d.homeRuns); seasonCache[y] = d;
     }
+    if (y === Math.max(...seasonYears)) { const live = await todayLive(); if (overlayLive(seasonCache[y].homeRuns, live)) tagNth(seasonCache[y].homeRuns); }
     if (mode === "season" && seasonYear === y) { season = seasonCache[y]; render(); }
   } catch (e) {
     listEl.innerHTML = `<div class="state error">Couldn't load that season<small>${e.message}. The file should be at data/seasons/${seasonYear}.json.</small></div>`;
@@ -923,6 +938,8 @@ async function applyAllFilter() {
     ? pool.filter(p => nameToks.every(t => norm(p.name).split(/\s+/).some(w => w.startsWith(t)) || norm(p.name).includes(t))).slice(0, 5) : [];
   if (matches.length) {
     await Promise.all(matches.map(async p => { const key = `${folder}/${p.id}`; if (!playerCache[key]) { const r = await fetch(`data/all/${folder}/${p.id}.json`); if (r.ok) { const d = await r.json(); tagNth(d.homeRuns); playerCache[key] = d.homeRuns; } } }));
+    const live = await todayLive();
+    for (const p of matches) { const key = `${folder}/${p.id}`; if (playerCache[key]) overlayLive(playerCache[key], live, h => (byPitcher ? h.pitcherId : h.batterId) === p.id); }
     season = { season: `${allTop.from}–${allTop.to}`, all: true, players: matches, homeRuns: matches.flatMap(p => playerCache[`${folder}/${p.id}`] ?? []).filter(h => dateMatches(h, dateQ)) };
   } else if (toks.length || dateQ?.y) {
     // no player named: find a complete source for a team, a ballpark, or a season, then apply the words to it
@@ -938,6 +955,10 @@ async function applyAllFilter() {
       rows = seasonCache[dateQ.y]?.homeRuns ?? null; label = `${dateQ.y} season`;
     }
     if (rows) {
+      const live = await todayLive();
+      if (teamAbbr && label.includes("(for or against)")) overlayLive(rows, live, h => h.teamAbbr === teamAbbr || h.against === teamAbbr);
+      else if (v) overlayLive(rows, live, h => h.venue === v.name);
+      else if (dateQ?.y === Number(mlbToday().slice(0, 4))) overlayLive(rows, live);
       tagNth(rows); for (const h of rows) if (h.nth == null) h.nth = 1;
       season = { season: `${allTop.from}–${allTop.to}`, all: true, sourceLabel: label, homeRuns: rows.filter(h => dateMatches(h, dateQ)) };
     } else {
@@ -951,6 +972,9 @@ async function applyAllFilter() {
       if (!allLists[listKey]) { try { const r = await fetch(`data/all/lists/${listKey}.json`, { cache: "no-cache" }); allLists[listKey] = r.ok ? (await r.json()).homeRuns : null; } catch { allLists[listKey] = null; } }
       if (allLists[listKey]) { rows = allLists[listKey]; tagNth(rows); for (const h of rows) if (h.nth == null) h.nth = 1; } else listKey = null;
     }
+    const live = await todayLive();
+    if (listKey) { const saved = new Set(showSel); showSel.clear(); showSel.add(listKey); overlayLive(rows, live, showMatches); showSel.clear(); for (const k of saved) showSel.add(k); }
+    else { const floor = allTop.homeRuns.at(-1)?.distance ?? 0; overlayLive(rows, live, h => h.distance >= floor); }
     season = { season: `${allTop.from}–${allTop.to}`, all: true, top: true, listKey, homeRuns: rows };
   }
   if (mode === "season" && seasonYear === "all") render();
@@ -990,8 +1014,8 @@ function setBy(pitcher) {
 // landing. Re-check quietly in the background instead of leaving the page as a snapshot.
 function liveDay() { return mode === "today" && data.games.some(g => g.status?.abstractGameState === "Live"); }
 let pollTimer = null, lastFull = 0;
-async function fillMissingClips() {
-  const missing = data.homeRuns.filter(h => !h.mp4 && h.id);
+async function fillMissingClips(list = data.homeRuns) {
+  const missing = list.filter(h => !h.mp4 && h.id);
   const byGame = [...new Set(missing.map(h => h.gamePk))];
   let changed = false;
   await Promise.all(byGame.map(async pk => {
@@ -1011,7 +1035,16 @@ async function fillMissingClips() {
   return changed;
 }
 async function pollLive() {
-  if (mode !== "today" || document.hidden) return;
+  if (document.hidden) return;
+  if (mode === "season") {                                            // keep archive views moving during games
+    const fresh = await todayLive().catch(() => null);
+    if (fresh && season && !openId) {
+      const before = season.homeRuns.length; overlayLive(season.homeRuns, fresh);
+      const filled = await fillMissingClips(season.homeRuns.filter(h => h.live));
+      if (season.homeRuns.length !== before || filled) { tagNth(season.homeRuns); render(); }
+    }
+    return;
+  }
   // Sitting on yesterday's board because today was empty? Check whether today has started.
   if (autoDate && noticeEl.classList.contains("show") && !openId) {
     try {
