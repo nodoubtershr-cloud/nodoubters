@@ -171,6 +171,8 @@
   /* ---------- badges ---------- */
   .who-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
   .badge { flex: none; display: block; overflow: visible; }
+  .badge.chip { display: inline-flex; align-items: center; gap: 5px; height: 20px; padding: 0 8px 0 6px; border-radius: 4px; font-family: var(--display); font-size: 11.5px; font-weight: 800; letter-spacing: 1px; line-height: 1; white-space: nowrap; }
+  .badge.chip.glow { box-shadow: 0 0 0 2px rgba(245,179,66,.35); }
   .badge .bt { font-family: var(--mono); font-size: 11px; font-weight: 500; text-anchor: middle; dominant-baseline: central; }
   .badge .be { font-family: var(--display); font-size: 11.5px; font-weight: 800; letter-spacing: 1px; dominant-baseline: central; }
   .badge .bc { font-family: var(--display); font-size: 12.5px; font-weight: 800; letter-spacing: .8px; dominant-baseline: central; }
@@ -183,6 +185,16 @@
   .fav:hover { opacity: 1; }
   .fav.on { color: var(--amber); opacity: 1; }
   .mine { background: transparent; color: var(--chalk-dim); border: 1px solid var(--line); border-radius: 999px; height: 32px; padding: 0 14px; font-size: 13px; cursor: pointer; }
+  .showwrap { position: relative; }
+  .mine.show { padding-right: 26px; background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23b9b6ad'/%3E%3C/svg%3E") no-repeat right 11px center; max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mine.show.on { background-color: var(--amber); color: var(--night); border-color: var(--amber); font-weight: 600; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%230f1b2b'/%3E%3C/svg%3E"); }
+  .showpanel { display: none; position: absolute; top: 38px; left: 0; z-index: 30; background: var(--night-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px; min-width: 220px; box-shadow: 0 10px 30px rgba(0,0,0,.45); }
+  .showpanel.open { display: block; }
+  .showpanel label { display: flex; align-items: center; gap: 9px; padding: 7px 8px; border-radius: 6px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+  .showpanel label:hover { background: rgba(242,239,230,.06); }
+  .showpanel input { accent-color: var(--amber); margin: 0; }
+  .showpanel .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .showpanel .clear { margin: 6px 0 0 8px; background: transparent; border: 1px solid var(--line); color: var(--chalk-dim); border-radius: 999px; height: 26px; padding: 0 12px; font-size: 12px; cursor: pointer; }
   .mine[aria-pressed="true"] { background: var(--amber); color: var(--night); border-color: var(--amber); font-weight: 600; }
   .share { background: transparent; color: var(--chalk-dim); border: 1px solid var(--line); border-radius: 999px; height: 32px; padding: 0 14px; font-size: 13px; cursor: pointer; display: none; }
   .share:hover { color: var(--chalk); }
@@ -221,8 +233,7 @@
     .sorts { display: flex; flex-wrap: nowrap; gap: 6px; width: 100%; }
     .sort { flex: 1 1 0; justify-content: center; padding: 0 6px; font-size: 12.5px; height: 30px; gap: 4px; white-space: nowrap; min-width: 0; }
     .sort .dir { font-size: 10px; }
-    .sort[data-key="time"] .lbl.short { font-size: 0; }
-    .sort[data-key="time"] .lbl.short::before { content: "Time"; font-size: 12.5px; }
+
     .scale { display: none; }
     /* phone layout: name left, distance right, bar as a thin line along the bottom of the row */
     .hr { position: relative; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 12px 0 14px; }
@@ -249,6 +260,8 @@
     .chips::-webkit-scrollbar { display: none; }
     .chips > * { flex: none; }
     .mode.by button, .mine, .share { height: 30px; font-size: 12.5px; padding: 0 11px; }
+    .mine.show { padding-right: 24px; max-width: 200px; }
+    .showpanel { position: fixed; left: 12px; right: 12px; top: auto; bottom: 16px; min-width: 0; }
     .support { display: none; }
     .notice { margin: 8px 0 0; padding: 6px 10px; font-size: 11px; }
     .masthead { gap: 10px; }
@@ -283,19 +296,32 @@
     <span class="label">Sort</span>
     <div class="sorts">
       <button class="sort" data-key="distance">Distance <span class="dir"></span></button>
-      <button class="sort" data-key="time"><span class="lbl">Time hit</span> <span class="dir"></span></button>
+      <button class="sort" data-key="time"><span class="lbl">Recent</span> <span class="dir"></span></button>
       <button class="sort" data-key="team">Team <span class="dir"></span></button>
       <button class="sort" data-key="player">Player <span class="dir"></span></button>
     </div>
-    <input class="filter" id="filter" type="search" placeholder="Player, team, or both">
+    <input class="filter" id="filter" type="search" placeholder="Player, team, date — e.g. trout june 19">
     <div class="chips">
       <div class="mode by" role="group" aria-label="Show by">
         <button id="by-hitter" aria-pressed="true" title="Rows are the hitter">Hitters</button>
         <button id="by-pitcher" aria-pressed="false" title="Rows are the pitcher who gave it up">Pitchers</button>
       </div>
       <button class="mine" id="mine" aria-pressed="false" title="Only players you've starred">★ Starred</button>
-      <button class="mine" id="post" aria-pressed="false" title="Only playoff home runs" style="display:none">🏆 Postseason</button>
-      <button class="mine" id="nd" aria-pressed="false" title="Only homers that would have left all 30 parks (Statcast)" style="display:none">◆ No doubters</button>
+      <div class="showwrap" id="showwrap">
+        <button class="mine show" id="show" aria-haspopup="true" aria-expanded="false">Show: everything</button>
+        <div class="showpanel" id="showpanel" role="group" aria-label="Show only">
+          <label><input type="checkbox" value="wo"> <span class="dot" style="background:#e5533d"></span> Walk-offs</label>
+          <label><input type="checkbox" value="gs"> <span class="dot" style="background:#3c8a4a"></span> Grand slams</label>
+          <label><input type="checkbox" value="nd"> <span class="dot" style="background:#f5b342"></span> No doubters (30/30)</label>
+          <label><input type="checkbox" value="post"> <span class="dot" style="border:1.5px solid #f5b342"></span> Postseason</label>
+          <label><input type="checkbox" value="ws"> <span class="dot" style="background:#f5b342"></span> World Series</label>
+          <label><input type="checkbox" value="multi"> <span class="dot" style="background:#ff6b35"></span> Multi-homer games</label>
+          <label><input type="checkbox" value="ms"> <span class="dot" style="background:#f2efe6"></span> Career milestones</label>
+          <label><input type="checkbox" value="450"> <span class="dot" style="background:#22b8cf"></span> 450+ ft</label>
+          <label><input type="checkbox" value="475"> <span class="dot" style="background:#dfe9f3"></span> 475+ ft</label>
+          <button type="button" class="clear" id="showclear">Clear</button>
+        </div>
+      </div>
       <button class="share" id="share" title="Copy a link that carries your starred players">Share list</button>
       <a class="support" href="https://buymeacoffee.com/nodoubters" target="_blank" rel="noopener" title="Support No Doubters">☕ <span>Support</span></a>
     </div>
@@ -312,7 +338,7 @@
 <ol><li><a href="/#d=2026-08-24&hr=d24c0640-829f-3c66-b1fa-bb4701f66b56">Michael Conforto</a> (CHC) — 431 ft, 110.9 mph</li><li><a href="/#d=2026-08-24&hr=7de07fa5-fefe-3c7a-b436-adff94e2bd25">Rafael Devers</a> (SF) — 427 ft, 108.9 mph</li><li><a href="/#d=2026-08-24&hr=cb066bd9-ceaa-36cc-acfc-37277d39b612">Daylen Lile</a> (WSH) — 420 ft, 105.2 mph</li><li><a href="/#d=2026-08-24&hr=6ffca17c-1aa0-3bd9-b8a6-a216b9245eb2">Ezequiel Tovar</a> (COL) — 416 ft, 104.8 mph</li><li><a href="/#d=2026-08-24&hr=c0ced64e-977a-36c5-bde6-3be25f9b1dc3">Esmerlyn Valdez</a> (PIT) — 414 ft, 111.6 mph</li></ol>
 <p>19 home runs that day. <a href="/days/2026-08-24/">Full list for Aug 24</a> · Longest of 2026 so far: <a href="/players/fernando-tatis-jr-665487/">Fernando Tatis Jr.</a>, 474 ft on <a href="/days/2026-07-21/">Jul 21</a>. <a href="/season/">Season leaderboard</a></p>
 <p>No Doubters tracks every Major League Baseball home run since 2016 with its Statcast distance, exit velocity, and launch angle, and links each one to the official highlight.<br>The board above updates live during games; the season archive, player and pitcher histories, and these pages update every morning.</p>
-<p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: <a href="/days/2026-08-25/">Aug 25</a> · <a href="/days/2026-08-24/">Aug 24</a> · <a href="/days/2026-08-23/">Aug 23</a> · <a href="/days/2026-08-22/">Aug 22</a> · <a href="/days/2026-08-21/">Aug 21</a> · <a href="/days/2026-08-20/">Aug 20</a> · <a href="/days/2026-08-19/">Aug 19</a></p>
+<p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: <a href="/days/2026-08-24/">Aug 24</a> · <a href="/days/2026-08-23/">Aug 23</a> · <a href="/days/2026-08-22/">Aug 22</a> · <a href="/days/2026-08-21/">Aug 21</a> · <a href="/days/2026-08-20/">Aug 20</a> · <a href="/days/2026-08-19/">Aug 19</a> · <a href="/days/2026-08-18/">Aug 18</a></p>
 <!-- prerender:end -->
 </section>
 <footer>
@@ -411,7 +437,7 @@ async function fetchGameHomeRuns(game) {
 // Badges (generated SVG)
 // ============================================================
 const DIST_BADGES = {"400": "<svg class=\"badge dist\" viewBox=\"0 0 36 20\" width=\"36\" height=\"20\" role=\"img\" aria-label=\"400-plus foot home run\"><title>400+ ft</title><rect x=\".75\" y=\".75\" width=\"34.5\" height=\"18.5\" rx=\"4\" fill=\"none\" stroke=\"#5b6b7f\" stroke-width=\"1.5\"/><text x=\"18.0\" y=\"10.5\" class=\"bt\" fill=\"#8fa0b5\">400</text></svg>", "425": "<svg class=\"badge dist\" viewBox=\"0 0 50 20\" width=\"50\" height=\"20\" role=\"img\" aria-label=\"425-plus foot home run\"><title>425+ ft</title><rect width=\"50\" height=\"20\" rx=\"4\" fill=\"#3b82c4\"/><g transform=\"translate(11,10.0)\"><path d=\"M0,-6.5 C3.2,-3.2 5.4,0 4.4,3.2 C3.4,6.4 -3.4,6.4 -4.4,3.2 C-5.4,0 -2.2,-1.2 -1.2,-3.4 C-1.2,-1.2 1,0 1,-1.2 C2.2,-3.4 1.2,-5.4 0,-6.5 Z\" fill=\"#0f1b2b\"/></g><text x=\"32\" y=\"10.5\" class=\"bt\" fill=\"#0f1b2b\" font-weight=\"600\">425</text></svg>", "450": "<svg class=\"badge dist\" viewBox=\"0 0 50 20\" width=\"50\" height=\"20\" role=\"img\" aria-label=\"450-plus foot home run\"><title>450+ ft</title><rect width=\"50\" height=\"20\" rx=\"4\" fill=\"#22b8cf\"/><g transform=\"translate(11,10.0)\"><circle r=\"6.5\" fill=\"#0f1b2b\"/><circle cx=\"-2.2\" cy=\"-1.8\" r=\"1.7\" fill=\"#22b8cf\" opacity=\".85\"/><circle cx=\"2.4\" cy=\"1.2\" r=\"1.3\" fill=\"#22b8cf\" opacity=\".85\"/><circle cx=\"-0.6\" cy=\"3.0\" r=\"0.9\" fill=\"#22b8cf\" opacity=\".85\"/><circle cx=\"2.6\" cy=\"-3.0\" r=\"0.8\" fill=\"#22b8cf\" opacity=\".85\"/></g><text x=\"32\" y=\"10.5\" class=\"bt\" fill=\"#0f1b2b\" font-weight=\"600\">450</text></svg>", "475": "<svg class=\"badge dist\" viewBox=\"0 0 50 20\" width=\"50\" height=\"20\" role=\"img\" aria-label=\"475-plus foot home run\"><title>475+ ft</title><rect x=\"-2\" y=\"-2\" width=\"54\" height=\"24\" rx=\"6\" fill=\"#ffffff\" opacity=\".25\"/><rect width=\"50\" height=\"20\" rx=\"4\" fill=\"#dfe9f3\"/><g transform=\"translate(11,10.0)\"><circle r=\"4.2\" fill=\"#0f1b2b\"/><ellipse rx=\"8.4\" ry=\"2.6\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.5\" transform=\"rotate(-22)\"/></g><text x=\"32\" y=\"10.5\" class=\"bt\" fill=\"#0f1b2b\" font-weight=\"600\">475</text></svg>", "500": "<svg class=\"badge dist\" viewBox=\"0 0 50 20\" width=\"50\" height=\"20\" role=\"img\" aria-label=\"500-plus foot home run\"><title>500+ ft</title><rect x=\"-2\" y=\"-2\" width=\"54\" height=\"24\" rx=\"6\" fill=\"#ffe9b0\" opacity=\".25\"/><line x1=\"25.0\" y1=\"-3.0\" x2=\"25.0\" y2=\"-7.0\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"30.6\" y1=\"-1.7\" x2=\"32.4\" y2=\"-5.3\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"35.2\" y1=\"1.9\" x2=\"38.3\" y2=\"-0.6\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"37.7\" y1=\"7.1\" x2=\"41.6\" y2=\"6.2\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"37.7\" y1=\"12.9\" x2=\"41.6\" y2=\"13.8\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"35.2\" y1=\"18.1\" x2=\"38.3\" y2=\"20.6\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"30.6\" y1=\"21.7\" x2=\"32.4\" y2=\"25.3\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"25.0\" y1=\"23.0\" x2=\"25.0\" y2=\"27.0\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"19.4\" y1=\"21.7\" x2=\"17.6\" y2=\"25.3\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"14.8\" y1=\"18.1\" x2=\"11.7\" y2=\"20.6\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"12.3\" y1=\"12.9\" x2=\"8.4\" y2=\"13.8\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"12.3\" y1=\"7.1\" x2=\"8.4\" y2=\"6.2\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"14.8\" y1=\"1.9\" x2=\"11.7\" y2=\"-0.6\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><line x1=\"19.4\" y1=\"-1.7\" x2=\"17.6\" y2=\"-5.3\" stroke=\"#ffe9b0\" stroke-width=\"1.4\" stroke-linecap=\"round\" opacity=\"0.9\"/><rect width=\"50\" height=\"20\" rx=\"4\" fill=\"#f5b342\"/><g transform=\"translate(11,10.0)\"><polygon points=\"0.0,-7.0 1.8,-2.4 6.7,-2.2 2.9,0.9 4.1,5.7 0.0,3.0 -4.1,5.7 -2.9,0.9 -6.7,-2.2 -1.8,-2.4\" fill=\"#0f1b2b\"/></g><text x=\"32\" y=\"10.5\" class=\"bt\" fill=\"#0f1b2b\" font-weight=\"600\">500</text></svg>"};
-const COUNT_BADGES = {"2": "<svg class=\"badge count c2\" viewBox=\"0 0 122 26\" width=\"122\" height=\"26\" role=\"img\" aria-label=\"2ND home run of the game\"><title>2ND home run of the game</title><defs><filter id=\"cg2\" x=\"-40%\" y=\"-80%\" width=\"180%\" height=\"260%\"><feGaussianBlur stdDeviation=\"2.6\"/></filter><linearGradient id=\"cf2\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffe08a\"/><stop offset=\".45\" stop-color=\"#f5b342\"/><stop offset=\"1\" stop-color=\"#c98a1a\"/></linearGradient></defs><rect x=\"-4\" y=\"-4\" width=\"116\" height=\"34\" rx=\"16\" fill=\"#ffe08a\" opacity=\".5\" filter=\"url(#cg2)\"/><rect x=\"-2\" y=\"-2\" width=\"112\" height=\"30\" rx=\"15\" fill=\"none\" stroke=\"#ffe08a\" stroke-width=\"1.2\" opacity=\".95\"/><rect width=\"122\" height=\"26\" rx=\"13\" fill=\"url(#cf2)\"/><rect x=\"2\" y=\"1.5\" width=\"118\" height=\"11.0\" rx=\"11\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"13\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M10.14,9.1 Q13,13.0 10.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M15.86,9.1 Q13,13.0 15.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><polygon points=\"28.00,6.80 29.64,10.74 33.90,11.08 30.65,13.86 31.64,18.02 28.00,15.79 24.36,18.02 25.35,13.86 22.10,11.08 26.36,10.74\" fill=\"#f2efe6\"/><line x1=\"40\" y1=\"6\" x2=\"40\" y2=\"20\" stroke=\"#0f1b2b\" stroke-width=\"1\" opacity=\".35\"/><text x=\"46\" y=\"13.5\" class=\"bc\" fill=\"#0f1b2b\">2ND OF GAME</text></svg>", "3": "<svg class=\"badge count c3\" viewBox=\"0 0 137 26\" width=\"137\" height=\"26\" role=\"img\" aria-label=\"3RD home run of the game\"><title>3RD home run of the game</title><defs><filter id=\"cg3\" x=\"-40%\" y=\"-80%\" width=\"180%\" height=\"260%\"><feGaussianBlur stdDeviation=\"2.6\"/></filter><linearGradient id=\"cf3\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffb090\"/><stop offset=\".45\" stop-color=\"#ff6b35\"/><stop offset=\"1\" stop-color=\"#d24a18\"/></linearGradient></defs><rect x=\"-4\" y=\"-4\" width=\"131\" height=\"34\" rx=\"16\" fill=\"#ffb090\" opacity=\".5\" filter=\"url(#cg3)\"/><rect x=\"-2\" y=\"-2\" width=\"127\" height=\"30\" rx=\"15\" fill=\"none\" stroke=\"#ffb090\" stroke-width=\"1.2\" opacity=\".95\"/><line x1=\"-4\" y1=\"-2\" x2=\"-8\" y2=\"-7\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-4\" y1=\"28\" x2=\"-8\" y2=\"33\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"127\" y1=\"-2\" x2=\"131\" y2=\"-7\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"127\" y1=\"28\" x2=\"131\" y2=\"33\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"45.5\" y1=\"-4\" x2=\"43.5\" y2=\"-9\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"77.5\" y1=\"-4\" x2=\"79.5\" y2=\"-9\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><rect width=\"137\" height=\"26\" rx=\"13\" fill=\"url(#cf3)\"/><rect x=\"2\" y=\"1.5\" width=\"133\" height=\"11.0\" rx=\"11\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"13\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M10.14,9.1 Q13,13.0 10.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M15.86,9.1 Q13,13.0 15.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"28\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M25.14,9.1 Q28,13.0 25.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M30.86,9.1 Q28,13.0 30.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><g transform=\"translate(43,13.0) scale(0.95) rotate(45)\"><path d=\"M0,-7 C3,-4 3,2 2,4 L-2,4 C-3,2 -3,-4 0,-7 Z\" fill=\"#f2efe6\"/><path d=\"M-2,2 L-4.5,5 L-2,4.5 Z M2,2 L4.5,5 L2,4.5 Z\" fill=\"#f2efe6\"/><circle cx=\"0\" cy=\"-2\" r=\"1.3\" fill=\"#0f1b2b\"/><path d=\"M-1,5 L0,8 L1,5 Z\" fill=\"#0f1b2b\" opacity=\".7\"/></g><line x1=\"55\" y1=\"6\" x2=\"55\" y2=\"20\" stroke=\"#0f1b2b\" stroke-width=\"1\" opacity=\".35\"/><text x=\"61\" y=\"13.5\" class=\"bc\" fill=\"#0f1b2b\">3RD OF GAME</text></svg>", "4": "<svg class=\"badge count c4\" viewBox=\"0 0 152 26\" width=\"152\" height=\"26\" role=\"img\" aria-label=\"4TH home run of the game\"><title>4TH home run of the game</title><defs><filter id=\"cg4\" x=\"-40%\" y=\"-80%\" width=\"180%\" height=\"260%\"><feGaussianBlur stdDeviation=\"2.6\"/></filter><linearGradient id=\"cf4\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffa0c8\"/><stop offset=\".45\" stop-color=\"#ff3d8e\"/><stop offset=\"1\" stop-color=\"#c81f66\"/></linearGradient></defs><rect x=\"-4\" y=\"-4\" width=\"146\" height=\"34\" rx=\"16\" fill=\"#ffa0c8\" opacity=\".5\" filter=\"url(#cg4)\"/><rect x=\"-2\" y=\"-2\" width=\"142\" height=\"30\" rx=\"15\" fill=\"none\" stroke=\"#ffa0c8\" stroke-width=\"1.2\" opacity=\".95\"/><line x1=\"-4\" y1=\"-2\" x2=\"-8\" y2=\"-7\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-4\" y1=\"28\" x2=\"-8\" y2=\"33\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"142\" y1=\"-2\" x2=\"146\" y2=\"-7\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"142\" y1=\"28\" x2=\"146\" y2=\"33\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"53.0\" y1=\"-4\" x2=\"51.0\" y2=\"-9\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"85.0\" y1=\"-4\" x2=\"87.0\" y2=\"-9\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-6\" y1=\"13.0\" x2=\"-11\" y2=\"13.0\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"144\" y1=\"13.0\" x2=\"149\" y2=\"13.0\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"35.0\" y1=\"-4\" x2=\"31.0\" y2=\"-9\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"103.0\" y1=\"-4\" x2=\"107.0\" y2=\"-9\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"69.0\" y1=\"-4\" x2=\"69.0\" y2=\"-10\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"53.0\" y1=\"30\" x2=\"51.0\" y2=\"35\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"85.0\" y1=\"30\" x2=\"87.0\" y2=\"35\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><rect width=\"152\" height=\"26\" rx=\"13\" fill=\"url(#cf4)\"/><rect x=\"2\" y=\"1.5\" width=\"148\" height=\"11.0\" rx=\"11\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"13\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M10.14,9.1 Q13,13.0 10.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M15.86,9.1 Q13,13.0 15.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"28\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M25.14,9.1 Q28,13.0 25.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M30.86,9.1 Q28,13.0 30.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"43\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M40.14,9.1 Q43,13.0 40.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M45.86,9.1 Q43,13.0 45.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><g transform=\"translate(58,13.0) scale(1.0)\"><polygon points=\"-6,-2 -3,-6 3,-6 6,-2 0,6\" fill=\"#f2efe6\"/><polyline points=\"-6,-2 6,-2 M-3,-6 -1.5,-2 0,6 M3,-6 1.5,-2\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\".9\" opacity=\".6\"/></g><line x1=\"70\" y1=\"6\" x2=\"70\" y2=\"20\" stroke=\"#0f1b2b\" stroke-width=\"1\" opacity=\".35\"/><text x=\"76\" y=\"13.5\" class=\"bc\" fill=\"#0f1b2b\">4TH OF GAME</text></svg>", "5": "<svg class=\"badge count c5\" viewBox=\"0 0 167 26\" width=\"167\" height=\"26\" role=\"img\" aria-label=\"5TH home run of the game\"><title>5TH home run of the game</title><defs><filter id=\"cg5\" x=\"-40%\" y=\"-80%\" width=\"180%\" height=\"260%\"><feGaussianBlur stdDeviation=\"2.6\"/></filter><linearGradient id=\"cf5\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#cdb8ff\"/><stop offset=\".45\" stop-color=\"#8b5cf6\"/><stop offset=\"1\" stop-color=\"#6236c9\"/></linearGradient></defs><rect x=\"-4\" y=\"-4\" width=\"161\" height=\"34\" rx=\"16\" fill=\"#cdb8ff\" opacity=\".5\" filter=\"url(#cg5)\"/><rect x=\"-2\" y=\"-2\" width=\"157\" height=\"30\" rx=\"15\" fill=\"none\" stroke=\"#cdb8ff\" stroke-width=\"1.2\" opacity=\".95\"/><line x1=\"-4\" y1=\"-2\" x2=\"-8\" y2=\"-7\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-4\" y1=\"28\" x2=\"-8\" y2=\"33\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"157\" y1=\"-2\" x2=\"161\" y2=\"-7\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"157\" y1=\"28\" x2=\"161\" y2=\"33\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"60.5\" y1=\"-4\" x2=\"58.5\" y2=\"-9\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"92.5\" y1=\"-4\" x2=\"94.5\" y2=\"-9\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-6\" y1=\"13.0\" x2=\"-11\" y2=\"13.0\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"159\" y1=\"13.0\" x2=\"164\" y2=\"13.0\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"42.5\" y1=\"-4\" x2=\"38.5\" y2=\"-9\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"110.5\" y1=\"-4\" x2=\"114.5\" y2=\"-9\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"76.5\" y1=\"-4\" x2=\"76.5\" y2=\"-10\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"60.5\" y1=\"30\" x2=\"58.5\" y2=\"35\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"92.5\" y1=\"30\" x2=\"94.5\" y2=\"35\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><circle cx=\"-10\" cy=\"-4\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"163\" cy=\"-4\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"-10\" cy=\"30\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"163\" cy=\"30\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"32.5\" cy=\"34\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"120.5\" cy=\"34\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"68.5\" cy=\"-10\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"84.5\" cy=\"-10\" r=\"1.6\" fill=\"#cdb8ff\"/><rect width=\"167\" height=\"26\" rx=\"13\" fill=\"url(#cf5)\"/><rect x=\"2\" y=\"1.5\" width=\"163\" height=\"11.0\" rx=\"11\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"13\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M10.14,9.1 Q13,13.0 10.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M15.86,9.1 Q13,13.0 15.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"28\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M25.14,9.1 Q28,13.0 25.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M30.86,9.1 Q28,13.0 30.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"43\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M40.14,9.1 Q43,13.0 40.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M45.86,9.1 Q43,13.0 45.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"58\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M55.14,9.1 Q58,13.0 55.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M60.86,9.1 Q58,13.0 60.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><g transform=\"translate(73,13.0) scale(1.0)\"><path d=\"M-4,-6 L4,-6 L4,-1 C4,2 2,3.5 0,3.5 C-2,3.5 -4,2 -4,-1 Z\" fill=\"#f2efe6\"/><path d=\"M-4,-5 L-6.5,-5 C-6.5,-1 -5,0.5 -3.5,0.5 M4,-5 L6.5,-5 C6.5,-1 5,0.5 3.5,0.5\" fill=\"none\" stroke=\"#f2efe6\" stroke-width=\"1.3\"/><rect x=\"-1\" y=\"3.5\" width=\"2\" height=\"2\" fill=\"#f2efe6\"/><rect x=\"-3.5\" y=\"5.5\" width=\"7\" height=\"1.6\" fill=\"#f2efe6\"/></g><line x1=\"85\" y1=\"6\" x2=\"85\" y2=\"20\" stroke=\"#0f1b2b\" stroke-width=\"1\" opacity=\".35\"/><text x=\"91\" y=\"13.5\" class=\"bc\" fill=\"#0f1b2b\">5TH OF GAME</text></svg>"};
+const COUNT_BADGES = {"2": "<svg class=\"badge count c2\" viewBox=\"0 0 122 26\" width=\"122\" height=\"26\" role=\"img\" aria-label=\"2ND home run of the game\"><title>2ND home run of the game</title><defs><filter id=\"cg2\" x=\"-40%\" y=\"-80%\" width=\"180%\" height=\"260%\"><feGaussianBlur stdDeviation=\"2.6\"/></filter><linearGradient id=\"cf2\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffe08a\"/><stop offset=\".45\" stop-color=\"#f5b342\"/><stop offset=\"1\" stop-color=\"#c98a1a\"/></linearGradient></defs><rect x=\"-4\" y=\"-4\" width=\"130\" height=\"34\" rx=\"16\" fill=\"#ffe08a\" opacity=\".5\" filter=\"url(#cg2)\"/><rect x=\"-2\" y=\"-2\" width=\"126\" height=\"30\" rx=\"15\" fill=\"none\" stroke=\"#ffe08a\" stroke-width=\"1.2\" opacity=\".95\"/><rect width=\"122\" height=\"26\" rx=\"13\" fill=\"url(#cf2)\"/><rect x=\"2\" y=\"1.5\" width=\"118\" height=\"11.0\" rx=\"11\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"13\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M10.14,9.1 Q13,13.0 10.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M15.86,9.1 Q13,13.0 15.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><polygon points=\"28.00,6.80 29.64,10.74 33.90,11.08 30.65,13.86 31.64,18.02 28.00,15.79 24.36,18.02 25.35,13.86 22.10,11.08 26.36,10.74\" fill=\"#f2efe6\"/><line x1=\"40\" y1=\"6\" x2=\"40\" y2=\"20\" stroke=\"#0f1b2b\" stroke-width=\"1\" opacity=\".35\"/><text x=\"46\" y=\"13.5\" class=\"bc\" fill=\"#0f1b2b\">2ND OF GAME</text></svg>", "3": "<svg class=\"badge count c3\" viewBox=\"0 0 137 26\" width=\"137\" height=\"26\" role=\"img\" aria-label=\"3RD home run of the game\"><title>3RD home run of the game</title><defs><filter id=\"cg3\" x=\"-40%\" y=\"-80%\" width=\"180%\" height=\"260%\"><feGaussianBlur stdDeviation=\"2.6\"/></filter><linearGradient id=\"cf3\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffb090\"/><stop offset=\".45\" stop-color=\"#ff6b35\"/><stop offset=\"1\" stop-color=\"#d24a18\"/></linearGradient></defs><rect x=\"-4\" y=\"-4\" width=\"145\" height=\"34\" rx=\"16\" fill=\"#ffb090\" opacity=\".5\" filter=\"url(#cg3)\"/><rect x=\"-2\" y=\"-2\" width=\"141\" height=\"30\" rx=\"15\" fill=\"none\" stroke=\"#ffb090\" stroke-width=\"1.2\" opacity=\".95\"/><line x1=\"-4\" y1=\"-2\" x2=\"-8\" y2=\"-7\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-4\" y1=\"28\" x2=\"-8\" y2=\"33\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"141\" y1=\"-2\" x2=\"145\" y2=\"-7\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"141\" y1=\"28\" x2=\"145\" y2=\"33\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"45.5\" y1=\"-4\" x2=\"43.5\" y2=\"-9\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"91.5\" y1=\"-4\" x2=\"93.5\" y2=\"-9\" stroke=\"#ffb090\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><rect width=\"137\" height=\"26\" rx=\"13\" fill=\"url(#cf3)\"/><rect x=\"2\" y=\"1.5\" width=\"133\" height=\"11.0\" rx=\"11\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"13\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M10.14,9.1 Q13,13.0 10.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M15.86,9.1 Q13,13.0 15.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"28\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M25.14,9.1 Q28,13.0 25.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M30.86,9.1 Q28,13.0 30.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><g transform=\"translate(43,13.0) scale(0.95) rotate(45)\"><path d=\"M0,-7 C3,-4 3,2 2,4 L-2,4 C-3,2 -3,-4 0,-7 Z\" fill=\"#f2efe6\"/><path d=\"M-2,2 L-4.5,5 L-2,4.5 Z M2,2 L4.5,5 L2,4.5 Z\" fill=\"#f2efe6\"/><circle cx=\"0\" cy=\"-2\" r=\"1.3\" fill=\"#0f1b2b\"/><path d=\"M-1,5 L0,8 L1,5 Z\" fill=\"#0f1b2b\" opacity=\".7\"/></g><line x1=\"55\" y1=\"6\" x2=\"55\" y2=\"20\" stroke=\"#0f1b2b\" stroke-width=\"1\" opacity=\".35\"/><text x=\"61\" y=\"13.5\" class=\"bc\" fill=\"#0f1b2b\">3RD OF GAME</text></svg>", "4": "<svg class=\"badge count c4\" viewBox=\"0 0 152 26\" width=\"152\" height=\"26\" role=\"img\" aria-label=\"4TH home run of the game\"><title>4TH home run of the game</title><defs><filter id=\"cg4\" x=\"-40%\" y=\"-80%\" width=\"180%\" height=\"260%\"><feGaussianBlur stdDeviation=\"2.6\"/></filter><linearGradient id=\"cf4\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffa0c8\"/><stop offset=\".45\" stop-color=\"#ff3d8e\"/><stop offset=\"1\" stop-color=\"#c81f66\"/></linearGradient></defs><rect x=\"-4\" y=\"-4\" width=\"160\" height=\"34\" rx=\"16\" fill=\"#ffa0c8\" opacity=\".5\" filter=\"url(#cg4)\"/><rect x=\"-2\" y=\"-2\" width=\"156\" height=\"30\" rx=\"15\" fill=\"none\" stroke=\"#ffa0c8\" stroke-width=\"1.2\" opacity=\".95\"/><line x1=\"-4\" y1=\"-2\" x2=\"-8\" y2=\"-7\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-4\" y1=\"28\" x2=\"-8\" y2=\"33\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"156\" y1=\"-2\" x2=\"160\" y2=\"-7\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"156\" y1=\"28\" x2=\"160\" y2=\"33\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"53\" y1=\"-4\" x2=\"51\" y2=\"-9\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"99\" y1=\"-4\" x2=\"101\" y2=\"-9\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-6\" y1=\"13.0\" x2=\"-11\" y2=\"13.0\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"158\" y1=\"13.0\" x2=\"163\" y2=\"13.0\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"35\" y1=\"-4\" x2=\"31\" y2=\"-9\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"117\" y1=\"-4\" x2=\"121\" y2=\"-9\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"69\" y1=\"-4\" x2=\"69\" y2=\"-10\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"53\" y1=\"30\" x2=\"51\" y2=\"35\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"99\" y1=\"30\" x2=\"101\" y2=\"35\" stroke=\"#ffa0c8\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><rect width=\"152\" height=\"26\" rx=\"13\" fill=\"url(#cf4)\"/><rect x=\"2\" y=\"1.5\" width=\"148\" height=\"11.0\" rx=\"11\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"13\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M10.14,9.1 Q13,13.0 10.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M15.86,9.1 Q13,13.0 15.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"28\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M25.14,9.1 Q28,13.0 25.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M30.86,9.1 Q28,13.0 30.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"43\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M40.14,9.1 Q43,13.0 40.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M45.86,9.1 Q43,13.0 45.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><g transform=\"translate(58,13.0) scale(1.0)\"><polygon points=\"-6,-2 -3,-6 3,-6 6,-2 0,6\" fill=\"#f2efe6\"/><polyline points=\"-6,-2 6,-2 M-3,-6 -1.5,-2 0,6 M3,-6 1.5,-2\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\".9\" opacity=\".6\"/></g><line x1=\"84\" y1=\"6\" x2=\"84\" y2=\"20\" stroke=\"#0f1b2b\" stroke-width=\"1\" opacity=\".35\"/><text x=\"76\" y=\"13.5\" class=\"bc\" fill=\"#0f1b2b\">4TH OF GAME</text></svg>", "5": "<svg class=\"badge count c5\" viewBox=\"0 0 167 26\" width=\"167\" height=\"26\" role=\"img\" aria-label=\"5TH home run of the game\"><title>5TH home run of the game</title><defs><filter id=\"cg5\" x=\"-40%\" y=\"-80%\" width=\"180%\" height=\"260%\"><feGaussianBlur stdDeviation=\"2.6\"/></filter><linearGradient id=\"cf5\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#cdb8ff\"/><stop offset=\".45\" stop-color=\"#8b5cf6\"/><stop offset=\"1\" stop-color=\"#6236c9\"/></linearGradient></defs><rect x=\"-4\" y=\"-4\" width=\"175\" height=\"34\" rx=\"16\" fill=\"#cdb8ff\" opacity=\".5\" filter=\"url(#cg5)\"/><rect x=\"-2\" y=\"-2\" width=\"171\" height=\"30\" rx=\"15\" fill=\"none\" stroke=\"#cdb8ff\" stroke-width=\"1.2\" opacity=\".95\"/><line x1=\"-4\" y1=\"-2\" x2=\"-8\" y2=\"-7\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-4\" y1=\"28\" x2=\"-8\" y2=\"33\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"171\" y1=\"-2\" x2=\"175\" y2=\"-7\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"171\" y1=\"28\" x2=\"175\" y2=\"33\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"60.5\" y1=\"-4\" x2=\"58.5\" y2=\"-9\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"106.5\" y1=\"-4\" x2=\"108.5\" y2=\"-9\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"-6\" y1=\"13.0\" x2=\"-11\" y2=\"13.0\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"173\" y1=\"13.0\" x2=\"178\" y2=\"13.0\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"42.5\" y1=\"-4\" x2=\"38.5\" y2=\"-9\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"124.5\" y1=\"-4\" x2=\"128.5\" y2=\"-9\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"76.5\" y1=\"-4\" x2=\"76.5\" y2=\"-10\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"60.5\" y1=\"30\" x2=\"58.5\" y2=\"35\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><line x1=\"106.5\" y1=\"30\" x2=\"108.5\" y2=\"35\" stroke=\"#cdb8ff\" stroke-width=\"1.6\" stroke-linecap=\"round\" opacity=\".95\"/><circle cx=\"-10\" cy=\"-4\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"177\" cy=\"-4\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"-10\" cy=\"30\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"177\" cy=\"30\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"32.5\" cy=\"34\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"134.5\" cy=\"34\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"68.5\" cy=\"-10\" r=\"1.6\" fill=\"#cdb8ff\"/><circle cx=\"98.5\" cy=\"-10\" r=\"1.6\" fill=\"#cdb8ff\"/><rect width=\"167\" height=\"26\" rx=\"13\" fill=\"url(#cf5)\"/><rect x=\"2\" y=\"1.5\" width=\"163\" height=\"11.0\" rx=\"11\" fill=\"#fff\" opacity=\".18\"/><circle cx=\"13\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M10.14,9.1 Q13,13.0 10.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M15.86,9.1 Q13,13.0 15.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"28\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M25.14,9.1 Q28,13.0 25.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M30.86,9.1 Q28,13.0 30.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"43\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M40.14,9.1 Q43,13.0 40.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M45.86,9.1 Q43,13.0 45.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><circle cx=\"58\" cy=\"13.0\" r=\"5.2\" fill=\"#f2efe6\"/><path d=\"M55.14,9.1 Q58,13.0 55.14,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><path d=\"M60.86,9.1 Q58,13.0 60.86,16.9\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.25\"/><g transform=\"translate(73,13.0) scale(1.0)\"><path d=\"M-4,-6 L4,-6 L4,-1 C4,2 2,3.5 0,3.5 C-2,3.5 -4,2 -4,-1 Z\" fill=\"#f2efe6\"/><path d=\"M-4,-5 L-6.5,-5 C-6.5,-1 -5,0.5 -3.5,0.5 M4,-5 L6.5,-5 C6.5,-1 5,0.5 3.5,0.5\" fill=\"none\" stroke=\"#f2efe6\" stroke-width=\"1.3\"/><rect x=\"-1\" y=\"3.5\" width=\"2\" height=\"2\" fill=\"#f2efe6\"/><rect x=\"-3.5\" y=\"5.5\" width=\"7\" height=\"1.6\" fill=\"#f2efe6\"/></g><line x1=\"99\" y1=\"6\" x2=\"99\" y2=\"20\" stroke=\"#0f1b2b\" stroke-width=\"1\" opacity=\".35\"/><text x=\"91\" y=\"13.5\" class=\"bc\" fill=\"#0f1b2b\">5TH OF GAME</text></svg>"};
 
 const EVENT_BADGES = {"gs": "<svg class=\"badge event gs\" viewBox=\"0 0 92 20\" width=\"92\" height=\"20\" role=\"img\" aria-label=\"Grand slam\"><title>Grand slam</title><rect width=\"92\" height=\"20\" rx=\"4\" fill=\"#3c8a4a\"/><g transform=\"translate(11,10)\"><path d=\"M0,-6.5 L6.5,0 L0,6.5 L-6.5,0 Z\" fill=\"none\" stroke=\"#f2efe6\" stroke-width=\"1.4\"/><circle cx=\"0\" cy=\"-6.5\" r=\"1.9\" fill=\"#f2efe6\"/><circle cx=\"6.5\" cy=\"0\" r=\"1.9\" fill=\"#f2efe6\"/><circle cx=\"-6.5\" cy=\"0\" r=\"1.9\" fill=\"#f2efe6\"/><circle cx=\"0\" cy=\"6.5\" r=\"1.9\" fill=\"#f2efe6\"/></g><text x=\"22\" y=\"10.5\" class=\"be\" fill=\"#f2efe6\">GRAND SLAM</text></svg>", "wo": "<svg class=\"badge event wo\" viewBox=\"0 0 84 20\" width=\"84\" height=\"20\" role=\"img\" aria-label=\"Walk-off home run\"><title>Walk-off home run</title><rect width=\"84\" height=\"20\" rx=\"4\" fill=\"#e5533d\"/><g transform=\"translate(11,10)\"><line x1=\"-6\" y1=\"-7\" x2=\"-6\" y2=\"7\" stroke=\"#f2efe6\" stroke-width=\"1.5\" stroke-linecap=\"round\"/><path d=\"M-5,-7 L7,-7 L5,-3 L7,1 L-5,1 Z\" fill=\"#f2efe6\"/><rect x=\"-3\" y=\"-7\" width=\"2\" height=\"2\" fill=\"#e5533d\"/><rect x=\"1\" y=\"-7\" width=\"2\" height=\"2\" fill=\"#e5533d\"/><rect x=\"-1\" y=\"-5\" width=\"2\" height=\"2\" fill=\"#e5533d\"/><rect x=\"3\" y=\"-5\" width=\"2\" height=\"2\" fill=\"#e5533d\"/><rect x=\"-3\" y=\"-3\" width=\"2\" height=\"2\" fill=\"#e5533d\"/><rect x=\"1\" y=\"-3\" width=\"2\" height=\"2\" fill=\"#e5533d\"/><rect x=\"-1\" y=\"-1\" width=\"2\" height=\"2\" fill=\"#e5533d\"/><rect x=\"3\" y=\"-1\" width=\"2\" height=\"2\" fill=\"#e5533d\"/></g><text x=\"28\" y=\"10.5\" class=\"be\" fill=\"#f2efe6\">WALK-OFF</text></svg>", "ps": "<svg class=\"badge event ps\" viewBox=\"0 0 44 20\" width=\"44\" height=\"20\" role=\"img\" aria-label=\"Postseason home run\"><title>Postseason</title><rect x=\".75\" y=\".75\" width=\"42.5\" height=\"18.5\" rx=\"4\" fill=\"#0f1b2b\" stroke=\"#f5b342\" stroke-width=\"1.5\"/><g transform=\"translate(10,10)\"><line x1=\"-5\" y1=\"-6.5\" x2=\"-5\" y2=\"6.5\" stroke=\"#f5b342\" stroke-width=\"1.5\" stroke-linecap=\"round\"/><path d=\"M-4,-6.5 L6,-3 L-4,0.5 Z\" fill=\"#f5b342\"/></g><text x=\"30\" y=\"10.5\" class=\"be\" text-anchor=\"middle\" fill=\"#f5b342\">PS</text></svg>", "ws": "<svg class=\"badge event ws\" viewBox=\"0 0 46 20\" width=\"46\" height=\"20\" role=\"img\" aria-label=\"World Series home run\"><title>World Series</title><rect width=\"46\" height=\"20\" rx=\"4\" fill=\"#f5b342\"/><g transform=\"translate(10,10)\"><path d=\"M-4,-6.5 L4,-6.5 L4,-1.5 C4,1.5 2,3 0,3 C-2,3 -4,1.5 -4,-1.5 Z\" fill=\"#0f1b2b\"/><path d=\"M-4,-5.5 L-6.5,-5.5 C-6.5,-1.5 -5,0 -3.5,0 M4,-5.5 L6.5,-5.5 C6.5,-1.5 5,0 3.5,0\" fill=\"none\" stroke=\"#0f1b2b\" stroke-width=\"1.3\"/><rect x=\"-1\" y=\"3\" width=\"2\" height=\"2\" fill=\"#0f1b2b\"/><rect x=\"-3.5\" y=\"5\" width=\"7\" height=\"1.6\" fill=\"#0f1b2b\"/></g><text x=\"31\" y=\"10.5\" class=\"be\" text-anchor=\"middle\" fill=\"#0f1b2b\">WS</text></svg>"};
 const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][Math.min(n % 10, 4)] ?? "th");
@@ -425,10 +451,9 @@ function milestoneBadge(n) {
     : n === 400 ? { bg: "#8b5cf6", fg: "#f2efe6" }                     // violet
     : n === 500 ? { bg: "#f5b342", fg: "#0f1b2b" }                     // amber — the Hall of Fame line
     : { bg: "#ff3d8e", fg: "#f2efe6" };                                // hot pink — 600 and beyond
-  const label = `${ordinal(n).toUpperCase()} CAREER`; const W = 26 + label.length * 7.2;
-  const glow = n >= 500 ? `<rect x="-2" y="-2" width="${W + 4}" height="24" rx="6" fill="${tier.bg}" opacity=".35"/>` : "";
-  const rosette = `<g transform="translate(11,10)"><circle r="6.2" fill="${tier.fg}"/><polygon points="0,-3.6 1.1,-1.1 3.7,-1.1 1.6,0.5 2.3,3 0,1.5 -2.3,3 -1.6,0.5 -3.7,-1.1 -1.1,-1.1" fill="${tier.bg}"/><path d="M-3,5 L-2,9 L0,7.5 L2,9 L3,5" fill="${tier.fg}"/></g>`;
-  return `<svg class="badge event ms" viewBox="0 0 ${W} 20" width="${W}" height="20" role="img" aria-label="${ordinal(n)} career home run"><title>${ordinal(n)} career home run</title>${glow}<rect width="${W}" height="20" rx="4" fill="${tier.bg}"/>${rosette}<text x="22" y="10.5" class="be" fill="${tier.fg}">${label}</text></svg>`;
+  const label = `${ordinal(n).toUpperCase()} CAREER`;
+  const rosette = `<svg viewBox="-8 -9 16 19" width="13" height="16" aria-hidden="true"><circle r="6.2" fill="${tier.fg}"/><polygon points="0,-3.6 1.1,-1.1 3.7,-1.1 1.6,0.5 2.3,3 0,1.5 -2.3,3 -1.6,0.5 -3.7,-1.1 -1.1,-1.1" fill="${tier.bg}"/><path d="M-3,5 L-2,9 L0,7.5 L2,9 L3,5" fill="${tier.fg}"/></svg>`;
+  return `<span class="badge chip ms ${n >= 500 ? "glow" : ""}" style="background:${tier.bg};color:${tier.fg}" role="img" aria-label="${ordinal(n)} career home run" title="${ordinal(n)} career home run">${rosette}${label}</span>`;
 }
 function eventBadges(h) { return (h.gs ? EVENT_BADGES.gs : "") + (h.wo ? EVENT_BADGES.wo : "") + (h.gt === "W" ? EVENT_BADGES.ws : h.gt && h.gt !== "R" ? EVENT_BADGES.ps : ""); }
 function distBadge(ft) {
@@ -455,10 +480,39 @@ const TEAM_NAMES = {};                                   // abbr -> full name, l
 function learnTeams(list) { for (const h of list) if (h.teamAbbr && h.team) TEAM_NAMES[h.teamAbbr] = h.team; }
 const norm = s => (s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 const words = q => norm(q).split(/\s+/).filter(Boolean);
+// Dates in the search box: "june 19", "jun 19", "6/19", "6/19/2019", "2019-06-19", a bare year, or a bare month.
+const MONTHS = { jan: 1, january: 1, feb: 2, february: 2, mar: 3, march: 3, apr: 4, april: 4, may: 5, jun: 6, june: 6, jul: 7, july: 7, aug: 8, august: 8, sep: 9, sept: 9, september: 9, oct: 10, october: 10, nov: 11, november: 11, dec: 12, december: 12 };
+function parseDateWords(toks) {
+  const d = { y: null, m: null, day: null }; const rest = [];
+  for (let i = 0; i < toks.length; i++) {
+    const t = toks[i], next = toks[i + 1];
+    let m;
+    if ((m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/))) { d.y = +m[1]; d.m = +m[2]; d.day = +m[3]; continue; }
+    if ((m = t.match(/^(\d{1,2})[\/.](\d{1,2})(?:[\/.](\d{2,4}))?$/))) { d.m = +m[1]; d.day = +m[2]; if (m[3]) d.y = m[3].length === 2 ? 2000 + +m[3] : +m[3]; continue; }
+    if (/^(19|20)\d{2}$/.test(t)) { d.y = +t; continue; }
+    if (MONTHS[t]) {
+      d.m = MONTHS[t];
+      if (next && /^\d{1,2}(st|nd|rd|th)?$/.test(next) && +parseInt(next) <= 31) { d.day = parseInt(next); i++; }
+      continue;
+    }
+    rest.push(t);
+  }
+  return { date: d.y || d.m || d.day ? d : null, rest };
+}
+function dateMatches(h, d) {
+  if (!d || !h.date) return true;
+  const [y, m, day] = h.date.split("-").map(Number);
+  return (d.y == null || d.y === y) && (d.m == null || d.m === m) && (d.day == null || d.day === day);
+}
+const SHOW_WORDS = { walkoff: "wo", "walk-off": "wo", walkoffs: "wo", slam: "gs", slams: "gs", grandslam: "gs", nodoubter: "nd", nodoubters: "nd", postseason: "post", playoffs: "post", playoff: "post", ws: "ws", worldseries: "ws", moonshot: "450", milestone: "ms" };
 function rowMatches(h, toks) {
   if (!toks.length) return true;
+  const alias = toks.filter(t => SHOW_WORDS[t]); toks = toks.filter(t => !SHOW_WORDS[t]);
+  if (alias.length) { const saved = new Set(showSel); for (const a of alias) showSel.add(SHOW_WORDS[a]); const ok = showMatches(h); showSel.clear(); for (const k of saved) showSel.add(k); if (!ok) return false; }
+  const { date, rest } = parseDateWords(toks);
+  if (!dateMatches(h, date)) return false;
   const hay = [h.batter, h.team, h.teamAbbr, h.against, TEAM_NAMES[h.against], h.venue, h.pitcher].map(norm);
-  return toks.every(t => hay.some(f => f.includes(t)));
+  return rest.every(t => hay.some(f => f.includes(t)));
 }
 function isTeamWord(t) { return Object.entries(TEAM_NAMES).some(([abbr, name]) => norm(abbr).includes(t) || norm(name).includes(t)); }
 
@@ -490,8 +544,27 @@ const PAGE = 100; let shown = PAGE;
 const FIRST_SEASON = 2016;                   // MLB's video archive and Statcast park data both start here
 let byPitcher = false;                      // Hitters / Pitchers perspective
 let mineOnly = false;
-let postOnly = false;
-let ndOnly = false;
+const showSel = new Set();                   // active "Show" filters (combined with AND)
+const SHOW_LABELS = { wo: "Walk-offs", gs: "Grand slams", nd: "No doubters", post: "Postseason", ws: "World Series", multi: "Multi-homer games", ms: "Milestones", 450: "450+ ft", 475: "475+ ft" };
+function showMatches(h) {
+  for (const k of showSel) {
+    if (k === "wo" && !h.wo) return false;
+    if (k === "gs" && !h.gs) return false;
+    if (k === "nd" && h.parks !== 30) return false;
+    if (k === "post" && !(h.gt && h.gt !== "R")) return false;
+    if (k === "ws" && h.gt !== "W") return false;
+    if (k === "multi" && !(h.nth >= 2 || multiGame(h))) return false;
+    if (k === "ms" && !h.ms) return false;
+    if (k === "450" && !(h.distance >= 450)) return false;
+    if (k === "475" && !(h.distance >= 475)) return false;
+  }
+  return true;
+}
+// a batter's whole multi-homer game, not just the 2nd/3rd shots
+let multiSet = new Set();
+function indexMulti(list) { const c = {}; for (const h of list) c[`${h.gamePk}|${h.batterId}`] = (c[`${h.gamePk}|${h.batterId}`] || 0) + 1; multiSet = new Set(Object.entries(c).filter(([, n]) => n >= 2).map(([k]) => k)); }
+const multiGame = h => multiSet.has(`${h.gamePk}|${h.batterId}`);
+
 let pendingOpen = null;
 let careerIdx = null;                        // batterId → { base, count, through } from data/all/career.json
 async function mergeCareer(list) {
@@ -563,15 +636,16 @@ function render() {
   // who is the headline of each row
   const who = h => isVictims ? { name: h.pitcher, id: h.pitcherId, team: h.against, vs: h.teamAbbr } : { name: h.batter, id: h.batterId, team: h.teamAbbr, vs: h.against };
   const source = isSeason ? (season?.homeRuns ?? []) : data.homeRuns;
-  const tl = document.querySelector('.sort[data-key="time"] .lbl'); tl.textContent = isSeason ? "Date" : "Time hit"; tl.classList.toggle("short", !isSeason);
+  const tl = document.querySelector('.sort[data-key="time"] .lbl'); tl.textContent = isSeason ? "Date" : "Recent"; tl.classList.remove("short");
   const toks = words(q);
   let rows = (isSeason && season?.all && season.players) ? source.filter(h => rowMatches(h, toks))
     : source.filter(h => rowMatches(h, toks));
   if (mineOnly) rows = rows.filter(h => favs.has(String(who(h).id)));
-  if (postOnly && isSeason) rows = rows.filter(h => h.gt && h.gt !== "R");
-  if (ndOnly && isSeason) rows = rows.filter(h => h.parks === 30);
-  document.querySelector("#nd").setAttribute("aria-pressed", ndOnly);
-  document.querySelector("#post").setAttribute("aria-pressed", postOnly);
+  if (showSel.size) { indexMulti(source); rows = rows.filter(showMatches); }
+  const showBtn = document.querySelector("#show");
+  showBtn.textContent = showSel.size ? [...showSel].map(k => SHOW_LABELS[k]).join(" · ") : "Show: everything";
+  showBtn.classList.toggle("on", showSel.size > 0);
+  for (const i of document.querySelectorAll("#showpanel input")) i.checked = showSel.has(i.value);
   document.querySelector("#mine").setAttribute("aria-pressed", mineOnly);
   document.querySelector("#share").style.display = favs.size ? "inline-block" : "none";
   rows.sort((a, b) => comparators[sortKey](a, b) * sortDir);
@@ -594,12 +668,12 @@ function render() {
   const longest = withDist.length ? Math.max(...withDist.map(h => h.distance)) : null;
   if (isSeason && season?.all) {
     summaryEl.innerHTML = season.top
-      ? (postOnly ? `Longest <b>${source.length}</b> postseason HR since ${allTop.from} · type a name for a player's playoff history` : `Longest <b>${source.length}</b> of <b>${allTop.total.toLocaleString()}</b> HR since ${allTop.from} · type a name for a player's full history`)
+      ? ((showSel.has("post") || showSel.has("ws")) ? `Longest <b>${source.length}</b> postseason HR since ${allTop.from} · type a name for a player's playoff history` : `Longest <b>${source.length}</b> of <b>${allTop.total.toLocaleString()}</b> HR since ${allTop.from} · type a name for a player's full history`)
       : season.players.map(p => `<b>${p.name}</b> ${p.n} HR since ${p.seasons[0]}, longest ${p.longest} ft`).join(" · ");
   } else if (isVictims && ((isSeason && season && !season.all) || (!isSeason && data.games.length))) {
     const most = Object.entries(source.reduce((m, h) => (m[h.pitcher] = (m[h.pitcher] || 0) + 1, m), {})).sort((a, b) => b[1] - a[1])[0];
     summaryEl.innerHTML = `<b>${source.length}</b> HR allowed ${isSeason ? `in ${season.season}` : "today"}${longest ? ` · longest allowed <b>${longest} ft</b>` : ""}${most ? ` · most allowed <b>${most[0]}</b> (${most[1]})` : ""}`;
-  } else if (isSeason && postOnly && season) {
+  } else if (isSeason && showSel.size === 1 && showSel.has("post") && season) {
     const ps = source.filter(h => h.gt && h.gt !== "R"); const wsN = ps.filter(h => h.gt === "W").length;
     const psLong = ps.filter(h => h.distance != null).sort((a, b) => b.distance - a.distance)[0];
     summaryEl.innerHTML = `<b>${ps.length}</b> postseason HR in ${season.season}${wsN ? ` (<b>${wsN}</b> in the World Series)` : ""}${psLong ? ` · longest <b>${psLong.distance} ft</b> ${psLong.batter}` : ""}`;
@@ -612,8 +686,9 @@ function render() {
     ? `<b>${data.homeRuns.length}</b> HR · <b>${data.games.length}</b> games (${finals} final${live ? `, <b>${live} live</b>` : ""})${longest ? ` · longest <b>${longest} ft</b>` : ""}`
     : "";
 
-  if (!rows.length && postOnly && isSeason && !mineOnly) {
-    listEl.innerHTML = `<div class="state">No postseason homers${q ? ` match "${filterEl.value}"` : season?.all ? " in this set" : ` in ${season?.season ?? "this season"} yet`}<small>${!q && !season?.all && Number(seasonYear) === Math.max(...seasonYears) ? "The playoffs haven't started." : "Turn off 🏆 Postseason to see everyone."}</small></div>`;
+  if (!rows.length && showSel.size && !mineOnly) {
+    const what = [...showSel].map(k => SHOW_LABELS[k].toLowerCase()).join(" + ");
+    listEl.innerHTML = `<div class="state">No ${what} here${q ? ` matching "${filterEl.value}"` : ""}<small>${showSel.has("post") && !q && isSeason && !season?.all && Number(seasonYear) === Math.max(...seasonYears) ? "The playoffs haven't started." : "Open Show to change the filter."}</small></div>`;
     return;
   }
   if (!rows.length && mineOnly) {
@@ -809,7 +884,7 @@ async function loadAll() {
   }
 }
 async function applyAllFilter() {
-  const toks = words(filterEl.value);
+  const { rest: toks, date: dateQ } = parseDateWords(words(filterEl.value));
   const pool = byPitcher ? (allIndex.pitchers ?? []) : allIndex.players;
   const folder = byPitcher ? "pitchers" : "players";
   const nameToks = toks.filter(t => !isTeamWord(t) || pool.some(p => norm(p.name).includes(t)));
@@ -817,9 +892,9 @@ async function applyAllFilter() {
     ? pool.filter(p => nameToks.every(t => norm(p.name).includes(t))).slice(0, 5) : [];
   if (matches.length) {
     await Promise.all(matches.map(async p => { const key = `${folder}/${p.id}`; if (!playerCache[key]) { const r = await fetch(`data/all/${folder}/${p.id}.json`); if (r.ok) { const d = await r.json(); tagNth(d.homeRuns); playerCache[key] = d.homeRuns; } } }));
-    season = { season: `${allTop.from}–${allTop.to}`, all: true, players: matches, homeRuns: matches.flatMap(p => playerCache[`${folder}/${p.id}`] ?? []) };
+    season = { season: `${allTop.from}–${allTop.to}`, all: true, players: matches, homeRuns: matches.flatMap(p => playerCache[`${folder}/${p.id}`] ?? []).filter(h => dateMatches(h, dateQ)) };
   } else {
-    season = { season: `${allTop.from}–${allTop.to}`, all: true, top: true, homeRuns: postOnly && allTop.postseason ? allTop.postseason : allTop.homeRuns };
+    season = { season: `${allTop.from}–${allTop.to}`, all: true, top: true, homeRuns: (showSel.has("post") || showSel.has("ws")) && allTop.postseason ? allTop.postseason : allTop.homeRuns };
   }
   if (mode === "season" && seasonYear === "all") render();
 }
@@ -830,8 +905,7 @@ function setMode(m) {
   document.querySelector("#mode-season").setAttribute("aria-pressed", sv);
   document.querySelector(".date-nav").style.display = sv ? "none" : "";
   document.querySelector("#year-nav").style.display = sv ? "" : "none";
-  document.querySelector("#post").style.display = sv ? "" : "none";
-  document.querySelector("#nd").style.display = sv ? "" : "none";
+
   noticeEl.style.display = sv ? "none" : "";
   if (!sv) seasonNoteEl.classList.remove("show");
   updateHash();
@@ -842,13 +916,14 @@ function updateHash() {
   const parts = [];
   if (mode === "season") parts.push(`season${seasonYear ? "=" + seasonYear : ""}`);
   if (byPitcher) parts.push("by=pitcher");
+  if (showSel.size) parts.push(`show=${[...showSel].join(",")}`);
   history.replaceState(null, "", parts.length ? "#" + parts.join("&") : location.pathname);
 }
 function setBy(pitcher) {
   byPitcher = pitcher; openId = null; shown = PAGE;
   document.querySelector("#by-hitter").setAttribute("aria-pressed", !pitcher);
   document.querySelector("#by-pitcher").setAttribute("aria-pressed", pitcher);
-  filterEl.placeholder = pitcher ? "Pitcher, team, or both" : (seasonYear === "all" && mode === "season" ? "Player, optionally a team" : "Player, team, or both");
+  filterEl.placeholder = pitcher ? "Pitcher, team, date" : "Player, team, date — e.g. trout june 19";
   updateHash();
   if (mode === "season" && seasonYear === "all" && allTop) applyAllFilter(); else render();
 }
@@ -921,11 +996,12 @@ $("#prev").addEventListener("click", () => shiftDate(-1));
 $("#next").addEventListener("click", () => shiftDate(1));
 $("#refresh").addEventListener("click", load);
 let filterTimer = null;
-filterEl.addEventListener("input", () => { shown = PAGE; if (mode === "season" && seasonYear === "all" && allTop) { clearTimeout(filterTimer); filterTimer = setTimeout(applyAllFilter, 250); } else render(); });
+filterEl.addEventListener("input", () => { shown = PAGE;
+  if (mode === "season" && seasonYear !== "all") { const { date } = parseDateWords(words(filterEl.value)); if (date?.y && seasonYears.includes(date.y) && date.y !== seasonYear) { seasonYear = date.y; document.querySelector("#year").value = date.y; updateHash(); loadSeason(); return; } } if (mode === "season" && seasonYear === "all" && allTop) { clearTimeout(filterTimer); filterTimer = setTimeout(applyAllFilter, 250); } else render(); });
 document.querySelectorAll(".sort").forEach(b => b.addEventListener("click", () => {
   const key = b.dataset.key;
   if (key === sortKey) sortDir *= -1;
-  else { sortKey = key; sortDir = key === "distance" ? -1 : 1; }
+  else { sortKey = key; sortDir = key === "distance" || key === "time" ? -1 : 1; }   // distance and recency: biggest / newest first
   render();
 }));
 listEl.addEventListener("click", e => {
@@ -944,8 +1020,13 @@ listEl.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.classList.contains("hr")) e.target.click();
 });
 document.querySelector("#year").addEventListener("change", e => { seasonYear = e.target.value === "all" ? "all" : Number(e.target.value); openId = null; shown = PAGE; updateHash(); filterEl.placeholder = seasonYear === "all" ? "Player, optionally a team" : "Player, team, or both"; loadSeason(); });
-document.querySelector("#nd").addEventListener("click", () => { ndOnly = !ndOnly; shown = PAGE; render(); });
-document.querySelector("#post").addEventListener("click", () => { postOnly = !postOnly; shown = PAGE; if (mode === "season" && seasonYear === "all" && allTop) applyAllFilter(); else render(); });
+const showPanel = document.querySelector("#showpanel");
+document.querySelector("#show").addEventListener("click", e => { e.stopPropagation(); const open = !showPanel.classList.contains("open"); showPanel.classList.toggle("open", open); document.querySelector("#show").setAttribute("aria-expanded", open); });
+document.addEventListener("click", e => { if (!e.target.closest("#showwrap")) { showPanel.classList.remove("open"); document.querySelector("#show").setAttribute("aria-expanded", "false"); } });
+function applyShow() { shown = PAGE; updateHash(); if (mode === "season" && seasonYear === "all" && allTop) applyAllFilter(); else render(); }
+showPanel.addEventListener("change", e => { const v = e.target.value; e.target.checked ? showSel.add(v) : showSel.delete(v); applyShow(); });
+document.querySelector("#showclear").addEventListener("click", () => { showSel.clear(); showPanel.querySelectorAll("input").forEach(i => i.checked = false); applyShow(); });
+for (const i of showPanel.querySelectorAll("input")) i.checked = showSel.has(i.value);
 document.querySelector("#mine").addEventListener("click", () => { mineOnly = !mineOnly; shown = PAGE; render(); });
 document.querySelector("#share").addEventListener("click", async () => {
   const url = `${location.origin}${location.pathname}#mine=${[...favs.keys()].join(",")}`;
@@ -963,8 +1044,9 @@ if (hashParams.mine) {
 if (/^\d{4}-\d{2}-\d{2}$/.test(hashParams.d ?? "")) { dateEl.value = hashParams.d; autoDate = false; }
 if (hashParams.hr) pendingOpen = hashParams.hr;
 load();
-if (hashParams.post) postOnly = true;
-if (hashParams.nd) ndOnly = true;
+if (hashParams.post) showSel.add("post");
+if (hashParams.nd) showSel.add("nd");
+if (hashParams.show) for (const k of hashParams.show.split(",")) if (SHOW_LABELS[k]) showSel.add(k);
 if (hashParams.by === "pitcher" || hashParams.victims) setBy(true);
 if (hashParams.victims) { if (/^\d{4}$/.test(hashParams.victims)) seasonYear = Number(hashParams.victims); else if (hashParams.victims === "all") seasonYear = "all"; setMode("season"); }
 else if (hashParams.season) { if (/^\d{4}$/.test(hashParams.season)) seasonYear = Number(hashParams.season); else if (hashParams.season === "all") seasonYear = "all"; if (hashParams.q) filterEl.value = decodeURIComponent(hashParams.q); setMode("season"); }
