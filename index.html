@@ -97,7 +97,7 @@
   .sort .dir { font-family: var(--mono); font-size: 11px; }
   .filter {
     margin-left: auto; background: var(--night-2); color: var(--chalk); border: 1px solid var(--line);
-    border-radius: 999px; height: 32px; padding: 0 14px; font-size: 13px; min-width: 200px;
+    border-radius: 999px; height: 32px; padding: 0 14px; font-size: 13px; min-width: 230px;
   }
   .filter::placeholder { color: var(--chalk-dim); }
   :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
@@ -300,7 +300,7 @@
       <button class="sort" data-key="team">Team <span class="dir"></span></button>
       <button class="sort" data-key="player">Player <span class="dir"></span></button>
     </div>
-    <input class="filter" id="filter" type="search" placeholder="Player, team, date — e.g. trout june 19">
+    <input class="filter" id="filter" type="search" placeholder="Player, team, park, date">
     <div class="chips">
       <div class="mode by" role="group" aria-label="Show by">
         <button id="by-hitter" aria-pressed="true" title="Rows are the hitter">Hitters</button>
@@ -308,7 +308,7 @@
       </div>
       <button class="mine" id="mine" aria-pressed="false" title="Only players you've starred">★ Starred</button>
       <div class="showwrap" id="showwrap">
-        <button class="mine show" id="show" aria-haspopup="true" aria-expanded="false">Show: everything</button>
+        <button class="mine show" id="show" aria-haspopup="true" aria-expanded="false">Filters</button>
         <div class="showpanel" id="showpanel" role="group" aria-label="Show only">
           <label><input type="checkbox" value="wo"> <span class="dot" style="background:#e5533d"></span> Walk-offs</label>
           <label><input type="checkbox" value="gs"> <span class="dot" style="background:#3c8a4a"></span> Grand slams</label>
@@ -514,7 +514,19 @@ function rowMatches(h, toks) {
   const hay = [h.batter, h.team, h.teamAbbr, h.against, TEAM_NAMES[h.against], h.venue, h.pitcher].map(norm);
   return rest.every(t => hay.some(f => f.includes(t)));
 }
-function isTeamWord(t) { return Object.entries(TEAM_NAMES).some(([abbr, name]) => norm(abbr).includes(t) || norm(name).includes(t)); }
+// for team/ballpark sources in All: the words that picked the source already match by construction; the rest must match
+function rowMatchesLoose(h, toks) {
+  const alias = toks.filter(t => SHOW_WORDS[t]);
+  if (alias.length) { const saved = new Set(showSel); for (const a of alias) showSel.add(SHOW_WORDS[a]); const ok = showMatches(h); showSel.clear(); for (const k of saved) showSel.add(k); if (!ok) return false; }
+  const { date, rest } = parseDateWords(toks.filter(t => !SHOW_WORDS[t]));
+  if (!dateMatches(h, date)) return false;
+  const hay = [h.batter, h.team, h.teamAbbr, h.against, TEAM_NAMES[h.against], h.venue, h.pitcher].map(norm);
+  return rest.every(t => hay.some(f => f.includes(t)) || isTeamWord(t) || isVenueWord(t));
+}
+// a search word names a team if it equals the abbreviation or starts a word of the team name ("dodg", "sox", "lad")
+function teamWordHits(abbr, t) { return norm(abbr) === t || (t.length >= 3 && norm(TEAM_NAMES[abbr]).split(/\s+/).some(w => w.startsWith(t))); }
+function isTeamWord(t) { return Object.keys(TEAM_NAMES).some(abbr => teamWordHits(abbr, t)); }
+function isVenueWord(t) { return t.length >= 4 && (venueIndex ?? []).some(v => norm(v.name).split(/\s+/).some(w => w.startsWith(t))); }
 
 // ============================================================
 // Favorites (stored in this browser; shareable via #mine=)
@@ -539,6 +551,9 @@ let seasonYears = [];                        // available years, newest first
 const seasonCache = {};
 let allIndex = null;                         // { players: [...] } for the All view
 let allTop = null;                           // all-time top list
+const allLists = {};                         // all-time lists per Filter (walk-offs, milestones, …), loaded on demand
+let venueIndex = null;                       // [{id, name}] for ballpark searches in All
+async function loadJSON(path) { try { const r = await fetch(path, { cache: "no-cache" }); return r.ok ? await r.json() : null; } catch { return null; } }
 const playerCache = {};                      // batterId -> that player's full history
 const PAGE = 100; let shown = PAGE;
 const FIRST_SEASON = 2016;                   // MLB's video archive and Statcast park data both start here
@@ -638,12 +653,12 @@ function render() {
   const source = isSeason ? (season?.homeRuns ?? []) : data.homeRuns;
   const tl = document.querySelector('.sort[data-key="time"] .lbl'); tl.textContent = isSeason ? "Date" : "Recent"; tl.classList.remove("short");
   const toks = words(q);
-  let rows = (isSeason && season?.all && season.players) ? source.filter(h => rowMatches(h, toks))
+  let rows = (isSeason && season?.all && season.sourceLabel) ? source.filter(h => rowMatches(h, toks) || rowMatchesLoose(h, toks))
     : source.filter(h => rowMatches(h, toks));
   if (mineOnly) rows = rows.filter(h => favs.has(String(who(h).id)));
   if (showSel.size) { indexMulti(source); rows = rows.filter(showMatches); }
   const showBtn = document.querySelector("#show");
-  showBtn.textContent = showSel.size ? [...showSel].map(k => SHOW_LABELS[k]).join(" · ") : "Show: everything";
+  showBtn.textContent = showSel.size ? [...showSel].map(k => SHOW_LABELS[k]).join(" · ") : "Filters";
   showBtn.classList.toggle("on", showSel.size > 0);
   for (const i of document.querySelectorAll("#showpanel input")) i.checked = showSel.has(i.value);
   document.querySelector("#mine").setAttribute("aria-pressed", mineOnly);
@@ -666,9 +681,11 @@ function render() {
   const live = data.games.filter(g => g.status?.abstractGameState === "Live").length;
   const withDist = source.filter(h => h.distance != null);
   const longest = withDist.length ? Math.max(...withDist.map(h => h.distance)) : null;
-  if (isSeason && season?.all) {
+  if (isSeason && season?.all && season.sourceLabel) {
+    summaryEl.innerHTML = `<b>${total.toLocaleString()}</b> HR · ${season.sourceLabel} since ${allTop.from}${q || showSel.size ? " · matching your search" : ""}`;
+  } else if (isSeason && season?.all) {
     summaryEl.innerHTML = season.top
-      ? ((showSel.has("post") || showSel.has("ws")) ? `Longest <b>${source.length}</b> postseason HR since ${allTop.from} · type a name for a player's playoff history` : `Longest <b>${source.length}</b> of <b>${allTop.total.toLocaleString()}</b> HR since ${allTop.from} · type a name for a player's full history`)
+      ? (season.listKey ? `Every <b>${source.length}</b> ${SHOW_LABELS[season.listKey].toLowerCase()}${season.listKey === "multi" ? " homer" : ""} since ${allTop.from}, longest first · type a name to narrow` : `Longest <b>${source.length.toLocaleString()}</b> of <b>${allTop.total.toLocaleString()}</b> HR since ${allTop.from} · type a name for a player's full history`)
       : season.players.map(p => `<b>${p.name}</b> ${p.n} HR since ${p.seasons[0]}, longest ${p.longest} ft`).join(" · ");
   } else if (isVictims && ((isSeason && season && !season.all) || (!isSeason && data.games.length))) {
     const most = Object.entries(source.reduce((m, h) => (m[h.pitcher] = (m[h.pitcher] || 0) + 1, m), {})).sort((a, b) => b[1] - a[1])[0];
@@ -688,7 +705,7 @@ function render() {
 
   if (!rows.length && showSel.size && !mineOnly) {
     const what = [...showSel].map(k => SHOW_LABELS[k].toLowerCase()).join(" + ");
-    listEl.innerHTML = `<div class="state">No ${what} here${q ? ` matching "${filterEl.value}"` : ""}<small>${showSel.has("post") && !q && isSeason && !season?.all && Number(seasonYear) === Math.max(...seasonYears) ? "The playoffs haven't started." : "Open Show to change the filter."}</small></div>`;
+    listEl.innerHTML = `<div class="state">No ${what} here${q ? ` matching "${filterEl.value}"` : ""}<small>${showSel.has("post") && !q && isSeason && !season?.all && Number(seasonYear) === Math.max(...seasonYears) ? "The playoffs haven't started." : "Open Filters to change it."}</small></div>`;
     return;
   }
   if (!rows.length && mineOnly) {
@@ -887,14 +904,45 @@ async function applyAllFilter() {
   const { rest: toks, date: dateQ } = parseDateWords(words(filterEl.value));
   const pool = byPitcher ? (allIndex.pitchers ?? []) : allIndex.players;
   const folder = byPitcher ? "pitchers" : "players";
-  const nameToks = toks.filter(t => !isTeamWord(t) || pool.some(p => norm(p.name).includes(t)));
+  venueIndex ??= (await loadJSON("data/all/venues.json"))?.venues ?? [];
+  // a ballpark or team that explains every word wins; otherwise words that start a player's name pick players
+  const placeWords = toks.filter(t => !SHOW_WORDS[t]);
+  const venueCoversAll = placeWords.length && venueIndex.some(v => placeWords.every(t => t.length >= 4 && norm(v.name).split(/\s+/).some(w => w.startsWith(t))));
+  const teamCoversAll = placeWords.length && Object.keys(TEAM_NAMES).some(a => placeWords.every(t => teamWordHits(a, t)));
+  const nameToks = (venueCoversAll || teamCoversAll) ? [] : toks.filter(t => pool.some(p => norm(p.name).split(/\s+/).some(w => w.startsWith(t))) || (!isTeamWord(t) && !isVenueWord(t)));
   const matches = nameToks.length && nameToks.join("").length >= 2
-    ? pool.filter(p => nameToks.every(t => norm(p.name).includes(t))).slice(0, 5) : [];
+    ? pool.filter(p => nameToks.every(t => norm(p.name).split(/\s+/).some(w => w.startsWith(t)) || norm(p.name).includes(t))).slice(0, 5) : [];
   if (matches.length) {
     await Promise.all(matches.map(async p => { const key = `${folder}/${p.id}`; if (!playerCache[key]) { const r = await fetch(`data/all/${folder}/${p.id}.json`); if (r.ok) { const d = await r.json(); tagNth(d.homeRuns); playerCache[key] = d.homeRuns; } } }));
     season = { season: `${allTop.from}–${allTop.to}`, all: true, players: matches, homeRuns: matches.flatMap(p => playerCache[`${folder}/${p.id}`] ?? []).filter(h => dateMatches(h, dateQ)) };
+  } else if (toks.length || dateQ?.y) {
+    // no player named: find a complete source for a team, a ballpark, or a season, then apply the words to it
+    let rows = null, label = null;
+    venueIndex ??= (await loadJSON("data/all/venues.json"))?.venues ?? [];
+    const scored = venueIndex.map(v => ({ v, n: placeWords.filter(t => t.length >= 4 && norm(v.name).split(/\s+/).some(w => w.startsWith(t))).length })).filter(x => x.n > 0).sort((a, b) => b.n - a.n || b.v.count - a.v.count);
+    const teamAbbr = Object.keys(TEAM_NAMES).find(a => placeWords.some(t => teamWordHits(a, t)));
+    const v = scored[0]?.v;
+    if (v && (scored[0].n >= 2 || !teamAbbr)) { rows = (allLists[`venue/${v.id}`] ??= (await loadJSON(`data/all/venues/${v.id}.json`))?.homeRuns ?? null); label = v.name; }
+    if (!rows && teamAbbr) { rows = (allLists[`team/${teamAbbr}`] ??= (await loadJSON(`data/all/teams/${teamAbbr}.json`))?.homeRuns ?? null); label = `${TEAM_NAMES[teamAbbr]} (for or against)`; }
+    if (!rows && dateQ?.y && seasonYears.includes(dateQ.y)) {
+      if (!seasonCache[dateQ.y]) { const d = await loadJSON(`data/seasons/${dateQ.y}.json`); if (d) { tagNth(d.homeRuns); seasonCache[dateQ.y] = d; } }
+      rows = seasonCache[dateQ.y]?.homeRuns ?? null; label = `${dateQ.y} season`;
+    }
+    if (rows) {
+      tagNth(rows); for (const h of rows) if (h.nth == null) h.nth = 1;
+      season = { season: `${allTop.from}–${allTop.to}`, all: true, sourceLabel: label, homeRuns: rows.filter(h => dateMatches(h, dateQ)) };
+    } else {
+      season = { season: `${allTop.from}–${allTop.to}`, all: true, top: true, homeRuns: allTop.homeRuns };
+    }
   } else {
-    season = { season: `${allTop.from}–${allTop.to}`, all: true, top: true, homeRuns: (showSel.has("post") || showSel.has("ws")) && allTop.postseason ? allTop.postseason : allTop.homeRuns };
+    const listable = [...showSel].filter(k => k !== "nd");          // no-doubters are 40% of all homers — too many for a list; filter the top 500 instead
+    let rows = allTop.homeRuns, listKey = null;
+    if (listable.length) {
+      listKey = listable[0];
+      if (!allLists[listKey]) { try { const r = await fetch(`data/all/lists/${listKey}.json`, { cache: "no-cache" }); allLists[listKey] = r.ok ? (await r.json()).homeRuns : null; } catch { allLists[listKey] = null; } }
+      if (allLists[listKey]) { rows = allLists[listKey]; tagNth(rows); for (const h of rows) if (h.nth == null) h.nth = 1; } else listKey = null;
+    }
+    season = { season: `${allTop.from}–${allTop.to}`, all: true, top: true, listKey, homeRuns: rows };
   }
   if (mode === "season" && seasonYear === "all") render();
 }
@@ -923,7 +971,7 @@ function setBy(pitcher) {
   byPitcher = pitcher; openId = null; shown = PAGE;
   document.querySelector("#by-hitter").setAttribute("aria-pressed", !pitcher);
   document.querySelector("#by-pitcher").setAttribute("aria-pressed", pitcher);
-  filterEl.placeholder = pitcher ? "Pitcher, team, date" : "Player, team, date — e.g. trout june 19";
+  filterEl.placeholder = pitcher ? "Pitcher, team, park, date" : "Player, team, park, date";
   updateHash();
   if (mode === "season" && seasonYear === "all" && allTop) applyAllFilter(); else render();
 }

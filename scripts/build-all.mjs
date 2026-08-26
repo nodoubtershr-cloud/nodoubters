@@ -67,9 +67,37 @@ const ranked = all.filter(h => h.distance != null).sort(byDist);
 await writeFile("data/all/top.json", JSON.stringify({
   from: years[0], to: years.at(-1), total: all.length, updated: new Date().toISOString(),
   through: all.reduce((m, h) => (h.date > m ? h.date : m), ""),
-  homeRuns: ranked.slice(0, 500),
-  postseason: ranked.filter(h => h.gt && h.gt !== "R").slice(0, 500),   // longest playoff homers
+  homeRuns: ranked.slice(0, 2000),
+  postseason: ranked.filter(h => h.gt && h.gt !== "R").slice(0, 2000),   // longest playoff homers
 }));
+
+// all-time lists behind each Filter (so "All seasons + Walk-offs" means every walk-off, not just the longest 500)
+{
+  await mkdir("data/all/lists", { recursive: true });
+  const multi = new Set(); { const c = {}; for (const h of all) { const k = `${h.gamePk}|${h.batterId}`; c[k] = (c[k] || 0) + 1; } for (const [k, n] of Object.entries(c)) if (n >= 2) multi.add(k); }
+  const lists = {
+    wo: h => h.wo, gs: h => h.gs, ms: h => h.ms, ws: h => h.gt === "W", post: h => h.gt && h.gt !== "R",
+    450: h => h.distance >= 450, 475: h => h.distance >= 475, multi: h => multi.has(`${h.gamePk}|${h.batterId}`),
+  };
+  for (const [k, test] of Object.entries(lists)) {
+    const rows = all.filter(test).sort(byDist);
+    await writeFile(`data/all/lists/${k}.json`, JSON.stringify({ key: k, count: rows.length, homeRuns: rows }));
+  }
+}
+
+// per-team (for or against) and per-ballpark histories, so team/park searches in All are complete
+{
+  await mkdir("data/all/teams", { recursive: true }); await mkdir("data/all/venues", { recursive: true });
+  const teams = {}, venues = {}, venueNames = {};
+  for (const h of all) {
+    (teams[h.teamAbbr] ||= []).push(h); if (h.against && h.against !== h.teamAbbr) (teams[h.against] ||= []).push(h);
+    if (h.venueId) { (venues[h.venueId] ||= []).push(h); venueNames[h.venueId] = h.venue; }
+  }
+  for (const [abbr, list] of Object.entries(teams)) { list.sort(byDist); await writeFile(`data/all/teams/${abbr}.json`, JSON.stringify({ team: abbr, count: list.length, homeRuns: list })); }
+  for (const [id, list] of Object.entries(venues)) { list.sort(byDist); await writeFile(`data/all/venues/${id}.json`, JSON.stringify({ venueId: Number(id), venue: venueNames[id], count: list.length, homeRuns: list })); }
+  await writeFile("data/all/venues.json", JSON.stringify({ venues: Object.entries(venueNames).map(([id, name]) => ({ id: Number(id), name, count: venues[id].length })).sort((a, b) => b.count - a.count) }));
+  console.log(`team files: ${Object.keys(teams).length} · ballpark files: ${Object.keys(venues).length}`);
+}
 
 // players
 const players = {};
@@ -97,4 +125,4 @@ for (const [id, list] of Object.entries(pitchers)) {
 }
 pindex.sort((a, b) => b.n - a.n);
 await writeFile("data/all/players.json", JSON.stringify({ from: years[0], to: years.at(-1), players: index, pitchers: pindex }));
-console.log(`all-seasons: ${all.length} HR across ${years[0]}–${years.at(-1)}, ${index.length} players, ${pindex.length} pitchers, top ${Math.min(500, ranked.length)} written`);
+console.log(`all-seasons: ${all.length} HR across ${years[0]}–${years.at(-1)}, ${index.length} players, ${pindex.length} pitchers, top ${Math.min(2000, ranked.length)} written`);
