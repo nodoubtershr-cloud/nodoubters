@@ -154,9 +154,10 @@
   .player { display: none; padding: 4px 0 20px; grid-column: 1 / -1; }
   .player.open { display: block; }
   .player video { width: 100%; max-width: 960px; aspect-ratio: 16/9; background: #000; border-radius: 8px; display: block; }
-  .player .caption { font-family: var(--mono); font-size: 12px; color: var(--chalk-dim); margin-top: 8px; display: flex; gap: 18px; flex-wrap: wrap; }
+  .player .caption { font-family: var(--mono); font-size: 12px; color: var(--chalk-dim); margin-top: 8px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; max-width: 960px; }
   .player .caption a { color: var(--chalk-dim); }
   .player .caption a:hover { color: var(--amber); }
+  .player .caption .actions { display: inline-flex; gap: 14px; align-items: center; margin-left: auto; }
   .player .caption button { background: transparent; color: var(--chalk-dim); border: 1px solid var(--line); border-radius: 999px; height: 26px; padding: 0 12px; font-family: var(--mono); font-size: 12px; cursor: pointer; }
   .player .caption button:hover { color: var(--amber); border-color: var(--amber); }
 
@@ -652,13 +653,11 @@ function playerHTML(h) {
   return `
     <video controls autoplay playsinline preload="metadata" ${h.poster ? `poster="${h.poster}"` : ""} src="${h.mp4}"></video>
     <div class="caption">
-      <span>${h.title ?? h.description}</span>
-      <span>off ${h.pitcher}</span>
-      ${h.src === "savant" ? `<span>video via Baseball Savant</span>` : ""}
-      <button data-share="${h.id ?? h.playId}">Share</button>
+      <span>${(h.title ?? h.description).replace(/[.!]+$/, "")} off ${h.pitcher}${h.venue ? ` · ${h.venue}` : ""}${h.src === "savant" ? " · video via Baseball Savant" : ""}</span>
+      <span class="actions"><button data-share="${h.id ?? h.playId}">Share</button>
       <a href="https://x.com/intent/post?text=${encodeURIComponent(shareText(h) + " ⚾")}&url=${encodeURIComponent(shareUrl(h))}" target="_blank" rel="noopener">Post on X ↗</a>
       <a href="https://www.mlb.com/gameday/${h.gamePk}/final/video" target="_blank" rel="noopener">MLB.com ↗</a>
-      ${h.savant ? `<a href="${h.savant}" target="_blank" rel="noopener">Savant ↗</a>` : ""}
+      ${h.savant ? `<a href="${h.savant}" target="_blank" rel="noopener">Savant ↗</a>` : ""}</span>
     </div>`;
 }
 
