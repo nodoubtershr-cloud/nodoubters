@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://nodoubters.com/</loc><lastmod>2026-09-05</lastmod><changefreq>hourly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://nodoubters.com/</loc><lastmod>2026-09-06</lastmod><changefreq>hourly</changefreq><priority>1.0</priority></url>
   <url><loc>https://nodoubters.com/days/2026-03-26/</loc><lastmod>2026-03-26</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://nodoubters.com/days/2026-03-27/</loc><lastmod>2026-03-27</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://nodoubters.com/days/2026-03-28/</loc><lastmod>2026-03-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
@@ -161,8 +161,9 @@
   <url><loc>https://nodoubters.com/days/2026-09-02/</loc><lastmod>2026-09-02</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://nodoubters.com/days/2026-09-03/</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://nodoubters.com/days/2026-09-04/</loc><lastmod>2026-09-04</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://nodoubters.com/days/2026-09-05/</loc><lastmod>2026-09-05</lastmod><changefreq>hourly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://nodoubters.com/season/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nodoubters.com/days/2026-09-05/</loc><lastmod>2026-09-05</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://nodoubters.com/days/2026-09-06/</loc><lastmod>2026-09-06</lastmod><changefreq>hourly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nodoubters.com/season/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
   <url><loc>https://nodoubters.com/season/2025/</loc><lastmod>2025-11-01</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/season/2024/</loc><lastmod>2024-10-30</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/season/2023/</loc><lastmod>2023-11-01</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
@@ -221,7 +222,7 @@
   <url><loc>https://nodoubters.com/players/blake-perkins-663368/</loc><lastmod>2026-06-14</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/blaze-alexander-677942/</loc><lastmod>2026-07-10</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/blaze-jordan-691458/</loc><lastmod>2026-08-27</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/bo-bichette-666182/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/bo-bichette-666182/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/bo-naylor-666310/</loc><lastmod>2026-05-07</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/bobby-witt-jr-677951/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/braden-montgomery-695731/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -232,18 +233,18 @@
   <url><loc>https://nodoubters.com/players/brandon-nimmo-607043/</loc><lastmod>2026-08-29</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/brandon-valenzuela-678218/</loc><lastmod>2026-07-17</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/braxton-fulford-690924/</loc><lastmod>2026-03-30</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/brayan-rocchio-677587/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/brayan-rocchio-677587/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/brendan-donovan-680977/</loc><lastmod>2026-04-07</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/brent-rooker-667670/</loc><lastmod>2026-06-07</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/brenton-doyle-686668/</loc><lastmod>2026-08-26</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/brett-baty-683146/</loc><lastmod>2026-08-10</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/brett-baty-683146/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/brett-callahan-814430/</loc><lastmod>2026-08-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/brett-sullivan-664954/</loc><lastmod>2026-08-16</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/brian-navarreto-640459/</loc><lastmod>2026-08-17</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/brian-serven-661531/</loc><lastmod>2026-08-30</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/brice-matthews-694728/</loc><lastmod>2026-07-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/brice-turang-668930/</loc><lastmod>2026-08-26</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/brooks-lee-686797/</loc><lastmod>2026-08-28</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/brooks-lee-686797/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/bryan-de-la-cruz-650559/</loc><lastmod>2026-08-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/bryan-reynolds-668804/</loc><lastmod>2026-09-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/bryan-torres-663494/</loc><lastmod>2026-07-03</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -274,7 +275,7 @@
   <url><loc>https://nodoubters.com/players/christian-vazquez-543877/</loc><lastmod>2026-08-19</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/christian-walker-572233/</loc><lastmod>2026-08-27</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/christian-yelich-592885/</loc><lastmod>2026-09-01</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/cj-abrams-682928/</loc><lastmod>2026-08-11</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/cj-abrams-682928/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/cj-kayfus-692216/</loc><lastmod>2026-04-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/coby-mayo-691723/</loc><lastmod>2026-08-30</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/cody-bellinger-641355/</loc><lastmod>2026-08-25</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -291,7 +292,7 @@
   <url><loc>https://nodoubters.com/players/connor-wong-657136/</loc><lastmod>2026-08-16</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/cooper-pratt-806198/</loc><lastmod>2026-08-31</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/corbin-carroll-682998/</loc><lastmod>2026-08-28</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/corey-seager-608369/</loc><lastmod>2026-09-03</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/corey-seager-608369/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/curtis-mead-678554/</loc><lastmod>2026-07-12</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/dalton-rushing-687221/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/dane-myers-667472/</loc><lastmod>2026-08-30</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -307,7 +308,7 @@
   <url><loc>https://nodoubters.com/players/daylen-lile-695734/</loc><lastmod>2026-08-31</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/daz-cameron-663662/</loc><lastmod>2026-08-20</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/denzer-guzman-694203/</loc><lastmod>2026-08-20</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/derek-hill-656537/</loc><lastmod>2026-08-03</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/derek-hill-656537/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/dillon-dingler-693307/</loc><lastmod>2026-08-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/dominic-canzone-686527/</loc><lastmod>2026-09-01</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/dominic-smith-642086/</loc><lastmod>2026-08-01</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -322,9 +323,9 @@
   <url><loc>https://nodoubters.com/players/edmundo-sosa-624641/</loc><lastmod>2026-08-30</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/edouard-julien-666397/</loc><lastmod>2026-07-08</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/eduardo-valencia-680664/</loc><lastmod>2026-08-15</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/eli-white-642201/</loc><lastmod>2026-07-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/eli-white-642201/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/elias-diaz-553869/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/elly-de-la-cruz-682829/</loc><lastmod>2026-09-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/elly-de-la-cruz-682829/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/endy-rodriguez-682848/</loc><lastmod>2026-08-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/enrique-hernandez-571771/</loc><lastmod>2026-08-19</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/eric-haase-606992/</loc><lastmod>2026-06-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -338,7 +339,7 @@
   <url><loc>https://nodoubters.com/players/ezequiel-duran-677649/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/ezequiel-tovar-678662/</loc><lastmod>2026-08-24</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/felix-reyes-694025/</loc><lastmod>2026-04-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/fernando-tatis-jr-665487/</loc><lastmod>2026-09-01</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/fernando-tatis-jr-665487/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/francisco-alvarez-682626/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/francisco-lindor-596019/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/freddie-freeman-518692/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -366,8 +367,8 @@
   <url><loc>https://nodoubters.com/players/hector-rodriguez-699302/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/heliot-ramos-671218/</loc><lastmod>2026-08-30</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/henry-bolte-703607/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/henry-davis-680779/</loc><lastmod>2026-07-12</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/heriberto-hernandez-681715/</loc><lastmod>2026-09-03</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/henry-davis-680779/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/heriberto-hernandez-681715/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/hunter-feduccia-676439/</loc><lastmod>2026-08-12</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/hunter-goodman-696100/</loc><lastmod>2026-08-26</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/hyeseong-kim-808975/</loc><lastmod>2026-04-15</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -387,12 +388,12 @@
   <url><loc>https://nodoubters.com/players/jacob-wilson-805779/</loc><lastmod>2026-07-21</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/jacob-young-696285/</loc><lastmod>2026-08-11</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/jahmai-jones-663330/</loc><lastmod>2026-09-01</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/jake-bauers-641343/</loc><lastmod>2026-08-22</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/jake-burger-669394/</loc><lastmod>2026-08-25</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/jake-cronenworth-630105/</loc><lastmod>2026-08-16</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/jake-bauers-641343/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/jake-burger-669394/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/jake-cronenworth-630105/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/jake-fraley-641584/</loc><lastmod>2026-04-25</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/jake-mangum-663968/</loc><lastmod>2026-08-09</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/jake-mccarthy-664983/</loc><lastmod>2026-08-30</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/jake-mccarthy-664983/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/jake-meyers-676694/</loc><lastmod>2026-06-13</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/jake-rogers-668670/</loc><lastmod>2026-08-21</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/jakob-marsee-805300/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -406,7 +407,7 @@
   <url><loc>https://nodoubters.com/players/jase-bowen-687749/</loc><lastmod>2026-08-16</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/jasson-dominguez-691176/</loc><lastmod>2026-07-25</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/javier-baez-595879/</loc><lastmod>2026-04-24</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/javier-sanoja-691594/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/javier-sanoja-691594/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/jazz-chisholm-jr-665862/</loc><lastmod>2026-09-01</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/jeff-mcneil-643446/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/jeremiah-jackson-669236/</loc><lastmod>2026-06-14</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -453,7 +454,7 @@
   <url><loc>https://nodoubters.com/players/josh-lowe-666139/</loc><lastmod>2026-09-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/josh-naylor-647304/</loc><lastmod>2026-08-08</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/josh-rojas-668942/</loc><lastmod>2026-08-29</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/josh-smith-669701/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/josh-smith-669701/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/joshua-baez-695491/</loc><lastmod>2026-09-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/joshua-kuroda-grauer-811965/</loc><lastmod>2026-07-20</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/juan-brito-682877/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -480,9 +481,9 @@
   <url><loc>https://nodoubters.com/players/kyle-isbel-664728/</loc><lastmod>2026-08-22</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/kyle-karros-691720/</loc><lastmod>2026-08-11</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/kyle-manzardo-700932/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/kyle-schwarber-656941/</loc><lastmod>2026-09-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/kyle-schwarber-656941/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/kyle-stowers-669065/</loc><lastmod>2026-09-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/kyle-teel-691019/</loc><lastmod>2026-07-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/kyle-teel-691019/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/kyle-tucker-663656/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/lamonte-wade-jr-664774/</loc><lastmod>2026-08-30</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/lane-thomas-657041/</loc><lastmod>2026-08-12</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -497,7 +498,7 @@
   <url><loc>https://nodoubters.com/players/logan-o-hoppe-681351/</loc><lastmod>2026-06-19</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/lourdes-gurriel-jr-666971/</loc><lastmod>2026-06-30</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/luis-arraez-650333/</loc><lastmod>2026-08-19</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/luis-campusano-669134/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/luis-campusano-669134/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/luis-garcia-jr-671277/</loc><lastmod>2026-08-26</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/luis-lara-800325/</loc><lastmod>2026-08-18</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/luis-rengifo-650859/</loc><lastmod>2026-08-16</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -510,7 +511,7 @@
   <url><loc>https://nodoubters.com/players/luke-maile-571912/</loc><lastmod>2026-07-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/luke-raley-670042/</loc><lastmod>2026-07-19</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/maikel-garcia-672580/</loc><lastmod>2026-04-30</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/manny-machado-592518/</loc><lastmod>2026-09-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/manny-machado-592518/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/marcell-ozuna-542303/</loc><lastmod>2026-07-12</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/marcelo-mayer-691785/</loc><lastmod>2026-06-08</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/marcus-semien-543760/</loc><lastmod>2026-08-07</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -535,7 +536,7 @@
   <url><loc>https://nodoubters.com/players/michael-helman-680737/</loc><lastmod>2026-06-07</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/michael-massey-686681/</loc><lastmod>2026-08-16</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/mickey-gasper-681508/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/mickey-moniak-666160/</loc><lastmod>2026-08-22</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/mickey-moniak-666160/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/miguel-amaya-665804/</loc><lastmod>2026-08-16</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/miguel-andujar-609280/</loc><lastmod>2026-05-19</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/miguel-rojas-500743/</loc><lastmod>2026-06-30</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -545,7 +546,7 @@
   <url><loc>https://nodoubters.com/players/mitch-garver-641598/</loc><lastmod>2026-07-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/mj-melendez-669004/</loc><lastmod>2026-06-07</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/moises-ballesteros-694208/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/mookie-betts-605141/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/mookie-betts-605141/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/munetaka-murakami-808959/</loc><lastmod>2026-09-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/myles-straw-664702/</loc><lastmod>2026-07-01</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/nasim-nunez-683083/</loc><lastmod>2026-07-01</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -565,8 +566,8 @@
   <url><loc>https://nodoubters.com/players/nicky-lopez-670032/</loc><lastmod>2026-05-29</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/nico-hoerner-663538/</loc><lastmod>2026-08-31</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/noelvi-marte-682622/</loc><lastmod>2026-07-08</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/nolan-arenado-571448/</loc><lastmod>2026-08-22</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/nolan-gorman-669357/</loc><lastmod>2026-08-26</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/nolan-arenado-571448/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/nolan-gorman-669357/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/nolan-schanuel-694384/</loc><lastmod>2026-08-07</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/oneil-cruz-665833/</loc><lastmod>2026-08-25</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/orlando-arcia-606115/</loc><lastmod>2026-06-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -582,14 +583,14 @@
   <url><loc>https://nodoubters.com/players/pedro-pages-686780/</loc><lastmod>2026-05-15</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/pedro-ramirez-699393/</loc><lastmod>2026-08-28</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/pete-alonso-624413/</loc><lastmod>2026-09-03</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/pete-crow-armstrong-691718/</loc><lastmod>2026-09-03</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/pete-crow-armstrong-691718/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/petey-halpin-690984/</loc><lastmod>2026-08-21</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/rafael-devers-646240/</loc><lastmod>2026-09-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/rafael-flores-jr-804668/</loc><lastmod>2026-08-29</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/rafael-marchan-665561/</loc><lastmod>2026-06-07</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/ramon-laureano-657656/</loc><lastmod>2026-05-26</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/ramon-urias-602104/</loc><lastmod>2026-09-01</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/randal-grichuk-545341/</loc><lastmod>2026-08-21</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/randal-grichuk-545341/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/randy-arozarena-668227/</loc><lastmod>2026-09-01</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/raynel-delgado-669384/</loc><lastmod>2026-06-28</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/rhys-hoskins-656555/</loc><lastmod>2026-08-08</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -599,7 +600,7 @@
   <url><loc>https://nodoubters.com/players/rodolfo-duran-660710/</loc><lastmod>2026-06-14</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/roman-anthony-701350/</loc><lastmod>2026-09-03</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/romy-gonzalez-663853/</loc><lastmod>2026-07-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/ronald-acuna-jr-660670/</loc><lastmod>2026-09-05</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/ronald-acuna-jr-660670/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/ronny-mauricio-677595/</loc><lastmod>2026-05-01</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/rowdy-tellez-642133/</loc><lastmod>2026-06-21</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/royce-lewis-668904/</loc><lastmod>2026-09-01</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -612,7 +613,7 @@
   <url><loc>https://nodoubters.com/players/ryan-ward-669899/</loc><lastmod>2026-06-10</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/sal-frelick-686217/</loc><lastmod>2026-07-11</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/sal-stewart-701398/</loc><lastmod>2026-08-30</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/salvador-perez-521692/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/salvador-perez-521692/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/sam-antonacci-803011/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/samad-taylor-669392/</loc><lastmod>2026-06-13</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/samuel-basallo-694212/</loc><lastmod>2026-08-22</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -668,7 +669,7 @@
   <url><loc>https://nodoubters.com/players/victor-caratini-605170/</loc><lastmod>2026-06-29</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/victor-mesa-jr-683748/</loc><lastmod>2026-08-11</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/victor-scott-ii-687363/</loc><lastmod>2026-05-14</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/vinnie-pasquantino-686469/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/vinnie-pasquantino-686469/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/vladimir-guerrero-jr-665489/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/wade-meckler-685133/</loc><lastmod>2026-08-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/walker-jenkins-805805/</loc><lastmod>2026-08-31</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -691,43 +692,43 @@
   <url><loc>https://nodoubters.com/players/yohandy-morales-691002/</loc><lastmod>2026-09-01</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/yohel-pozo-650968/</loc><lastmod>2026-08-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/yohendrick-pinango-682818/</loc><lastmod>2026-06-27</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/yordan-alvarez-670541/</loc><lastmod>2026-08-29</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/yordan-alvarez-670541/</loc><lastmod>2026-09-06</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/zac-veen-691728/</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/zach-cole-805904/</loc><lastmod>2026-05-16</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/zach-dezenzo-701305/</loc><lastmod>2026-05-08</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/zach-mckinstry-656716/</loc><lastmod>2026-07-09</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/zach-neto-687263/</loc><lastmod>2026-08-29</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/players/zack-gelof-680869/</loc><lastmod>2026-09-04</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/players/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.5</priority></url>
-  <url><loc>https://nodoubters.com/teams/chc/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/wsh/</loc><lastmod>2026-09-01</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/players/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.5</priority></url>
+  <url><loc>https://nodoubters.com/teams/chc/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/wsh/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/teams/nyy/</loc><lastmod>2026-09-04</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/cin/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/cws/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/hou/</loc><lastmod>2026-09-04</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/atl/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/nym/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/cin/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/cws/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/hou/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/atl/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/nym/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/lad/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/teams/ath/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/lad/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/teams/bal/</loc><lastmod>2026-09-03</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/phi/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/min/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/pit/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/phi/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/min/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/pit/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/tex/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/teams/sf/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/teams/sea/</loc><lastmod>2026-09-04</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/tex/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/teams/det/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/col/</loc><lastmod>2026-09-04</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/sd/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/stl/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/sd/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/col/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/stl/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/kc/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/teams/tb/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/kc/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/bos/</loc><lastmod>2026-09-04</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/mia/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/az/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/bos/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/mia/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/az/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
   <url><loc>https://nodoubters.com/teams/laa/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/tor/</loc><lastmod>2026-09-04</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/cle/</loc><lastmod>2026-09-04</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/mil/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://nodoubters.com/teams/</loc><lastmod>2026-09-05</lastmod><changefreq>daily</changefreq><priority>0.5</priority></url>
+  <url><loc>https://nodoubters.com/teams/tor/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/cle/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/mil/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://nodoubters.com/teams/</loc><lastmod>2026-09-06</lastmod><changefreq>daily</changefreq><priority>0.5</priority></url>
 </urlset>
