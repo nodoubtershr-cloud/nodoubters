@@ -364,7 +364,9 @@ async function main() {
   let state = {};
   try { state = JSON.parse(await readFile(STATE, "utf8")); } catch {}
 
-  if (state.lastDate === date && !process.env.DATE?.trim() && !DRY) return console.log(`already posted for ${date}`);
+  if (state.lastDate === date && !process.env.DATE?.trim() && !DRY && process.env.FORCE !== "1")
+    return console.log(`already posted for ${date} — set FORCE=1 (or pick "force" in the workflow) to post anyway`);
+  if (process.env.FORCE === "1") console.log("FORCE is on: the once-a-day guard is bypassed, this will post again");
 
   let chosen = await pick(md, state);
   if (!chosen) {
