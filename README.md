@@ -36,10 +36,19 @@ from the MLB API (defaults to the last 3 days; pass two dates for a range). A Gi
 
 ## Tweets
 
-`scripts/tweet-leader.mjs` posts to @NoDoubtersMLB: the day's longest-HR leader once 5 homers are in,
-each lead change after that, and a morning recap. `.github/workflows/tweet-leader.yml` schedules it.
-Needs X_API_KEY / X_API_SECRET / X_ACCESS_TOKEN / X_ACCESS_SECRET as repository secrets.
-Set `LINKS=recap` in the workflow env to link only the recap (cheaper on X's per-URL pricing).
+`scripts/tweet-nostalgia.mjs` posts once a day to @NoDoubtersMLB: the longest home run hit on
+today's calendar date in a randomly chosen past season, uploaded as native video, with a link
+back to the site in a self-reply. `.github/workflows/tweet-nostalgia.yml` schedules it for
+9am Pacific. Needs X_API_KEY / X_API_SECRET / X_ACCESS_TOKEN / X_ACCESS_SECRET as repository
+secrets. A year never repeats on the same date until every season has had a turn.
+
+Nov 6 - Mar 18 has no games on any calendar date. `OFFSEASON` in the workflow env controls
+what happens then: `vault` (default) posts a random 450+ homer from the archive, `skip` goes
+quiet, `nearest` borrows the closest date that has games.
+
+The Cloudflare Worker in `worker/` no longer tweets — its cron triggers are removed. It stays
+deployed because `index.html` calls its `/parks` endpoint for live park counts on today's board.
+Note the deployed version is ahead of the copy in this repo.
 
 ## Deploy
 
