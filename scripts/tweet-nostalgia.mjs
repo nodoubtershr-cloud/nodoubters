@@ -174,30 +174,33 @@ function leadSentence(h, year, kind, avoid) {
 
   if (kind === "vault") {
     pool.push(
-      { id: "v1", t: () => `${fmtDate(h.date)}. ${who} hit ${shot}.` },
-      { id: "v2", t: () => `From the archive: ${who}, ${ft} feet, ${fmtDate(h.date)}.` },
-      { id: "v3", t: () => `${who} hit ${shot} on ${fmtDate(h.date)}. Still holds up.` },
-      { id: "v4", t: () => `Pulled from the vault — ${who}, ${ft} feet, ${fmtDate(h.date)}.` },
+      { id: "v1", t: () => `FROM THE VAULT: ${fmtDate(h.date)}. ${who} hit ${shot}.` },
+      { id: "v2", t: () => `FROM THE VAULT: ${who}, ${ft} feet, ${fmtDate(h.date)}.` },
+      { id: "v3", t: () => `FROM THE VAULT: ${who} hit ${shot} on ${fmtDate(h.date)}. Still holds up.` },
+      { id: "v4", t: () => `FROM THE VAULT: ${fmtDate(h.date)} — ${who}, ${ft} feet.` },
     );
     return pickFrom(pool, avoid);
   }
 
+  // Every on-this-day post opens the same way so the format is instantly recognisable in a feed.
+  const OTD = `ON THIS DAY IN ${year}`;
+
   // When something notable happened, lead with that instead of the distance.
-  if (h.wo && h.gs) pool.push({ id: "e1", t: () => `On this day in ${year}, ${who} ended it with a walk-off grand slam — and the longest homer of ${md}.` });
-  else if (h.wo)    pool.push({ id: "e2", t: () => `On this day in ${year}, ${who} walked it off with ${shot} — the longest home run of ${md}.` });
-  else if (h.gs)    pool.push({ id: "e3", t: () => `On this day in ${year}, ${who} cleared the bases with ${shot}, the longest homer of ${md}.` });
-  if (h.gt === "W") pool.push({ id: "e4", t: () => `World Series, ${year}. ${who} hit the longest home run of ${md}.` });
-  else if (h.gt && h.gt !== "R") pool.push({ id: "e5", t: () => `October ${year}: ${who} hit ${shot}, the longest homer of ${md}.` });
-  if (h.career === 1) pool.push({ id: "e6", t: () => `On this day in ${year}, ${who} hit the first home run of his career — and the longest of ${md}.` });
-  else if (h.career && h.career % 100 === 0) pool.push({ id: "e7", t: () => `On this day in ${year}, ${who} hit career home run number ${h.career}, the longest of ${md}.` });
+  if (h.wo && h.gs) pool.push({ id: "e1", t: () => `${OTD}, ${who} ended it with a walk-off grand slam — and the longest homer of ${md}.` });
+  else if (h.wo)    pool.push({ id: "e2", t: () => `${OTD}, ${who} walked it off with ${shot} — the longest home run of ${md}.` });
+  else if (h.gs)    pool.push({ id: "e3", t: () => `${OTD}, ${who} cleared the bases with ${shot}, the longest homer of ${md}.` });
+  if (h.gt === "W") pool.push({ id: "e4", t: () => `${OTD}, in the World Series, ${who} hit the longest home run of ${md}.` });
+  else if (h.gt && h.gt !== "R") pool.push({ id: "e5", t: () => `${OTD}, in October, ${who} hit ${shot} — the longest homer of ${md}.` });
+  if (h.career === 1) pool.push({ id: "e6", t: () => `${OTD}, ${who} hit the first home run of his career — and the longest of ${md}.` });
+  else if (h.career && h.career % 100 === 0) pool.push({ id: "e7", t: () => `${OTD}, ${who} hit career home run number ${h.career}, the longest of ${md}.` });
 
   pool.push(
-    { id: "d1", t: () => `On this day in ${year}, ${who} hit ${shot} — the longest home run of ${md}.` },
-    { id: "d2", t: () => `${md}, ${year}: ${who} hit ${shot}. Nobody went further that day.` },
-    { id: "d3", t: () => `${year}. ${who}. ${ft} feet. The longest home run hit on ${md}.` },
-    { id: "d4", t: () => `The longest home run of ${md}, ${year} belongs to ${who} — ${ft} feet.` },
-    { id: "d5", t: () => `On ${md} in ${year}, nobody hit one further than ${who}. ${ft} feet.` },
-    { id: "d6", t: () => `${who}, ${fmtDate(h.date)} — ${shot}, and the longest homer of the day.` },
+    { id: "d1", t: () => `${OTD}, ${who} hit ${shot} — the longest home run of ${md}.` },
+    { id: "d2", t: () => `${OTD}, ${who} went ${ft} feet. Nobody hit one further on ${md}.` },
+    { id: "d3", t: () => `${OTD}, nobody hit a ball further than ${who}. ${ft} feet.` },
+    { id: "d4", t: () => `${OTD}, ${who} hit the longest home run of ${md} — ${ft} feet.` },
+    { id: "d5", t: () => `${OTD}: ${who}. ${ft} feet. The longest homer of ${md}.` },
+    { id: "d6", t: () => `${OTD}, ${who} launched ${shot}, and nobody topped it all day.` },
   );
   return pickFrom(pool, avoid);
 }
