@@ -29,10 +29,10 @@ const STATE = "data/tweet-nostalgia-state.json";
 const SEASON_DIR = "data/seasons";
 const TMP = "/tmp/nostalgia.mp4";
 
-const MIN_YEAR = Number(process.env.MIN_YEAR ?? 2016);   // 2015 has no clips at all — don't bother
-const OFFSEASON = process.env.OFFSEASON ?? "vault";      // "vault" · "skip" · "nearest"
-const VAULT_MIN_FT = Number(process.env.VAULT_MIN_FT ?? 450);
-const NEAREST_MAX_DAYS = Number(process.env.NEAREST_MAX_DAYS ?? 10);
+const MIN_YEAR = Number(process.env.MIN_YEAR || 2016);   // 2015 has no clips at all — don't bother
+const OFFSEASON = process.env.OFFSEASON || "vault";      // "vault" · "skip" · "nearest"
+const VAULT_MIN_FT = Number(process.env.VAULT_MIN_FT || 450);
+const NEAREST_MAX_DAYS = Number(process.env.NEAREST_MAX_DAYS || 10);
 const DRY = !!process.env.DRY_RUN;
 
 const pacificDate = (d = new Date()) => d.toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" });
@@ -252,12 +252,13 @@ async function normalize(src) {
 
 // ---------- main ----------
 async function main() {
-  const date = process.env.DATE ?? pacificDate();
+  const date = process.env.DATE || pacificDate();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error(`bad date: ${JSON.stringify(date)}`);
   const md = date.slice(5);
   let state = {};
   try { state = JSON.parse(await readFile(STATE, "utf8")); } catch {}
 
-  if (state.lastDate === date && !process.env.DATE && !DRY) return console.log(`already posted for ${date}`);
+  if (state.lastDate === date && !process.env.DATE?.trim() && !DRY) return console.log(`already posted for ${date}`);
 
   let chosen = await pick(md, state);
   if (!chosen) {
