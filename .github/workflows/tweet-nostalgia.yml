@@ -1,0 +1,62 @@
+name: Tweet on this day
+
+# One post a day: the longest home run hit on today's calendar date in a randomly chosen past
+# season, uploaded to X as native video, with a link back to the site in a self-reply.
+# Sparse checkout — this job only needs the scripts and the season files, not the 60k static pages.
+
+on:
+  schedule:
+    - cron: "0 16 * * *"      # 9:00am Pacific / noon Eastern
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry = pick and print only, live = actually post"
+        type: choice
+        options: [dry, live]
+        default: dry
+      date:
+        description: "Override the date (YYYY-MM-DD), blank for today"
+        default: ""
+      force_year:
+        description: "Force a specific season, blank for random"
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-writes
+  cancel-in-progress: false
+
+jobs:
+  tweet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            data
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Post
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          DRY_RUN: ${{ github.event.inputs.mode == 'live' && '' || (github.event_name == 'workflow_dispatch' && '1' || '') }}
+          DATE: ${{ github.event.inputs.date }}
+          FORCE_YEAR: ${{ github.event.inputs.force_year }}
+          # "vault" posts a random 450+ homer from the archive during the Nov 6 - Mar 18 dead zone.
+          # "skip" goes quiet instead. "nearest" borrows the closest calendar date that has games.
+          OFFSEASON: vault
+        run: node scripts/tweet-nostalgia.mjs
+      - name: Remember what went out
+        if: success()
+        run: |
+          git config user.name "nodoubters-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/tweet-nostalgia-state.json
+          git diff --cached --quiet || (git commit -m "On this day: $(date -u +%Y-%m-%d)" && (git pull --rebase -X theirs origin main || { git rebase --abort; git pull -X ours origin main; }) && git push)
