@@ -148,19 +148,90 @@ function mentions(h) {
   if (TEAM_TAGS[h.teamAbbr]) m.push("#" + TEAM_TAGS[h.teamAbbr]);
   return m.length ? `\n${m.join(" ")}` : "";
 }
-function describe(h) {
-  const ev = h.ev ? `, ${h.ev} mph` : "";
-  const half = h.half === "top" ? "T" : "B";
-  return `${h.batter} (${h.teamAbbr}) — ${h.distance} ft${ev} off ${h.pitcher}, ${half}${h.inning} vs ${h.against}${tags(h)}${mentions(h)}`;
+// ---------- lead sentence ----------
+// The post text varies day to day: a different frame, and wording that matches what actually
+// happened. Beyond reading better, it keeps X from treating a daily near-identical post as
+// repetitive. State remembers the last several frames so they don't cluster.
+const pickFrom = (pool, avoid) => {
+  const fresh = pool.filter(f => !avoid.includes(f.id));
+  const from = fresh.length ? fresh : pool;
+  return from[Math.floor(Math.random() * from.length)];
+};
+
+// How to describe the swing itself, by how far it went.
+function shotWords(h) {
+  if (h.distance >= 500) return ["a 500-foot monster", "one into another area code", "a shot that barely came down"];
+  if (h.distance >= 475) return ["an absolute moonshot", "a ball that left the planet", "a no-doubt moonshot"];
+  if (h.distance >= 450) return ["a monster shot", "a genuine no-doubter", "one into the upper deck"];
+  if (h.distance >= 425) return ["a towering shot", "a no-doubter", "one way out"];
+  return ["the day's longest", "the biggest swing of the day", "one nobody topped"];
 }
+const anyOf = a => a[Math.floor(Math.random() * a.length)];
+
+function leadSentence(h, year, kind, avoid) {
+  const who = h.batter, md = fmtMD(h.date), ft = h.distance, shot = anyOf(shotWords(h));
+  const pool = [];
+
+  if (kind === "vault") {
+    pool.push(
+      { id: "v1", t: () => `${fmtDate(h.date)}. ${who} hit ${shot}.` },
+      { id: "v2", t: () => `From the archive: ${who}, ${ft} feet, ${fmtDate(h.date)}.` },
+      { id: "v3", t: () => `${who} hit ${shot} on ${fmtDate(h.date)}. Still holds up.` },
+      { id: "v4", t: () => `Pulled from the vault — ${who}, ${ft} feet, ${fmtDate(h.date)}.` },
+    );
+    return pickFrom(pool, avoid);
+  }
+
+  // When something notable happened, lead with that instead of the distance.
+  if (h.wo && h.gs) pool.push({ id: "e1", t: () => `On this day in ${year}, ${who} ended it with a walk-off grand slam — and the longest homer of ${md}.` });
+  else if (h.wo)    pool.push({ id: "e2", t: () => `On this day in ${year}, ${who} walked it off with ${shot} — the longest home run of ${md}.` });
+  else if (h.gs)    pool.push({ id: "e3", t: () => `On this day in ${year}, ${who} cleared the bases with ${shot}, the longest homer of ${md}.` });
+  if (h.gt === "W") pool.push({ id: "e4", t: () => `World Series, ${year}. ${who} hit the longest home run of ${md}.` });
+  else if (h.gt && h.gt !== "R") pool.push({ id: "e5", t: () => `October ${year}: ${who} hit ${shot}, the longest homer of ${md}.` });
+  if (h.career === 1) pool.push({ id: "e6", t: () => `On this day in ${year}, ${who} hit the first home run of his career — and the longest of ${md}.` });
+  else if (h.career && h.career % 100 === 0) pool.push({ id: "e7", t: () => `On this day in ${year}, ${who} hit career home run number ${h.career}, the longest of ${md}.` });
+
+  pool.push(
+    { id: "d1", t: () => `On this day in ${year}, ${who} hit ${shot} — the longest home run of ${md}.` },
+    { id: "d2", t: () => `${md}, ${year}: ${who} hit ${shot}. Nobody went further that day.` },
+    { id: "d3", t: () => `${year}. ${who}. ${ft} feet. The longest home run hit on ${md}.` },
+    { id: "d4", t: () => `The longest home run of ${md}, ${year} belongs to ${who} — ${ft} feet.` },
+    { id: "d5", t: () => `On ${md} in ${year}, nobody hit one further than ${who}. ${ft} feet.` },
+    { id: "d6", t: () => `${who}, ${fmtDate(h.date)} — ${shot}, and the longest homer of the day.` },
+  );
+  return pickFrom(pool, avoid);
+}
+
+// The scannable stat line under the lead.
+function statLine(h) {
+  const bits = [`${h.distance} ft`];
+  if (h.ev) bits.push(`${h.ev} mph`);
+  bits.push(`off ${h.pitcher}`);
+  bits.push(`${h.half === "top" ? "T" : "B"}${h.inning} vs ${h.against}`);
+  return bits.join(" · ");
+}
+
 // The video post. No URL anywhere in here — that's what keeps it at the $0.015 rate.
-function videoText(kind, hr, year) {
-  const head = kind === "vault"
-    ? `🗄️ From the vault — ${fmtDate(hr.date)}`
-    : `📅 On this day in ${year} — the longest home run of ${fmtMD(hr.date)}`;
-  return `${head}\n\n${describe(hr)}`;
+function videoText(kind, hr, year, avoid = []) {
+  const lead = leadSentence(hr, year, kind, avoid);
+  return { id: lead.id, text: `${lead.t()}\n\n${statLine(hr)}${tags(hr)}${mentions(hr)}` };
 }
-const replyText = hr => `Every homer from every day: ${SITE}/#d=${hr.date}&hr=${hr.id}`;
+
+// The link reply. Varied for the same reason the main post is — a bot repeating one line
+// verbatim every day is the pattern X downranks. All of these carry the same deep link.
+const REPLY_LINES = [
+  { id: "r1", t: "Search for any homer since 2016, fully sortable and filterable." },
+  { id: "r2", t: "Every home run since 2016 — search any player, pitcher, team or ballpark." },
+  { id: "r3", t: "60,000 home runs since 2016, all searchable, all with the clip." },
+  { id: "r4", t: "Sort by distance, filter for walk-offs and grand slams, back to 2016." },
+  { id: "r5", t: "Search every homer since 2016. Sortable, filterable, all on video." },
+];
+function replyText(hr, avoid = []) {
+  const fresh = REPLY_LINES.filter(r => !avoid.includes(r.id));
+  const pool = fresh.length ? fresh : REPLY_LINES;
+  const r = pool[Math.floor(Math.random() * pool.length)];
+  return { id: r.id, text: `${r.t} ${SITE}/#d=${hr.date}&hr=${hr.id}` };
+}
 
 // ---------- X: OAuth 1.0a ----------
 const enc = s => encodeURIComponent(s).replace(/[!'()*]/g, c => "%" + c.charCodeAt(0).toString(16).toUpperCase());
@@ -225,6 +296,33 @@ async function uploadVideo(path) {
   return mediaId;
 }
 
+// Confirms the four X_* values actually authenticate, and reports which layer failed.
+// GET /2/users/me is a User:Read at $0.010 — only run on demand or after a failure.
+async function credentialCheck() {
+  const lines = [];
+  const { X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET } = process.env;
+  const shape = (n, v) => `  ${n}: ${v ? `${v.length} chars, starts "${v.slice(0, 4)}\u2026"` : "MISSING"}`;
+  lines.push("Credential shape (values never printed in full):");
+  lines.push(shape("X_API_KEY", X_API_KEY), shape("X_API_SECRET", X_API_SECRET));
+  lines.push(shape("X_ACCESS_TOKEN", X_ACCESS_TOKEN), shape("X_ACCESS_SECRET", X_ACCESS_SECRET));
+  if (X_ACCESS_TOKEN && !X_ACCESS_TOKEN.includes("-")) {
+    lines.push("  ! X_ACCESS_TOKEN has no dash. A real access token looks like <userid>-<random>.");
+    lines.push("    A value without one is usually a Client ID or Bearer token pasted by mistake.");
+  }
+  try {
+    const me = await xFetch("GET", "https://api.x.com/2/users/me");
+    lines.push(`\nGET /2/users/me: OK, authenticated as @${me.data?.username}`);
+    lines.push("=> The keys are valid. The media host is refusing them for another reason:");
+    lines.push("   check the app has Read and Write permission, and that the access token was");
+    lines.push("   generated AFTER that permission was granted.");
+  } catch (e) {
+    lines.push(`\nGET /2/users/me: FAILED - ${e.message.slice(0, 200)}`);
+    lines.push("=> The keys themselves are rejected, so this is not a media problem at all.");
+    lines.push("   Regenerate all four at developer.x.com and update the GitHub secrets.");
+  }
+  return lines.join("\n");
+}
+
 async function postTweet(text, { mediaId, replyTo } = {}) {
   const payload = { text };
   if (mediaId) payload.media = { media_ids: [String(mediaId)] };
@@ -259,6 +357,7 @@ async function normalize(src) {
 
 // ---------- main ----------
 async function main() {
+  if (process.env.CHECK === "1") { console.log(await credentialCheck()); return; }
   const date = process.env.DATE || pacificDate();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error(`bad date: ${JSON.stringify(date)}`);
   const md = date.slice(5);
@@ -275,8 +374,9 @@ async function main() {
   if (!chosen) return console.log("no homer to post today");
 
   const { hr, year, kind } = chosen;
-  const text = videoText(kind, hr, year);
-  console.log(`\n${kind === "vault" ? "vault" : "on this day"} → ${year} · ${hr.batter} ${hr.distance} ft\n\n${text}\n\n[reply] ${replyText(hr)}\n`);
+  const { text, id: leadId } = videoText(kind, hr, year, state.recentLeads ?? []);
+  const reply = replyText(hr, state.recentReplies ?? []);
+  console.log(`\n${kind === "vault" ? "vault" : "on this day"} → ${year} · ${hr.batter} ${hr.distance} ft\n\n${text}\n\n[reply] ${reply.text}\n`);
   if (DRY) return console.log("[dry run] nothing downloaded, nothing posted");
 
   await download(hr.mp4, TMP);
@@ -285,6 +385,9 @@ async function main() {
     mediaId = await uploadVideo(TMP);
   } catch (e) {
     if (/→ 40[13]:/.test(e.message)) {
+      console.log("\n--- running a credential check to pin down the cause ---");
+      const diag = await credentialCheck().catch(err => `credential check itself failed: ${err.message}`);
+      console.log(diag + "\n");
       throw new Error(`X rejected the credentials on ${MEDIA}.\n` +
         `This is an auth problem, not a video problem — re-encoding would not help.\n` +
         `If MEDIA_API=v2 is set, unset it: v2 media upload does not accept OAuth 1.0a keys.\n` +
@@ -297,7 +400,7 @@ async function main() {
 
   const tweetId = await postTweet(text, { mediaId });
   try {
-    await postTweet(replyText(hr), { replyTo: tweetId });
+    await postTweet(reply.text, { replyTo: tweetId });
   } catch (e) {
     console.error(`video posted but the link reply failed: ${e.message}`);
   }
@@ -306,6 +409,8 @@ async function main() {
   state.lastDate = date;
   if (chosen.used) state.used = { ...(state.used ?? {}), [chosen.md ?? md]: chosen.used };
   state.recent = [hr.id, ...(state.recent ?? [])].slice(0, 400);
+  state.recentLeads = [leadId, ...(state.recentLeads ?? [])].slice(0, 6);
+  state.recentReplies = [reply.id, ...(state.recentReplies ?? [])].slice(0, 3);
   await mkdir("data", { recursive: true });
   await writeFile(STATE, JSON.stringify(state, null, 2) + "\n");
   await unlink(TMP).catch(() => {});
