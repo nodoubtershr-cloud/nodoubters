@@ -10,9 +10,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "dry = pick and print only, live = actually post"
+        description: "dry = pick and print, live = post, check = test the X keys, force = post again today"
         type: choice
-        options: [dry, live]
+        options: [dry, live, check, force]
         default: dry
       date:
         description: "Override the date (YYYY-MM-DD), blank for today"
@@ -48,7 +48,9 @@ jobs:
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
-          DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.mode != 'live') && '1' || '' }}
+          DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.mode != 'live' && github.event.inputs.mode != 'force') && '1' || '' }}
+          FORCE: ${{ github.event.inputs.mode == 'force' && '1' || '' }}
+          CHECK: ${{ github.event.inputs.mode == 'check' && '1' || '' }}
           DATE: ${{ github.event.inputs.date }}
           FORCE_YEAR: ${{ github.event.inputs.force_year }}
           # "vault" posts a random 450+ homer from the archive during the Nov 6 - Mar 18 dead zone.
