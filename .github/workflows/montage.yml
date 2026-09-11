@@ -1,0 +1,42 @@
+name: Build montage
+
+# Fired by the live Cloudflare Worker (repository_dispatch, event type "montage") when a hitter
+# goes deep twice in a game. The Worker does everything else itself; this job exists only because
+# a Worker can't run ffmpeg. It stitches the two clips, posts, and calls the Worker back.
+
+on:
+  repository_dispatch:
+    types: [montage]
+  workflow_dispatch:
+    inputs:
+      payload:
+        description: 'Test payload JSON: {"game":"x|y","date":"2025-04-26","text":"...","clips":["url1","url2"]}'
+        required: true
+      dry:
+        description: "1 = build the video but post nothing"
+        default: "1"
+
+jobs:
+  montage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Build and post
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          WORKER_URL: ${{ secrets.WORKER_URL }}
+          RUN_KEY: ${{ secrets.RUN_KEY }}
+          PAYLOAD: ${{ github.event_name == 'repository_dispatch' && toJSON(github.event.client_payload) || github.event.inputs.payload }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry || '' }}
+        run: node scripts/build-montage.mjs
