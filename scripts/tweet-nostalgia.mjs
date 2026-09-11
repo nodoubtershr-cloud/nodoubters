@@ -114,11 +114,11 @@ async function pickOffseason(md, state) {
 
 // ---------- text ----------
 // Team handles and MLB's official hashtags, same lists the live bot uses.
-const TEAM_HANDLES = { ARI: "Dbacks", ATL: "Braves", BAL: "Orioles", BOS: "RedSox", CHC: "Cubs", CWS: "whitesox", CIN: "Reds", CLE: "CleGuardians",
+const TEAM_HANDLES = { AZ: "Dbacks", ARI: "Dbacks", ATL: "Braves", BAL: "Orioles", BOS: "RedSox", CHC: "Cubs", CWS: "whitesox", CIN: "Reds", CLE: "CleGuardians",
   COL: "Rockies", DET: "tigers", HOU: "astros", KC: "Royals", LAA: "Angels", LAD: "Dodgers", MIA: "Marlins", MIL: "Brewers", MIN: "Twins",
   NYM: "Mets", NYY: "Yankees", ATH: "Athletics", OAK: "Athletics", PHI: "Phillies", PIT: "Pirates", SD: "Padres", SF: "SFGiants", SEA: "Mariners",
   STL: "Cardinals", TB: "RaysBaseball", TEX: "Rangers", TOR: "BlueJays", WSH: "Nationals" };
-const TEAM_TAGS = { ARI: "Dbacks", ATH: "Athletics", OAK: "Athletics", ATL: "BravesCountry", BAL: "Birdland", BOS: "DirtyWater", CHC: "Cubs", CWS: "WhiteSox",
+const TEAM_TAGS = { AZ: "Dbacks", ARI: "Dbacks", ATH: "Athletics", OAK: "Athletics", ATL: "BravesCountry", BAL: "Birdland", BOS: "DirtyWater", CHC: "Cubs", CWS: "WhiteSox",
   CIN: "ATOBTTR", CLE: "GuardsBall", COL: "Rockies", DET: "DNMW", HOU: "ChaseTheFight", KC: "FountainsUp", LAA: "RepTheHalo", LAD: "Dodgers",
   MIA: "FightinFish", MIL: "ThisIsMyCrew", MIN: "NoPlaceLikeHERE", NYM: "LGM", NYY: "RepBX", PHI: "RingTheBell", PIT: "LetsGoBucs", SD: "ForTheFaithful",
   SEA: "TridentsUp", SF: "SFGiants", STL: "STLCards", TB: "RaysUp", TEX: "AllForTX", TOR: "BlueJays50", WSH: "Natitude" };
