@@ -46,7 +46,7 @@ jobs:
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
-          DRY_RUN: ${{ github.event.inputs.mode == 'live' && '' || (github.event_name == 'workflow_dispatch' && '1' || '') }}
+          DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.mode != 'live') && '1' || '' }}
           DATE: ${{ github.event.inputs.date }}
           FORCE_YEAR: ${{ github.event.inputs.force_year }}
           # "vault" posts a random 450+ homer from the archive during the Nov 6 - Mar 18 dead zone.
