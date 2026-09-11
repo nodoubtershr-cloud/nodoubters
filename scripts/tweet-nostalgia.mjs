@@ -160,7 +160,7 @@ function videoText(kind, hr, year) {
     : `📅 On this day in ${year} — the longest home run of ${fmtMD(hr.date)}`;
   return `${head}\n\n${describe(hr)}`;
 }
-const replyText = hr => `Every homer from that day, with the clip: ${SITE}/#d=${hr.date}&hr=${hr.id}`;
+const replyText = hr => `Every homer from every day: ${SITE}/#d=${hr.date}&hr=${hr.id}`;
 
 // ---------- X: OAuth 1.0a ----------
 const enc = s => encodeURIComponent(s).replace(/[!'()*]/g, c => "%" + c.charCodeAt(0).toString(16).toUpperCase());
