@@ -188,7 +188,12 @@ async function xFetch(method, base, query = {}, init = {}) {
   return body;
 }
 
-const MEDIA = "https://api.x.com/2/media/upload";
+// Media upload host. The v2 endpoint (api.x.com/2/media/upload) rejects OAuth 1.0a with a 401 —
+// that scheme has no scopes, and v2 media requires scoped OAuth 2.0. The legacy v1.1 host still
+// accepts OAuth 1.0a and X has announced no sunset date for it. Set MEDIA_API=v2 to try v2 anyway.
+const MEDIA = process.env.MEDIA_API === "v2"
+  ? "https://api.x.com/2/media/upload"
+  : "https://upload.x.com/1.1/media/upload.json";
 const CHUNK = 4 * 1024 * 1024;   // X caps a segment around 4.5 MB
 
 async function uploadVideo(path) {
@@ -243,6 +248,8 @@ async function download(url, dest) {
 // Fallback if X rejects a clip: re-encode to a profile it definitely accepts.
 async function normalize(src) {
   const out = "/tmp/nostalgia-fix.mp4";
+  try { await run("ffmpeg", ["-version"]); }
+  catch { throw new Error("X rejected the clip and ffmpeg isn't installed on this runner, so it can't be re-encoded. Add an 'apt-get install -y ffmpeg' step to the workflow."); }
   await run("ffmpeg", ["-y", "-i", src, "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p",
     "-r", "30", "-vf", "scale=1280:-2", "-b:v", "3500k", "-c:a", "aac", "-b:a", "128k", "-ac", "2",
     "-movflags", "+faststart", out]);
@@ -277,7 +284,14 @@ async function main() {
   try {
     mediaId = await uploadVideo(TMP);
   } catch (e) {
-    console.log(`  upload failed (${e.message.slice(0, 120)}) — retrying after re-encode`);
+    if (/→ 40[13]:/.test(e.message)) {
+      throw new Error(`X rejected the credentials on ${MEDIA}.\n` +
+        `This is an auth problem, not a video problem — re-encoding would not help.\n` +
+        `If MEDIA_API=v2 is set, unset it: v2 media upload does not accept OAuth 1.0a keys.\n` +
+        `Otherwise regenerate the four X_* values at developer.x.com and update the GitHub secrets.\n` +
+        `Original: ${e.message}`);
+    }
+    console.log(`  upload failed (${e.message.slice(0, 160)}) — retrying after re-encode`);
     mediaId = await uploadVideo(await normalize(TMP));
   }
 
