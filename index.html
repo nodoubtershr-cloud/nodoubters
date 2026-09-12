@@ -347,11 +347,11 @@
 <main id="list"></main>
 <section class="prerender" id="prerender">
 <!-- prerender:start -->
-<h2 data-date="2026-09-10">Yesterday's longest home runs — Thursday, September 10, 2026</h2>
-<ol><li><a href="/#d=2026-09-10&hr=ffd0a302-dd5d-3134-8e1d-ce281e6b7a7b">Oneil Cruz</a> (PIT) — 433 ft, 117.4 mph</li><li><a href="/#d=2026-09-10&hr=09fd3ce6-6a52-301c-9d58-bbaf3bee689b">Kyle Karros</a> (COL) — 431 ft, 109.1 mph</li><li><a href="/#d=2026-09-10&hr=130c8008-4586-3cfd-9be9-6ac5918bbb97">Cam Smith</a> (HOU) — 421 ft, 105.7 mph</li><li><a href="/#d=2026-09-10&hr=4d27504b-35df-396b-9cd4-917ede081a00">Luis García Jr.</a> (NYY) — 413 ft, 103.7 mph</li><li><a href="/#d=2026-09-10&hr=4a64b55a-0239-3315-9aa6-930b6375b077">Julio Rodríguez</a> (SEA) — 410 ft, 112.4 mph</li></ol>
-<p>8 home runs that day. <a href="/days/2026-09-10/">Full list for Sep 10</a> · Longest of 2026 so far: <a href="/players/fernando-tatis-jr-665487/">Fernando Tatis Jr.</a>, 474 ft on <a href="/days/2026-07-21/">Jul 21</a>. <a href="/season/">Season leaderboard</a></p>
+<h2 data-date="2026-09-09">Yesterday's longest home runs — Wednesday, September 9, 2026</h2>
+<ol><li><a href="/#d=2026-09-09&hr=e6b22ff1-baeb-3003-b178-2d89d455747d">Jackson Chourio</a> (MIL) — 436 ft, 108.5 mph</li><li><a href="/#d=2026-09-09&hr=bf3f6c57-06bc-38c9-9e5b-328c06d0af4c">Nolan Arenado</a> (AZ) — 430 ft, 106.5 mph</li><li><a href="/#d=2026-09-09&hr=4faad497-9d67-36db-99e5-655b2dfb8640">Drake Baldwin</a> (ATL) — 419 ft, 103.1 mph</li><li><a href="/#d=2026-09-09&hr=bb1cc31d-726f-368e-9b3f-8858d766871c">Roman Anthony</a> (BOS) — 418 ft, 108.6 mph</li><li><a href="/#d=2026-09-09&hr=56078a92-850b-3f9a-936d-e596d009b8c9">Cam Smith</a> (HOU) — 416 ft, 105.8 mph</li></ol>
+<p>45 home runs that day. <a href="/days/2026-09-09/">Full list for Sep 9</a> · Longest of 2026 so far: <a href="/players/fernando-tatis-jr-665487/">Fernando Tatis Jr.</a>, 474 ft on <a href="/days/2026-07-21/">Jul 21</a>. <a href="/season/">Season leaderboard</a></p>
 <p>No Doubters tracks every Major League Baseball home run since 2016 with its Statcast distance, exit velocity, and launch angle, and links each one to the official highlight.<br>The board above updates live during games; the season archive, player and pitcher histories, and these pages update every morning.</p>
-<p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: <a href="/days/2026-09-10/">Sep 10</a> · <a href="/days/2026-09-09/">Sep 9</a> · <a href="/days/2026-09-08/">Sep 8</a> · <a href="/days/2026-09-07/">Sep 7</a> · <a href="/days/2026-09-06/">Sep 6</a> · <a href="/days/2026-09-05/">Sep 5</a> · <a href="/days/2026-09-04/">Sep 4</a></p>
+<p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: <a href="/days/2026-09-09/">Sep 9</a> · <a href="/days/2026-09-08/">Sep 8</a> · <a href="/days/2026-09-07/">Sep 7</a> · <a href="/days/2026-09-06/">Sep 6</a> · <a href="/days/2026-09-05/">Sep 5</a> · <a href="/days/2026-09-04/">Sep 4</a> · <a href="/days/2026-09-03/">Sep 3</a></p>
 <!-- prerender:end -->
 </section>
 <footer>
@@ -623,6 +623,17 @@ async function mergeCareer(list) {
 }
 let recentParks = null;                      // play id → park count, from data/recent-parks.json (yesterday and earlier)
 const PARKS_API = "https://nodoubters-tweets.connorbeeks1.workers.dev/parks";   // live counts for today's games, via the Worker
+const CLIPS_API = PARKS_API.replace(/\/parks$/, "/clips");                         // highlight fallback, same Worker
+// Second source for a game's clips. MLB's CDN edge nearest the visitor can serve stale highlights
+// for hours; the Worker fetches from Cloudflare's network instead, which lands on a different edge.
+async function clipsViaWorker(pk) {
+  try { const r = await fetch(`${CLIPS_API}?gamePk=${pk}`, { cache: "no-store" }); return r.ok ? (await r.json()).clips ?? {} : {}; } catch { return {}; }
+}
+function applyClip(h, clip) {
+  if (!clip?.mp4) return false;
+  h.mp4 = clip.mp4; h.poster = clip.poster ?? h.poster; h.title = clip.title ?? h.title;
+  return true;
+}
 async function mergeParks(list) {
   if (!recentParks) { try { const r = await fetch("data/recent-parks.json", { cache: "no-cache" }); recentParks = r.ok ? (await r.json()).parks : {}; } catch { recentParks = {}; } }
   for (const h of list) if (h.parks == null && recentParks[h.id] != null) h.parks = recentParks[h.id];
@@ -799,18 +810,20 @@ function render() {
 
 // A clip can be missing because MLB is still publishing the game's highlights or one request failed.
 // When someone opens such a row, re-ask MLB for that game's clips right then.
-const retried = new Set();
+const retried = new Map();                   // key → last attempt time; re-try after 30s, not once per session
 async function retryClip(h) {
   const key = `${h.gamePk}:${h.id}`;
-  if (retried.has(key) || !h.id) return;
-  retried.add(key);
+  if (!h.id || Date.now() - (retried.get(key) ?? 0) < 30000) return;
+  retried.set(key, Date.now());
   try {
-    const content = await getJSON(`${API}/v1/game/${h.gamePk}/content`, true);
+    const content = await getJSON(`${API}/v1/game/${h.gamePk}/content`, true).catch(() => null);
     const clip = (content?.highlights?.highlights?.items ?? []).find(it => it.guid === h.id);
-    if (!clip) return;
-    h.mp4 = clip.playbacks?.find(x => x.name === "mp4Avc")?.url ?? clip.playbacks?.find(x => /mp4/i.test(x.name))?.url ?? null;
-    h.poster = clip.image?.cuts?.find(c => c.width >= 640)?.src ?? null;
-    h.title = clip.title ?? h.title;
+    if (clip) {
+      h.mp4 = clip.playbacks?.find(x => x.name === "mp4Avc")?.url ?? clip.playbacks?.find(x => /mp4/i.test(x.name))?.url ?? null;
+      h.poster = clip.image?.cuts?.find(c => c.width >= 640)?.src ?? null;
+      h.title = clip.title ?? h.title;
+    }
+    if (!h.mp4) applyClip(h, (await clipsViaWorker(h.gamePk))[h.id]);   // direct fetch came back thin — try the Worker
     if (h.mp4) render();
   } catch {}
 }
@@ -893,6 +906,10 @@ async function load() {
       const row = listEl.querySelector(`.hr[data-id="${pendingOpen}"]`);
       pendingOpen = null;
       if (row) { openId = row.dataset.id; render(); listEl.querySelector(`.hr[data-id="${openId}"]`)?.scrollIntoView({ block: "start", behavior: "smooth" }); ensurePlaying(); }
+    }
+    // Don't make a visitor on a stale CDN edge wait for the first 60s poll — try the fallback now.
+    if (mode === "today" && data.homeRuns.some(h => !h.mp4 && h.id)) {
+      fillMissingClips().then(changed => { if (changed && !openId) render(); }).catch(() => {});
     }
   } catch (e) {
     listEl.innerHTML = `<div class="state error">Couldn't reach MLB<small>${e.message}. Check your connection and hit ↻.</small></div>`;
@@ -1046,6 +1063,12 @@ async function fillMissingClips(list = data.homeRuns) {
         if (h.mp4) changed = true;
       }
     } catch {}
+    // Anything still missing for this game: the visitor's CDN edge may be stale. Ask the Worker.
+    const still = missing.filter(h => h.gamePk === pk && !h.mp4);
+    if (still.length) {
+      const viaWorker = await clipsViaWorker(pk);
+      for (const h of still) if (applyClip(h, viaWorker[h.id])) changed = true;
+    }
   }));
   return changed;
 }
