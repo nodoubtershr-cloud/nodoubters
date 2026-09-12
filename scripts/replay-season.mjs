@@ -10,6 +10,7 @@ const YEAR = process.argv[2] || "2025";
 const VERBOSE = process.argv.includes("--verbose");
 const BOMB_FT = Number(process.env.BOMB_FT || 460);
 const MONTAGE_AT = Number(process.env.MONTAGE_AT || 2);
+const SEASON_MIN_HR = Number(process.env.SEASON_MIN_HR || 100);   // top-10 trigger waits for this many HR
 
 const all = JSON.parse(await readFile(`data/seasons/${YEAR}.json`, "utf8")).homeRuns
   .filter(h => h.id && h.distance != null);
@@ -17,7 +18,8 @@ const dates = [...new Set(all.map(h => h.date))].sort();
 
 const postsByHomer = new Map();      // playId -> [post descriptions]
 const montagesByGame = new Map();    // gamePk|batterId -> count of montages fired
-let posts = 0, replies = 0, montages = 0, singles = 0, chains = 0;
+let posts = 0, replies = 0, montages = 0, singles = 0, chains = 0, top10 = 0, top10only = 0;
+const seasonDist = [];   // every distance so far, in time order — mirrors the Worker's season file + today
 const problems = [];
 
 for (const date of dates) {
@@ -35,6 +37,11 @@ for (const date of dates) {
     const trig = new Set();
     if (h.distance >= BOMB_FT) trig.add("bomb");
     if ((h.gt ?? "R") === "R" && (h.career === 1 || (h.career && h.career % 100 === 0))) trig.add("milestone");
+    seasonDist.push(h.distance);
+    if (seasonDist.length >= SEASON_MIN_HR) {
+      const rank = seasonDist.filter(d => d > h.distance).length + 1;
+      if (rank <= 10) { trig.add("top10"); top10++; if (!trig.has("bomb")) top10only++; }
+    }
 
     if (h.n >= MONTAGE_AT && !game.montage) {
       const group = list.filter(x => `${x.gamePk}|${x.batterId}` === key && x.n <= h.n && !posted.has(x.id));
@@ -68,6 +75,7 @@ const noClip = [...postsByHomer.keys()].filter(id => !all.find(h => h.id === id)
 console.log(`\n${"═".repeat(58)}\n${YEAR} replay — BOMB_FT=${BOMB_FT}, montage at homer #${MONTAGE_AT}\n${"═".repeat(58)}`);
 console.log(`  homers considered      ${all.length}`);
 console.log(`  video posts            ${posts}   (${montages} montages, ${singles} single-trigger, ${posts - montages - singles} chain continuations)`);
+console.log(`  top-10 triggers        ${top10}   (${top10only} of them under ${BOMB_FT} ft, i.e. new posts the bomb rule wouldn't have made)`);
 console.log(`  + link/signpost replies ${replies}`);
 console.log(`  TOTAL X writes         ${posts + replies}   ≈ ${((posts + replies) / dates.length).toFixed(1)}/day over ${dates.length} days`);
 console.log(`  estimated cost         $${(posts * 0.015 + replies * 0.20).toFixed(2)}`);
