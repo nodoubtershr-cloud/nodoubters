@@ -347,11 +347,11 @@
 <main id="list"></main>
 <section class="prerender" id="prerender">
 <!-- prerender:start -->
-<h2 data-date="2026-09-13">Yesterday's longest home runs — Sunday, September 13, 2026</h2>
-<ol><li><a href="/#d=2026-09-13&hr=b2b200e3-e713-327e-8137-845a05898a80">Corey Seager</a> (TEX) — 458 ft, 110.3 mph</li><li><a href="/#d=2026-09-13&hr=af3672f9-93b8-3e94-9222-62cfb56dd827">Jo Adell</a> (CLE) — 451 ft, 116.8 mph</li><li><a href="/#d=2026-09-13&hr=31cee18e-1ce3-32cd-bf4a-14494e4aa71e">Zach Neto</a> (LAA) — 440 ft, 107.1 mph</li><li><a href="/#d=2026-09-13&hr=b80bca06-9937-3a18-a29a-32fa9c04dddc">Nelson Velázquez</a> (HOU) — 439 ft, 110.1 mph</li><li><a href="/#d=2026-09-13&hr=84b56fc2-2843-31ce-b1bc-31cf5b496439">Josue De Paula</a> (LAD) — 416 ft, 108.2 mph</li></ol>
-<p>40 home runs that day. <a href="/days/2026-09-13/">Full list for Sep 13</a> · Longest of 2026 so far: <a href="/players/fernando-tatis-jr-665487/">Fernando Tatis Jr.</a>, 474 ft on <a href="/days/2026-07-21/">Jul 21</a>. <a href="/season/">Season leaderboard</a></p>
+<h2 data-date="2026-09-09">Yesterday's longest home runs — Wednesday, September 9, 2026</h2>
+<ol><li><a href="/#d=2026-09-09&hr=e6b22ff1-baeb-3003-b178-2d89d455747d">Jackson Chourio</a> (MIL) — 436 ft, 108.5 mph</li><li><a href="/#d=2026-09-09&hr=bf3f6c57-06bc-38c9-9e5b-328c06d0af4c">Nolan Arenado</a> (AZ) — 430 ft, 106.5 mph</li><li><a href="/#d=2026-09-09&hr=4faad497-9d67-36db-99e5-655b2dfb8640">Drake Baldwin</a> (ATL) — 419 ft, 103.1 mph</li><li><a href="/#d=2026-09-09&hr=bb1cc31d-726f-368e-9b3f-8858d766871c">Roman Anthony</a> (BOS) — 418 ft, 108.6 mph</li><li><a href="/#d=2026-09-09&hr=56078a92-850b-3f9a-936d-e596d009b8c9">Cam Smith</a> (HOU) — 416 ft, 105.8 mph</li></ol>
+<p>45 home runs that day. <a href="/days/2026-09-09/">Full list for Sep 9</a> · Longest of 2026 so far: <a href="/players/fernando-tatis-jr-665487/">Fernando Tatis Jr.</a>, 474 ft on <a href="/days/2026-07-21/">Jul 21</a>. <a href="/season/">Season leaderboard</a></p>
 <p>No Doubters tracks every Major League Baseball home run since 2016 with its Statcast distance, exit velocity, and launch angle, and links each one to the official highlight.<br>The board above updates live during games; the season archive, player and pitcher histories, and these pages update every morning.</p>
-<p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: <a href="/days/2026-09-13/">Sep 13</a> · <a href="/days/2026-09-12/">Sep 12</a> · <a href="/days/2026-09-11/">Sep 11</a> · <a href="/days/2026-09-10/">Sep 10</a> · <a href="/days/2026-09-09/">Sep 9</a> · <a href="/days/2026-09-08/">Sep 8</a> · <a href="/days/2026-09-07/">Sep 7</a></p>
+<p class="browse">Browse: <a href="/season/">season</a> · <a href="/players/">players</a> · <a href="/teams/">teams</a> · recent days: <a href="/days/2026-09-09/">Sep 9</a> · <a href="/days/2026-09-08/">Sep 8</a> · <a href="/days/2026-09-07/">Sep 7</a> · <a href="/days/2026-09-06/">Sep 6</a> · <a href="/days/2026-09-05/">Sep 5</a> · <a href="/days/2026-09-04/">Sep 4</a> · <a href="/days/2026-09-03/">Sep 3</a></p>
 <!-- prerender:end -->
 </section>
 <footer>
@@ -610,13 +610,29 @@ function overlayLive(list, live, pick = () => true) {
   return added;
 }
 let careerIdx = null;                        // batterId → { base, count, through } from data/all/career.json
+const ARCHIVE_FROM = "2016-01-01";           // career.json only knows homers from here on
+const debutCache = new Map();                // batterId → mlbDebutDate, for batters the index has never seen
+// A batter missing from the index has never homered since 2016. If he also debuted in 2016 or later,
+// that means zero career homers — and his first one is exactly the milestone we'd otherwise miss.
+async function debutOf(batterId) {
+  if (!debutCache.has(batterId)) {
+    try { const j = await getJSON(`${API}/v1/people/${batterId}?fields=people,mlbDebutDate`); debutCache.set(batterId, j.people?.[0]?.mlbDebutDate ?? null); }
+    catch { debutCache.set(batterId, null); }
+  }
+  return debutCache.get(batterId);
+}
 async function mergeCareer(list) {
   if (!careerIdx) { try { const r = await fetch("data/all/career.json", { cache: "no-cache" }); careerIdx = r.ok ? (await r.json()).players : {}; } catch { careerIdx = {}; } }
   const perBatter = {};
   for (const h of [...list].sort((a, b) => (a.time ?? "").localeCompare(b.time ?? ""))) {
     if ((h.gt ?? "R") !== "R" || h.career) continue;
-    const c = careerIdx[h.batterId];
-    if (!c || !(h.date > c.through)) continue;              // archive already covers this day
+    let c = careerIdx[h.batterId];
+    if (!c) {
+      const debut = await debutOf(h.batterId);
+      if (!debut || debut < ARCHIVE_FROM) continue;         // pre-2016 debut: the index can't tell us his total
+      c = { count: 0, through: ARCHIVE_FROM };              // never homered in the archive era → starts at zero
+    }
+    if (!(h.date > c.through)) continue;                    // archive already covers this day
     h.career = c.count + (perBatter[h.batterId] = (perBatter[h.batterId] ?? 0) + 1);
     if (h.career === 1 || h.career % 100 === 0) h.ms = h.career;
   }
