@@ -898,6 +898,20 @@ function renderScale() {
   $("#ticks").innerHTML = ticks.join("");
 }
 
+// A past day from the archive, or null if the archive doesn't cover it yet (then we go live).
+// The summary line wants a games array; the archive doesn't store one, so it's rebuilt from the
+// homers as all-final — every archived game is over by definition.
+async function archiveDay(dateStr) {
+  if (dateStr >= mlbToday()) return null;
+  const y = Number(dateStr.slice(0, 4));
+  if (seasonYears.length && !seasonYears.includes(y)) return null;
+  if (!seasonCache[y]) { const d = await loadJSON(`data/seasons/${y}.json`); if (!d) return null; tagNth(d.homeRuns); seasonCache[y] = d; }
+  const homeRuns = seasonCache[y].homeRuns.filter(h => h.date === dateStr).map(h => ({ ...h }));
+  if (!homeRuns.length) return null;                        // off day, or not rebuilt yet — live will know which
+  const games = [...new Set(homeRuns.map(h => h.gamePk))].map(gamePk => ({ gamePk, status: { abstractGameState: "Final" } }));
+  return { games, homeRuns, archived: true };
+}
+
 async function load() {
   openId = null;
   listEl.innerHTML = `<div class="state">Loading ${dateEl.value}…</div>`;
@@ -905,14 +919,14 @@ async function load() {
   noticeEl.classList.remove("show");
   try {
     if (autoDate) dateEl.value = mlbToday();
-    data = await fetchHomeRuns(dateEl.value);
+    data = (await archiveDay(dateEl.value)) ?? (await fetchHomeRuns(dateEl.value));
     tagNth(data.homeRuns); await mergeParks(data.homeRuns); await mergeCareer(data.homeRuns);
     // Nothing yet today (or an off day)? Show yesterday's board instead of an empty page.
     if (autoDate && data.homeRuns.length === 0) {
       const today = dateEl.value;
       const y = new Date(today + "T12:00:00"); y.setDate(y.getDate() - 1);
       dateEl.value = localISODate(y);
-      data = await fetchHomeRuns(dateEl.value);
+      data = (await archiveDay(dateEl.value)) ?? (await fetchHomeRuns(dateEl.value));
       tagNth(data.homeRuns); await mergeParks(data.homeRuns); await mergeCareer(data.homeRuns);
       noticeEl.innerHTML = `No homers yet today — showing <b>${fmtDate(dateEl.value)}</b>. Hit ↻ to check again.`;
       noticeEl.classList.add("show");
